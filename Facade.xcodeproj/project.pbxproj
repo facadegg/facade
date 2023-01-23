@@ -1,0 +1,747 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		6063D39F297E590B00DA3C1B /* FacadeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6063D39E297E590B00DA3C1B /* FacadeApp.swift */; };
+		6063D3A1297E590B00DA3C1B /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6063D3A0297E590B00DA3C1B /* ContentView.swift */; };
+		6063D3A3297E590C00DA3C1B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6063D3A2297E590C00DA3C1B /* Assets.xcassets */; };
+		6063D3A6297E590C00DA3C1B /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6063D3A5297E590C00DA3C1B /* Preview Assets.xcassets */; };
+		6063D3B1297E590C00DA3C1B /* FacadeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6063D3B0297E590C00DA3C1B /* FacadeTests.swift */; };
+		6063D3BB297E590C00DA3C1B /* FacadeUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6063D3BA297E590C00DA3C1B /* FacadeUITests.swift */; };
+		6063D3BD297E590C00DA3C1B /* FacadeUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6063D3BC297E590C00DA3C1B /* FacadeUITestsLaunchTests.swift */; };
+		6063D3D0297E596700DA3C1B /* CameraProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6063D3CF297E596700DA3C1B /* CameraProvider.swift */; };
+		6063D3D2297E596700DA3C1B /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6063D3D1297E596700DA3C1B /* main.swift */; };
+		6063D3D7297E596700DA3C1B /* com.paalmaxima.Facade.Camera.systemextension in Embed System Extensions */ = {isa = PBXBuildFile; fileRef = 6063D3CD297E596700DA3C1B /* com.paalmaxima.Facade.Camera.systemextension */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		6063D3DD297E631300DA3C1B /* GeneralSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6063D3DC297E631300DA3C1B /* GeneralSettingsView.swift */; };
+		6063D3DF297E647F00DA3C1B /* DevicesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6063D3DE297E647F00DA3C1B /* DevicesView.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		6063D3AD297E590C00DA3C1B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6063D393297E590B00DA3C1B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 6063D39A297E590B00DA3C1B;
+			remoteInfo = Facade;
+		};
+		6063D3B7297E590C00DA3C1B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6063D393297E590B00DA3C1B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 6063D39A297E590B00DA3C1B;
+			remoteInfo = Facade;
+		};
+		6063D3D5297E596700DA3C1B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6063D393297E590B00DA3C1B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 6063D3CC297E596700DA3C1B;
+			remoteInfo = Camera;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		6063D3DB297E596700DA3C1B /* Embed System Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(SYSTEM_EXTENSIONS_FOLDER_PATH)";
+			dstSubfolderSpec = 16;
+			files = (
+				6063D3D7297E596700DA3C1B /* com.paalmaxima.Facade.Camera.systemextension in Embed System Extensions */,
+			);
+			name = "Embed System Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		6063D39B297E590B00DA3C1B /* Facade.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Facade.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		6063D39E297E590B00DA3C1B /* FacadeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FacadeApp.swift; sourceTree = "<group>"; };
+		6063D3A0297E590B00DA3C1B /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		6063D3A2297E590C00DA3C1B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		6063D3A5297E590C00DA3C1B /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		6063D3A7297E590C00DA3C1B /* Facade.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Facade.entitlements; sourceTree = "<group>"; };
+		6063D3AC297E590C00DA3C1B /* FacadeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FacadeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		6063D3B0297E590C00DA3C1B /* FacadeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FacadeTests.swift; sourceTree = "<group>"; };
+		6063D3B6297E590C00DA3C1B /* FacadeUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FacadeUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		6063D3BA297E590C00DA3C1B /* FacadeUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FacadeUITests.swift; sourceTree = "<group>"; };
+		6063D3BC297E590C00DA3C1B /* FacadeUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FacadeUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		6063D3CD297E596700DA3C1B /* com.paalmaxima.Facade.Camera.systemextension */ = {isa = PBXFileReference; explicitFileType = "wrapper.system-extension"; includeInIndex = 0; path = com.paalmaxima.Facade.Camera.systemextension; sourceTree = BUILT_PRODUCTS_DIR; };
+		6063D3CF297E596700DA3C1B /* CameraProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraProvider.swift; sourceTree = "<group>"; };
+		6063D3D1297E596700DA3C1B /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
+		6063D3D3297E596700DA3C1B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		6063D3D4297E596700DA3C1B /* Camera.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Camera.entitlements; sourceTree = "<group>"; };
+		6063D3DC297E631300DA3C1B /* GeneralSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeneralSettingsView.swift; sourceTree = "<group>"; };
+		6063D3DE297E647F00DA3C1B /* DevicesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DevicesView.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		6063D398297E590B00DA3C1B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6063D3A9297E590C00DA3C1B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6063D3B3297E590C00DA3C1B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6063D3CA297E596700DA3C1B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		6063D392297E590B00DA3C1B = {
+			isa = PBXGroup;
+			children = (
+				6063D39D297E590B00DA3C1B /* Facade */,
+				6063D3AF297E590C00DA3C1B /* FacadeTests */,
+				6063D3B9297E590C00DA3C1B /* FacadeUITests */,
+				6063D3CE297E596700DA3C1B /* Camera */,
+				6063D39C297E590B00DA3C1B /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		6063D39C297E590B00DA3C1B /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				6063D39B297E590B00DA3C1B /* Facade.app */,
+				6063D3AC297E590C00DA3C1B /* FacadeTests.xctest */,
+				6063D3B6297E590C00DA3C1B /* FacadeUITests.xctest */,
+				6063D3CD297E596700DA3C1B /* com.paalmaxima.Facade.Camera.systemextension */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		6063D39D297E590B00DA3C1B /* Facade */ = {
+			isa = PBXGroup;
+			children = (
+				6063D39E297E590B00DA3C1B /* FacadeApp.swift */,
+				6063D3A0297E590B00DA3C1B /* ContentView.swift */,
+				6063D3A2297E590C00DA3C1B /* Assets.xcassets */,
+				6063D3A7297E590C00DA3C1B /* Facade.entitlements */,
+				6063D3A4297E590C00DA3C1B /* Preview Content */,
+				6063D3DC297E631300DA3C1B /* GeneralSettingsView.swift */,
+				6063D3DE297E647F00DA3C1B /* DevicesView.swift */,
+			);
+			path = Facade;
+			sourceTree = "<group>";
+		};
+		6063D3A4297E590C00DA3C1B /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+				6063D3A5297E590C00DA3C1B /* Preview Assets.xcassets */,
+			);
+			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		6063D3AF297E590C00DA3C1B /* FacadeTests */ = {
+			isa = PBXGroup;
+			children = (
+				6063D3B0297E590C00DA3C1B /* FacadeTests.swift */,
+			);
+			path = FacadeTests;
+			sourceTree = "<group>";
+		};
+		6063D3B9297E590C00DA3C1B /* FacadeUITests */ = {
+			isa = PBXGroup;
+			children = (
+				6063D3BA297E590C00DA3C1B /* FacadeUITests.swift */,
+				6063D3BC297E590C00DA3C1B /* FacadeUITestsLaunchTests.swift */,
+			);
+			path = FacadeUITests;
+			sourceTree = "<group>";
+		};
+		6063D3CE297E596700DA3C1B /* Camera */ = {
+			isa = PBXGroup;
+			children = (
+				6063D3CF297E596700DA3C1B /* CameraProvider.swift */,
+				6063D3D1297E596700DA3C1B /* main.swift */,
+				6063D3D3297E596700DA3C1B /* Info.plist */,
+				6063D3D4297E596700DA3C1B /* Camera.entitlements */,
+			);
+			path = Camera;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		6063D39A297E590B00DA3C1B /* Facade */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 6063D3C0297E590C00DA3C1B /* Build configuration list for PBXNativeTarget "Facade" */;
+			buildPhases = (
+				6063D397297E590B00DA3C1B /* Sources */,
+				6063D398297E590B00DA3C1B /* Frameworks */,
+				6063D399297E590B00DA3C1B /* Resources */,
+				6063D3DB297E596700DA3C1B /* Embed System Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				6063D3D6297E596700DA3C1B /* PBXTargetDependency */,
+			);
+			name = Facade;
+			productName = Facade;
+			productReference = 6063D39B297E590B00DA3C1B /* Facade.app */;
+			productType = "com.apple.product-type.application";
+		};
+		6063D3AB297E590C00DA3C1B /* FacadeTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 6063D3C3297E590C00DA3C1B /* Build configuration list for PBXNativeTarget "FacadeTests" */;
+			buildPhases = (
+				6063D3A8297E590C00DA3C1B /* Sources */,
+				6063D3A9297E590C00DA3C1B /* Frameworks */,
+				6063D3AA297E590C00DA3C1B /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				6063D3AE297E590C00DA3C1B /* PBXTargetDependency */,
+			);
+			name = FacadeTests;
+			productName = FacadeTests;
+			productReference = 6063D3AC297E590C00DA3C1B /* FacadeTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		6063D3B5297E590C00DA3C1B /* FacadeUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 6063D3C6297E590C00DA3C1B /* Build configuration list for PBXNativeTarget "FacadeUITests" */;
+			buildPhases = (
+				6063D3B2297E590C00DA3C1B /* Sources */,
+				6063D3B3297E590C00DA3C1B /* Frameworks */,
+				6063D3B4297E590C00DA3C1B /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				6063D3B8297E590C00DA3C1B /* PBXTargetDependency */,
+			);
+			name = FacadeUITests;
+			productName = FacadeUITests;
+			productReference = 6063D3B6297E590C00DA3C1B /* FacadeUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+		6063D3CC297E596700DA3C1B /* Camera */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 6063D3D8297E596700DA3C1B /* Build configuration list for PBXNativeTarget "Camera" */;
+			buildPhases = (
+				6063D3C9297E596700DA3C1B /* Sources */,
+				6063D3CA297E596700DA3C1B /* Frameworks */,
+				6063D3CB297E596700DA3C1B /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Camera;
+			productName = Camera;
+			productReference = 6063D3CD297E596700DA3C1B /* com.paalmaxima.Facade.Camera.systemextension */;
+			productType = "com.apple.product-type.system-extension";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		6063D393297E590B00DA3C1B /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1420;
+				LastUpgradeCheck = 1420;
+				TargetAttributes = {
+					6063D39A297E590B00DA3C1B = {
+						CreatedOnToolsVersion = 14.2;
+					};
+					6063D3AB297E590C00DA3C1B = {
+						CreatedOnToolsVersion = 14.2;
+						TestTargetID = 6063D39A297E590B00DA3C1B;
+					};
+					6063D3B5297E590C00DA3C1B = {
+						CreatedOnToolsVersion = 14.2;
+						TestTargetID = 6063D39A297E590B00DA3C1B;
+					};
+					6063D3CC297E596700DA3C1B = {
+						CreatedOnToolsVersion = 14.2;
+					};
+				};
+			};
+			buildConfigurationList = 6063D396297E590B00DA3C1B /* Build configuration list for PBXProject "Facade" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 6063D392297E590B00DA3C1B;
+			productRefGroup = 6063D39C297E590B00DA3C1B /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				6063D39A297E590B00DA3C1B /* Facade */,
+				6063D3AB297E590C00DA3C1B /* FacadeTests */,
+				6063D3B5297E590C00DA3C1B /* FacadeUITests */,
+				6063D3CC297E596700DA3C1B /* Camera */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		6063D399297E590B00DA3C1B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6063D3A6297E590C00DA3C1B /* Preview Assets.xcassets in Resources */,
+				6063D3A3297E590C00DA3C1B /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6063D3AA297E590C00DA3C1B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6063D3B4297E590C00DA3C1B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6063D3CB297E596700DA3C1B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		6063D397297E590B00DA3C1B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6063D3DF297E647F00DA3C1B /* DevicesView.swift in Sources */,
+				6063D3A1297E590B00DA3C1B /* ContentView.swift in Sources */,
+				6063D39F297E590B00DA3C1B /* FacadeApp.swift in Sources */,
+				6063D3DD297E631300DA3C1B /* GeneralSettingsView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6063D3A8297E590C00DA3C1B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6063D3B1297E590C00DA3C1B /* FacadeTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6063D3B2297E590C00DA3C1B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6063D3BD297E590C00DA3C1B /* FacadeUITestsLaunchTests.swift in Sources */,
+				6063D3BB297E590C00DA3C1B /* FacadeUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6063D3C9297E596700DA3C1B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6063D3D2297E596700DA3C1B /* main.swift in Sources */,
+				6063D3D0297E596700DA3C1B /* CameraProvider.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		6063D3AE297E590C00DA3C1B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 6063D39A297E590B00DA3C1B /* Facade */;
+			targetProxy = 6063D3AD297E590C00DA3C1B /* PBXContainerItemProxy */;
+		};
+		6063D3B8297E590C00DA3C1B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 6063D39A297E590B00DA3C1B /* Facade */;
+			targetProxy = 6063D3B7297E590C00DA3C1B /* PBXContainerItemProxy */;
+		};
+		6063D3D6297E596700DA3C1B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 6063D3CC297E596700DA3C1B /* Camera */;
+			targetProxy = 6063D3D5297E596700DA3C1B /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		6063D3BE297E590C00DA3C1B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		6063D3BF297E590C00DA3C1B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+			};
+			name = Release;
+		};
+		6063D3C1297E590C00DA3C1B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Facade/Facade.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"Facade/Preview Content\"";
+				DEVELOPMENT_TEAM = 3QVF844SZZ;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.paalmaxima.Facade;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		6063D3C2297E590C00DA3C1B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Facade/Facade.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"Facade/Preview Content\"";
+				DEVELOPMENT_TEAM = 3QVF844SZZ;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.paalmaxima.Facade;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		6063D3C4297E590C00DA3C1B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 3QVF844SZZ;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.paalmaxima.FacadeTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Facade.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Facade";
+			};
+			name = Debug;
+		};
+		6063D3C5297E590C00DA3C1B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 3QVF844SZZ;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.paalmaxima.FacadeTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Facade.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Facade";
+			};
+			name = Release;
+		};
+		6063D3C7297E590C00DA3C1B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 3QVF844SZZ;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.paalmaxima.FacadeUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_TARGET_NAME = Facade;
+			};
+			name = Debug;
+		};
+		6063D3C8297E590C00DA3C1B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 3QVF844SZZ;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.paalmaxima.FacadeUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_TARGET_NAME = Facade;
+			};
+			name = Release;
+		};
+		6063D3D9297E596700DA3C1B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Camera/Camera.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 3QVF844SZZ;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Camera/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Camera;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 12.3;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.paalmaxima.Facade.Camera;
+				PRODUCT_NAME = "$(inherited)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		6063D3DA297E596700DA3C1B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Camera/Camera.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 3QVF844SZZ;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Camera/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Camera;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 12.3;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.paalmaxima.Facade.Camera;
+				PRODUCT_NAME = "$(inherited)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		6063D396297E590B00DA3C1B /* Build configuration list for PBXProject "Facade" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6063D3BE297E590C00DA3C1B /* Debug */,
+				6063D3BF297E590C00DA3C1B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		6063D3C0297E590C00DA3C1B /* Build configuration list for PBXNativeTarget "Facade" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6063D3C1297E590C00DA3C1B /* Debug */,
+				6063D3C2297E590C00DA3C1B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		6063D3C3297E590C00DA3C1B /* Build configuration list for PBXNativeTarget "FacadeTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6063D3C4297E590C00DA3C1B /* Debug */,
+				6063D3C5297E590C00DA3C1B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		6063D3C6297E590C00DA3C1B /* Build configuration list for PBXNativeTarget "FacadeUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6063D3C7297E590C00DA3C1B /* Debug */,
+				6063D3C8297E590C00DA3C1B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		6063D3D8297E596700DA3C1B /* Build configuration list for PBXNativeTarget "Camera" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6063D3D9297E596700DA3C1B /* Debug */,
+				6063D3DA297E596700DA3C1B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 6063D393297E590B00DA3C1B /* Project object */;
+}
