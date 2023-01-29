@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import CoreMediaIO
 
 @main
 struct FacadeApp: App {

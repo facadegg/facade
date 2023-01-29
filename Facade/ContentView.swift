@@ -10,19 +10,7 @@ import SwiftUI
 
 struct ContentView: View {
     var body: some View {
-        TabView {
-            GeneralSettingsView()
-                .tabItem({
-                    Label("General", systemImage: "gear")
-                }).tag(0)
-            
-            DevicesView()
-                .tabItem({
-                    Label("Devices", image: "default")
-                })
-        }
-        .padding(20)
-        .frame(width: 500, height: 300)
+        DevicesView()
     }
 }
 

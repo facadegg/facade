@@ -7,8 +7,15 @@
 
 import Foundation
 import CoreMediaIO
+import os.log
 
+let scribe = OSLog(subsystem: "com.paalmaxima.Facade.Camera", category: "Camera")
+
+os_log("com.paalmaxima.Facade.Camera is initializing.", log: scribe, type: .error)
 let providerSource = CameraProviderSource(clientQueue: nil)
 CMIOExtensionProvider.startService(provider: providerSource.provider)
 
+providerSource.createDevice()
+
 CFRunLoopRun()
+os_log("com.paalmaxima.Facade.Camera has initialized.", log: scribe, type: .info)
