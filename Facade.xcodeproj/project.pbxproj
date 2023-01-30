@@ -23,6 +23,10 @@
 		60AC78942986ABFB00109B32 /* CameraStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60AC78932986ABFB00109B32 /* CameraStream.swift */; };
 		60AC78962986BED600109B32 /* SplashAnimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60AC78952986BED600109B32 /* SplashAnimator.swift */; };
 		60AC78982986C87900109B32 /* SetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60AC78972986C87900109B32 /* SetupView.swift */; };
+		60AC78C82987279C00109B32 /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 60AC78C72987279C00109B32 /* main.c */; };
+		60AC78D02987296400109B32 /* FacadeKit.h in Headers */ = {isa = PBXBuildFile; fileRef = 60AC78CF2987296400109B32 /* FacadeKit.h */; };
+		60AC78D929872B0E00109B32 /* FacadeKit.m in Sources */ = {isa = PBXBuildFile; fileRef = 60AC78D829872B0E00109B32 /* FacadeKit.m */; };
+		60AC78DC29872DF100109B32 /* libFacadeKit.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 60AC78CD2987296400109B32 /* libFacadeKit.dylib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -47,6 +51,13 @@
 			remoteGlobalIDString = 6063D3CC297E596700DA3C1B;
 			remoteInfo = Camera;
 		};
+		60AC78DA29872D1F00109B32 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6063D393297E590B00DA3C1B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 60AC78CC2987296400109B32;
+			remoteInfo = FacadeKit;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -60,6 +71,15 @@
 			);
 			name = "Embed System Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
+		};
+		60AC78BA2987271E00109B32 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
 		};
 /* End PBXCopyFilesBuildPhase section */
 
@@ -87,6 +107,11 @@
 		60AC78932986ABFB00109B32 /* CameraStream.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraStream.swift; sourceTree = "<group>"; };
 		60AC78952986BED600109B32 /* SplashAnimator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashAnimator.swift; sourceTree = "<group>"; };
 		60AC78972986C87900109B32 /* SetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetupView.swift; sourceTree = "<group>"; };
+		60AC78BC2987271F00109B32 /* FacadeCLI */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = FacadeCLI; sourceTree = BUILT_PRODUCTS_DIR; };
+		60AC78C72987279C00109B32 /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
+		60AC78CD2987296400109B32 /* libFacadeKit.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libFacadeKit.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		60AC78CF2987296400109B32 /* FacadeKit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FacadeKit.h; sourceTree = "<group>"; };
+		60AC78D829872B0E00109B32 /* FacadeKit.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FacadeKit.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -118,6 +143,21 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		60AC78B92987271E00109B32 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				60AC78DC29872DF100109B32 /* libFacadeKit.dylib in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		60AC78CB2987296400109B32 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -129,7 +169,10 @@
 				6063D3AF297E590C00DA3C1B /* FacadeTests */,
 				6063D3B9297E590C00DA3C1B /* FacadeUITests */,
 				6063D3CE297E596700DA3C1B /* Camera */,
+				60AC78BD2987271F00109B32 /* FacadeCLI */,
+				60AC78CE2987296400109B32 /* FacadeKit */,
 				6063D39C297E590B00DA3C1B /* Products */,
+				60AC78C32987273E00109B32 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -140,6 +183,8 @@
 				6063D3AC297E590C00DA3C1B /* FacadeTests.xctest */,
 				6063D3B6297E590C00DA3C1B /* FacadeUITests.xctest */,
 				6063D3CD297E596700DA3C1B /* com.paalmaxima.Facade.Camera.systemextension */,
+				60AC78BC2987271F00109B32 /* FacadeCLI */,
+				60AC78CD2987296400109B32 /* libFacadeKit.dylib */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -198,7 +243,42 @@
 			path = Camera;
 			sourceTree = "<group>";
 		};
+		60AC78BD2987271F00109B32 /* FacadeCLI */ = {
+			isa = PBXGroup;
+			children = (
+				60AC78C72987279C00109B32 /* main.c */,
+			);
+			path = FacadeCLI;
+			sourceTree = "<group>";
+		};
+		60AC78C32987273E00109B32 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		60AC78CE2987296400109B32 /* FacadeKit */ = {
+			isa = PBXGroup;
+			children = (
+				60AC78CF2987296400109B32 /* FacadeKit.h */,
+				60AC78D829872B0E00109B32 /* FacadeKit.m */,
+			);
+			path = FacadeKit;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		60AC78C92987296400109B32 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				60AC78D02987296400109B32 /* FacadeKit.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
 		6063D39A297E590B00DA3C1B /* Facade */ = {
@@ -273,6 +353,41 @@
 			productReference = 6063D3CD297E596700DA3C1B /* com.paalmaxima.Facade.Camera.systemextension */;
 			productType = "com.apple.product-type.system-extension";
 		};
+		60AC78BB2987271E00109B32 /* FacadeCLI */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 60AC78C02987271F00109B32 /* Build configuration list for PBXNativeTarget "FacadeCLI" */;
+			buildPhases = (
+				60AC78B82987271E00109B32 /* Sources */,
+				60AC78B92987271E00109B32 /* Frameworks */,
+				60AC78BA2987271E00109B32 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				60AC78DB29872D1F00109B32 /* PBXTargetDependency */,
+			);
+			name = FacadeCLI;
+			productName = FacadeCLI;
+			productReference = 60AC78BC2987271F00109B32 /* FacadeCLI */;
+			productType = "com.apple.product-type.tool";
+		};
+		60AC78CC2987296400109B32 /* FacadeKit */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 60AC78D32987296400109B32 /* Build configuration list for PBXNativeTarget "FacadeKit" */;
+			buildPhases = (
+				60AC78C92987296400109B32 /* Headers */,
+				60AC78CA2987296400109B32 /* Sources */,
+				60AC78CB2987296400109B32 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = FacadeKit;
+			productName = FacadeKit;
+			productReference = 60AC78CD2987296400109B32 /* libFacadeKit.dylib */;
+			productType = "com.apple.product-type.library.dynamic";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -297,6 +412,12 @@
 					6063D3CC297E596700DA3C1B = {
 						CreatedOnToolsVersion = 14.2;
 					};
+					60AC78BB2987271E00109B32 = {
+						CreatedOnToolsVersion = 14.2;
+					};
+					60AC78CC2987296400109B32 = {
+						CreatedOnToolsVersion = 14.2;
+					};
 				};
 			};
 			buildConfigurationList = 6063D396297E590B00DA3C1B /* Build configuration list for PBXProject "Facade" */;
@@ -316,6 +437,8 @@
 				6063D3AB297E590C00DA3C1B /* FacadeTests */,
 				6063D3B5297E590C00DA3C1B /* FacadeUITests */,
 				6063D3CC297E596700DA3C1B /* Camera */,
+				60AC78BB2987271E00109B32 /* FacadeCLI */,
+				60AC78CC2987296400109B32 /* FacadeKit */,
 			);
 		};
 /* End PBXProject section */
@@ -395,6 +518,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		60AC78B82987271E00109B32 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				60AC78C82987279C00109B32 /* main.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		60AC78CA2987296400109B32 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				60AC78D929872B0E00109B32 /* FacadeKit.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -412,6 +551,11 @@
 			isa = PBXTargetDependency;
 			target = 6063D3CC297E596700DA3C1B /* Camera */;
 			targetProxy = 6063D3D5297E596700DA3C1B /* PBXContainerItemProxy */;
+		};
+		60AC78DB29872D1F00109B32 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 60AC78CC2987296400109B32 /* FacadeKit */;
+			targetProxy = 60AC78DA29872D1F00109B32 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -713,6 +857,54 @@
 			};
 			name = Release;
 		};
+		60AC78C12987271F00109B32 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 3QVF844SZZ;
+				ENABLE_HARDENED_RUNTIME = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		60AC78C22987271F00109B32 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 3QVF844SZZ;
+				ENABLE_HARDENED_RUNTIME = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		60AC78D42987296400109B32 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 3QVF844SZZ;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				EXECUTABLE_PREFIX = lib;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+			};
+			name = Debug;
+		};
+		60AC78D52987296400109B32 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 3QVF844SZZ;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				EXECUTABLE_PREFIX = lib;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -757,6 +949,24 @@
 			buildConfigurations = (
 				6063D3D9297E596700DA3C1B /* Debug */,
 				6063D3DA297E596700DA3C1B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		60AC78C02987271F00109B32 /* Build configuration list for PBXNativeTarget "FacadeCLI" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				60AC78C12987271F00109B32 /* Debug */,
+				60AC78C22987271F00109B32 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		60AC78D32987296400109B32 /* Build configuration list for PBXNativeTarget "FacadeKit" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				60AC78D42987296400109B32 /* Debug */,
+				60AC78D52987296400109B32 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

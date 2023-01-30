@@ -10,6 +10,12 @@ import CoreGraphics
 import Foundation
 import os.log
 
+let magicProperty = CMIOExtensionProperty(rawValue: "4cc_fmag_glob_0000")
+let magicValue = "Facade by Paal Maxima" as NSString
+
+let nameProperty = CMIOExtensionProperty(rawValue: "4cc_fnam_glob_0000")
+let dimensionsProperty = CMIOExtensionProperty(rawValue: "4cc_fdim_glob_000")
+
 class CameraDeviceSource: NSObject, CMIOExtensionDeviceSource, CameraStreamHandler {
     private(set) var device: CMIOExtensionDevice!
     private var _defaultStream: SplashAnimator!
@@ -25,9 +31,8 @@ class CameraDeviceSource: NSObject, CMIOExtensionDeviceSource, CameraStreamHandl
     private var _bufferAuxAttributes: NSDictionary!
     private var _whiteStripeStartRow: UInt32 = 0
     private var _whiteStripeIsAscending: Bool = false
-    
+
     init(localizedName: String) {
-        
         super.init()
         let deviceID = UUID() // replace this with your device UUID
         self.device = CMIOExtensionDevice(localizedName: localizedName, deviceID: deviceID, legacyDeviceID: nil, source: self)
@@ -55,23 +60,37 @@ class CameraDeviceSource: NSObject, CMIOExtensionDeviceSource, CameraStreamHandl
         
         do {
             try device.addStream(_streamSource.stream)
+            try device.addStream(_streamSink.stream)
         } catch let error {
             fatalError("Failed to add stream: \(error.localizedDescription)")
         }
     }
     
     var availableProperties: Set<CMIOExtensionProperty> {
-        return [.deviceTransportType, .deviceModel]
+        return [.deviceTransportType, .deviceModel, magicProperty, nameProperty, dimensionsProperty]
     }
     
     func deviceProperties(forProperties properties: Set<CMIOExtensionProperty>) throws -> CMIOExtensionDeviceProperties {
-        
         let deviceProperties = CMIOExtensionDeviceProperties(dictionary: [:])
+
         if properties.contains(.deviceTransportType) {
             deviceProperties.transportType = kIOAudioDeviceTransportTypeVirtual
         }
         if properties.contains(.deviceModel) {
-            deviceProperties.model = "SampleCapture Model"
+            deviceProperties.model = "Facade"
+        }
+        if properties.contains(magicProperty) {
+            deviceProperties.setPropertyState(CMIOExtensionPropertyState(value: NSData(bytes: magicValue.utf8String,
+                                                                                       length: magicValue.length + 1)),
+                                              forProperty: magicProperty)
+        }
+        if properties.contains(nameProperty) {
+            deviceProperties.setPropertyState(CMIOExtensionPropertyState(value: device.localizedName as NSString),
+                                              forProperty: nameProperty)
+        }
+        if properties.contains(dimensionsProperty) {
+            deviceProperties.setPropertyState(CMIOExtensionPropertyState(value: "1920x1080" as NSString),
+                                              forProperty: dimensionsProperty)
         }
         
         return deviceProperties
@@ -91,6 +110,9 @@ class CameraDeviceSource: NSObject, CMIOExtensionDeviceSource, CameraStreamHandl
         _timer!.schedule(deadline: .now(), repeating: Double(1) / Double(kFrameRate), leeway: .seconds(0))
         
         _timer!.setEventHandler {
+            if self._streamingFromSink {
+                return
+            }
             
             var err: OSStatus = 0
             let now = CMClockGetTime(CMClockGetHostTimeClock())
@@ -153,6 +175,7 @@ class CameraDeviceSource: NSObject, CMIOExtensionDeviceSource, CameraStreamHandl
                                                                    hostTimeInNanoseconds: scheduledOutputTimestampNanos)
 
                 if self._streamingCounter > 0 {
+                    os_log(.info, "Sending sink to source")
                     self._streamSource.stream.send(buffer,
                                                    discontinuity: discontinuity,
                                                    hostTimeInNanoseconds: scheduledOutputTimestampNanos)
