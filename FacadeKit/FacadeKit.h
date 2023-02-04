@@ -36,7 +36,7 @@ typedef void (*facade_write_callback)(void *context);
 
 void facade_init(void);
 void facade_list_devices(facade_device **list);
-facade_error_code facade_read_video_frame(facade_device *);
+facade_error_code facade_read(facade_device *, void **buf, size_t *buf_size);
 facade_error_code facade_write(facade_device *, void *buf, facade_write_callback callback, void *context);
 
 #endif /* FacadeKit_D557512F84D244B7B3830C04E09468AD */

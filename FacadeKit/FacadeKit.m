@@ -181,6 +181,18 @@ void facade_list_devices(facade_device **list)
     }
 }
 
+facade_error_code facade_read(facade_device *device, void **buf, size_t *buf_size)
+{
+    OSStatus status = CMIODeviceStartStream((CMIODeviceID) device->uid, device->data->streams[0]);
+
+    if (status != kCMIOHardwareNoError)
+        return facade_error_unknown;
+   
+    
+    
+    return facade_error_none;
+}
+
 void facade_write_altered_callback(CMIOStreamID _, void *__, void *device)
 {
     printf("here5");

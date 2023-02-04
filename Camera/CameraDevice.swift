@@ -103,6 +103,7 @@ class CameraDeviceSource: NSObject, CMIOExtensionDeviceSource, CameraStreamHandl
             if let values = dimensions.value?.components(separatedBy: "x") {
                 if values.count == 2, let width = UInt32(values[0]), let height = UInt32(values[1]) {
                     if width > 0 && height > 0 && width <= 8192 && height <= 8192 {
+                        logger.info("Setting dimensions to \(width)x\(height)")
                         newWidth = width
                         newHeight = height
                     }
@@ -113,6 +114,7 @@ class CameraDeviceSource: NSObject, CMIOExtensionDeviceSource, CameraStreamHandl
         if let frameRatePropertyState = deviceProperties.propertiesDictionary[frameRateProperty] {
             if let frameRateValue = frameRatePropertyState.value?.uint32Value {
                 if frameRateValue >= 1 && frameRateValue <= 120 {
+                    logger.info("Setting frame rate to \(frameRateValue) FPS")
                     newFrameRate = frameRateValue
                 }
             }
@@ -163,8 +165,10 @@ class CameraDeviceSource: NSObject, CMIOExtensionDeviceSource, CameraStreamHandl
         guard let _ = bufferPool else {
             return
         }
-        
+
         streamCounter += 1
+        logger.info("startStreaming \(self.streamCounter)")
+
         frameTimer = DispatchSource.makeTimerSource(flags: .strict, queue: frameQueue)
         frameTimer!.schedule(deadline: .now(), repeating: Double(1) / Double(kFrameRate), leeway: .seconds(0))
         
@@ -230,10 +234,13 @@ class CameraDeviceSource: NSObject, CMIOExtensionDeviceSource, CameraStreamHandl
         else {
             streamCounter = 0
             if let timer = frameTimer {
+                logger.info("Canceling frame timer")
                 timer.cancel()
                 frameTimer = nil
             }
         }
+        
+        logger.info("stopStreaming streamCounter=\(self.streamCounter)")
     }
 
     func copyFromSinkToSource(client: CMIOExtensionClient) {
@@ -247,7 +254,7 @@ class CameraDeviceSource: NSObject, CMIOExtensionDeviceSource, CameraStreamHandl
                                                                    hostTimeInNanoseconds: scheduledOutputTimestampNanos)
 
                 if self.streamCounter > 0 {
-                    os_log(.info, "Sending sink to source")
+                    self.logger.info("Sending sink to source")
                     self.streamSource.stream.send(buffer,
                                                    discontinuity: discontinuity,
                                                    hostTimeInNanoseconds: scheduledOutputTimestampNanos)
@@ -263,11 +270,13 @@ class CameraDeviceSource: NSObject, CMIOExtensionDeviceSource, CameraStreamHandl
     }
 
     func startStreamingFromSink(client: CMIOExtensionClient) {
+        logger.info("startStreamingFromSink")
         streamFromSink = true
         copyFromSinkToSource(client: client)
     }
 
     func stopStreamingFromSink() {
+        logger.info("stopStreamingFromSink")
         streamFromSink = false
     }
 }
