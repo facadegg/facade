@@ -30,7 +30,11 @@ class CameraDeviceSource: NSObject, CMIOExtensionDeviceSource, CameraStreamHandl
     private var width: UInt32 = 1920
 
     private var frameTimer: DispatchSourceTimer?
-    private let frameQueue = DispatchQueue(label: "frameQueue", qos: .userInteractive, attributes: [], autoreleaseFrequency: .workItem, target: .global(qos: .userInteractive))
+    private let frameQueue = DispatchQueue(label: "frameQueue",
+                                           qos: .userInteractive,
+                                           attributes: [],
+                                           autoreleaseFrequency: .workItem,
+                                           target: .global(qos: .userInteractive))
 
     private var streamCounter: UInt32 = 0
     private var streamFromSink: Bool = false
@@ -93,7 +97,6 @@ class CameraDeviceSource: NSObject, CMIOExtensionDeviceSource, CameraStreamHandl
     }
     
     func setDeviceProperties(_ deviceProperties: CMIOExtensionDeviceProperties) throws {
-        let resetDeviceFormat = false
         var newWidth = self.width, newHeight = self.height, newFrameRate = self.frameRate
         
         if let dimensions = deviceProperties.propertiesDictionary[dimensionsProperty] {
@@ -174,7 +177,10 @@ class CameraDeviceSource: NSObject, CMIOExtensionDeviceSource, CameraStreamHandl
             let now = CMClockGetTime(CMClockGetHostTimeClock())
             
             var pixelBuffer: CVPixelBuffer?
-            err = CVPixelBufferPoolCreatePixelBufferWithAuxAttributes(kCFAllocatorDefault, self.bufferPool, self.bufferAuxAttributes, &pixelBuffer)
+            err = CVPixelBufferPoolCreatePixelBufferWithAuxAttributes(kCFAllocatorDefault,
+                                                                      self.bufferPool,
+                                                                      self.bufferAuxAttributes,
+                                                                      &pixelBuffer)
             if err != 0 {
                 os_log(.error, "out of pixel buffers \(err)")
             }
@@ -193,9 +199,19 @@ class CameraDeviceSource: NSObject, CMIOExtensionDeviceSource, CameraStreamHandl
                 var sbuf: CMSampleBuffer!
                 var timingInfo = CMSampleTimingInfo()
                 timingInfo.presentationTimeStamp = CMClockGetTime(CMClockGetHostTimeClock())
-                err = CMSampleBufferCreateForImageBuffer(allocator: kCFAllocatorDefault, imageBuffer: pixelBuffer, dataReady: true, makeDataReadyCallback: nil, refcon: nil, formatDescription: self.formatDescription, sampleTiming: &timingInfo, sampleBufferOut: &sbuf)
+                err = CMSampleBufferCreateForImageBuffer(allocator: kCFAllocatorDefault,
+                                                         imageBuffer: pixelBuffer,
+                                                         dataReady: true,
+                                                         makeDataReadyCallback: nil,
+                                                         refcon: nil,
+                                                         formatDescription: self.formatDescription,
+                                                         sampleTiming: &timingInfo,
+                                                         sampleBufferOut: &sbuf)
                 if err == 0 {
-                    self.streamSource.stream.send(sbuf, discontinuity: [], hostTimeInNanoseconds: UInt64(timingInfo.presentationTimeStamp.seconds * Double(NSEC_PER_SEC)))
+                    let hostTimeInNanoseconds = UInt64(timingInfo.presentationTimeStamp.seconds * Double(NSEC_PER_SEC))
+                    self.streamSource.stream.send(sbuf,
+                                                  discontinuity: [],
+                                                  hostTimeInNanoseconds: hostTimeInNanoseconds)
                 }
                 os_log(.info, "video time \(timingInfo.presentationTimeStamp.seconds) now \(now.seconds) err \(err)")
             }
