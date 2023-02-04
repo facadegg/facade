@@ -20,17 +20,17 @@ class CameraStreamSource: NSObject, CMIOExtensionStreamSource {
     private(set) var stream: CMIOExtensionStream!
     
     private let _handler: CameraStreamHandler
-    private let _format: CMIOExtensionStreamFormat
+    public var format: CMIOExtensionStreamFormat
 
-    init(localizedName: String, streamID: UUID, streamFormat: CMIOExtensionStreamFormat, handler: CameraStreamHandler) {
+    init(localizedName: String, streamFormat: CMIOExtensionStreamFormat, handler: CameraStreamHandler) {
         
-        self._format = streamFormat
+        self.format = streamFormat
         self._handler = handler
 
         super.init()
 
         self.stream = CMIOExtensionStream(localizedName: localizedName,
-                                          streamID: streamID,
+                                          streamID: UUID(),
                                           direction: .source,
                                           clockType: .hostTime,
                                           source: self)
@@ -41,7 +41,7 @@ class CameraStreamSource: NSObject, CMIOExtensionStreamSource {
     }
 
     var formats: [CMIOExtensionStreamFormat] {
-        return [_format]
+        return [format]
     }
 
     func streamProperties(forProperties properties: Set<CMIOExtensionProperty>) throws -> CMIOExtensionStreamProperties {
@@ -69,13 +69,13 @@ class CameraStreamSink: NSObject, CMIOExtensionStreamSource {
     private(set) var stream: CMIOExtensionStream!
 
     private var _client: CMIOExtensionClient?
-    private let _format: CMIOExtensionStreamFormat
+    public var format: CMIOExtensionStreamFormat
     private let _handler: CameraStreamHandler
     private var _started: Bool
 
     init(localizedName: String, streamFormat: CMIOExtensionStreamFormat, handler: CameraStreamHandler) {
         self._client = nil
-        self._format = streamFormat
+        self.format = streamFormat
         self._handler = handler
         self._started = false
 
@@ -93,7 +93,7 @@ class CameraStreamSink: NSObject, CMIOExtensionStreamSource {
     }
 
     var formats: [CMIOExtensionStreamFormat] {
-        return [_format]
+        return [format]
     }
 
     func streamProperties(forProperties properties: Set<CMIOExtensionProperty>) throws -> CMIOExtensionStreamProperties {

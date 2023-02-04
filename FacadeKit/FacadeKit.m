@@ -12,11 +12,11 @@
 char *FACADE_MODEL = "Facade";
 int FACADE_MODEL_LENGTH = 6;
 
-CMIOObjectPropertyAddress kDeviceUIDProperty = { kCMIODevicePropertyDeviceUID, kCMIOObjectPropertyScopeGlobal, kCMIOObjectPropertyElementMain };
-CMIOObjectPropertyAddress kDeviceStreams = { kCMIODevicePropertyStreams, kCMIOObjectPropertyScopeGlobal, kCMIOObjectPropertyElementMain };
-CMIOObjectPropertyAddress kMagicProperty = { 'fmag', kCMIOObjectPropertyScopeGlobal, kCMIOObjectPropertyElementMain };
-CMIOObjectPropertyAddress kNameProperty = { 'fnam', kCMIOObjectPropertyScopeGlobal, kCMIOObjectPropertyElementMain };
-CMIOObjectPropertyAddress kDimensionsProperty = { 'fdim', kCMIOObjectPropertyScopeGlobal, kCMIOObjectPropertyElementMain };
+CMIOObjectPropertyAddress kDeviceUIDProperty =  { kCMIODevicePropertyDeviceUID, kCMIOObjectPropertyScopeGlobal, kCMIOObjectPropertyElementMain };
+CMIOObjectPropertyAddress kDeviceStreams =      { kCMIODevicePropertyStreams,   kCMIOObjectPropertyScopeGlobal, kCMIOObjectPropertyElementMain };
+CMIOObjectPropertyAddress kMagicProperty =      { 'fmag',                       kCMIOObjectPropertyScopeGlobal, kCMIOObjectPropertyElementMain };
+CMIOObjectPropertyAddress kNameProperty =       { 'fnam',                       kCMIOObjectPropertyScopeGlobal, kCMIOObjectPropertyElementMain };
+CMIOObjectPropertyAddress kDimensionsProperty = { 'fdim',                       kCMIOObjectPropertyScopeGlobal, kCMIOObjectPropertyElementMain };
 
 NSString *kMagicValue = @"Facade by Paal Maxima";
 

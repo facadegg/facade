@@ -16,7 +16,7 @@ let kFrameRate: Int = 60
 class CameraProviderSource: NSObject, CMIOExtensionProviderSource {
 	private(set) var provider: CMIOExtensionProvider!
     private var deviceSources: Set<CameraDeviceSource> = []
-		
+
 	init(clientQueue: DispatchQueue?) {
 		super.init()
 
@@ -27,7 +27,7 @@ class CameraProviderSource: NSObject, CMIOExtensionProviderSource {
 	func connect(to client: CMIOExtensionClient) throws {
 		// Handle client connect
 	}
-	
+
 	func disconnect(from client: CMIOExtensionClient) {
 		// Handle client disconnect
 	}
