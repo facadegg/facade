@@ -84,6 +84,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		601D6935298F67E900D190C2 /* FacadeCLI.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = FacadeCLI.entitlements; sourceTree = "<group>"; };
 		6063D39B297E590B00DA3C1B /* Facade.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Facade.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6063D39E297E590B00DA3C1B /* FacadeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FacadeApp.swift; sourceTree = "<group>"; };
 		6063D3A0297E590B00DA3C1B /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -246,6 +247,7 @@
 		60AC78BD2987271F00109B32 /* FacadeCLI */ = {
 			isa = PBXGroup;
 			children = (
+				601D6935298F67E900D190C2 /* FacadeCLI.entitlements */,
 				60AC78C72987279C00109B32 /* main.c */,
 			);
 			path = FacadeCLI;
@@ -860,6 +862,7 @@
 		60AC78C12987271F00109B32 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = FacadeCLI/FacadeCLI.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 3QVF844SZZ;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -871,6 +874,7 @@
 		60AC78C22987271F00109B32 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = FacadeCLI/FacadeCLI.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 3QVF844SZZ;
 				ENABLE_HARDENED_RUNTIME = YES;

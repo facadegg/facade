@@ -6,6 +6,7 @@
 //
 
 #include "FacadeKit.h"
+#include <CoreFoundation/CoreFoundation.h>
 #include <memory.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -25,24 +26,29 @@ void print_devices(facade_device **list) {
     } while (node != *list);
 }
 
-char *buf = NULL;
+uint8_t *buf = NULL;
+size_t buff_size = 0;
 
-void write_nil(facade_device *device)
-{
+void read_device(void *context) {
+    facade_device *device = (facade_device *) context;
+    facade_read(device, (void **) &buf, &buff_size);
+}
+
+void write_device(void *context) {
     if (buf == NULL) {
-        buf = malloc(1920 * 1080 * sizeof(uint32_t));
-    }
-
-    for (int y = 0; y < 1080; y++) {
-        for (int x = 0; x < 1920; x++) {
-            buf[(y * 1920 + x) * 4] = 0xff;
-            buf[(y * 1920 + x) * 4 + 1] = 0xaa;
-            buf[(y * 1920 + x) * 4 + 2] = 0xaa;
-            buf[(y * 1920 + x) * 4 + 3] = 0xff;
-        }
+        printf("Buffer not filled yet \n");
+        return;
     }
     
-    printf("\n%id\n", facade_write(device, buf, NULL, NULL));
+    printf("Write");
+    
+    for (int i = 0; i < buff_size; i += 4)
+    {
+        buf[i + 1] = 0;
+        buf[i + 2] = 0;
+    }
+    
+    facade_write((facade_device *) context, buf, buff_size);
 }
 
 int main(int argv, char **argc) {
@@ -50,13 +56,22 @@ int main(int argv, char **argc) {
     
     facade_init();
     facade_list_devices(&list);
+    facade_reader(list, &read_device, list);
     
     print_devices(&list);
     
-    while(1) {
-        write_nil(list);
+    printf("dimensions %i x %i\n", list->width, list->height);
+    printf("rate %i\n", list->frame_rate);
+    
+    facade_reader(list, nil, list);
+    facade_writer(list, nil, list);
+    buf = calloc(4 * 1920 * 1080, 1);
+    buff_size = 4 * 1920 * 1080;
+
+    while(true) {
+        read_device(list);
+        write_device(list);
         usleep(16000);
     }
-    
     printf("Success\n");
 }
