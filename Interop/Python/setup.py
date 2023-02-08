@@ -6,7 +6,6 @@ setup(
     description='A Python interface to the libktx library',
     author='Shukant Pal',
     author_email='commercial@shukantpal.com',
-    cffi_modules=["build.py:ffibuilder"],
     classifiers=[
         "Programming Language :: Python :: 3",
     ],
