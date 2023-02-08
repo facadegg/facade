@@ -5,11 +5,12 @@
 //  Created by Shukant Pal on 1/29/23.
 //
 
-#include "FacadeKit.h"
+#include "facade.h"
 #import <AVFoundation/AVFoundation.h>
 #import <CoreMedia/CoreMedia.h>
 #import <CoreMediaIO/CMIOHardware.h>
 #import <os/log.h>
+
 
 char *FACADE_MODEL = "Facade";
 int FACADE_MODEL_LENGTH = 6;
@@ -82,6 +83,8 @@ void facade_init_device_dimensions(facade_device *device)
     }
     
     free(dimensions);
+    
+    NSLog(@"Main thread %@\n", [NSThread currentThread]);
     
 #if DEBUG
     os_log_debug(logger, "facade_device@%lli - parsed dimensions %i x %i\n",
@@ -272,6 +275,7 @@ void facade_read_altered_callback(CMIOStreamID _, void *__, void *device)
     facade_device_data *data = ((facade_device *) device)->data;
     
     printf("read_callback\n");
+    NSLog(@"read current thread %@\n", [NSThread currentThread]);
 
     if (data->read_callback != nil)
         (*data->read_callback)(data->read_context);
@@ -395,13 +399,12 @@ facade_error_code facade_read(facade_device *device, void **buffer, size_t *buff
 
 void facade_write_altered_callback(CMIOStreamID _, void *__, void *device)
 {
-    printf("here5");
     facade_device_data *data = ((facade_device *) device)->data;
 
     if (data->write_callback != nil)
         (*data->write_callback)(data->write_context);
 
-    printf("here6");
+    NSLog(@"write current thread %@\n", [NSThread currentThread]);
 }
 
 facade_error_code facade_writer(facade_device *device, facade_write_callback callback, void *context)
