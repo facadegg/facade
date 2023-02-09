@@ -21,7 +21,7 @@ void print_devices(facade_device **list) {
 
     facade_device *node = *list;
     do {
-        if (node->type == video_facade)
+        if (node->type == facade_type_video)
             printf("Camera{uid=%lli}\n", node->uid);
     } while (node != *list);
 }
@@ -31,7 +31,7 @@ size_t buff_size = 0;
 
 void read_device(void *context) {
     facade_device *device = (facade_device *) context;
-    facade_read(device, (void **) &buf, &buff_size);
+    facade_read_frame(device, (void **) &buf, &buff_size);
 }
 
 void write_device(void *context) {
@@ -40,15 +40,15 @@ void write_device(void *context) {
         return;
     }
     
-    printf("Write");
-    
     for (int i = 0; i < buff_size; i += 4)
     {
-        buf[i + 1] = 0;
+        buf[i + 1] = 255;
         buf[i + 2] = 0;
     }
     
-    facade_write((facade_device *) context, buf, buff_size);
+    facade_error_code status = facade_write_frame((facade_device *) context, buf, buff_size);
+    
+    printf("Write %i\n", status);
 }
 
 int main(int argv, char **argc) {
@@ -56,20 +56,22 @@ int main(int argv, char **argc) {
     
     facade_init();
     facade_list_devices(&list);
-    facade_reader(list, &read_device, list);
     
     print_devices(&list);
+    facade_device * device = list;
     
     printf("dimensions %i x %i\n", list->width, list->height);
     printf("rate %i\n", list->frame_rate);
+        
+    buf = calloc(4 * device->height * device->width, 1);
+    buff_size = 4 * device->width * device->height;
+    printf("buff_size is %li", buff_size);
     
-    facade_reader(list, nil, list);
-    facade_writer(list, nil, list);
-    buf = calloc(4 * 1920 * 1080, 1);
-    buff_size = 4 * 1920 * 1080;
+    
+    facade_write_open(list);
 
     while(true) {
-        read_device(list);
+        // read_device(list);
         write_device(list);
         usleep(16000);
     }

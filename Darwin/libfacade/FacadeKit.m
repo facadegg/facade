@@ -11,16 +11,30 @@
 #import <CoreMediaIO/CMIOHardware.h>
 #import <os/log.h>
 
-
 char *FACADE_MODEL = "Facade";
 int FACADE_MODEL_LENGTH = 6;
 
-CMIOObjectPropertyAddress kDeviceUIDProperty    = { kCMIODevicePropertyDeviceUID, kCMIOObjectPropertyScopeGlobal, kCMIOObjectPropertyElementMain };
-CMIOObjectPropertyAddress kDeviceStreams        = { kCMIODevicePropertyStreams,   kCMIOObjectPropertyScopeGlobal, kCMIOObjectPropertyElementMain };
-CMIOObjectPropertyAddress kMagicProperty        = { 'fmag',                       kCMIOObjectPropertyScopeGlobal, kCMIOObjectPropertyElementMain };
-CMIOObjectPropertyAddress kNameProperty         = { 'fnam',                       kCMIOObjectPropertyScopeGlobal, kCMIOObjectPropertyElementMain };
-CMIOObjectPropertyAddress kDimensionsProperty   = { 'fdim',                       kCMIOObjectPropertyScopeGlobal, kCMIOObjectPropertyElementMain };
-CMIOObjectPropertyAddress kFrameRateProperty    = { 'frat',                       kCMIOObjectPropertyScopeGlobal, kCMIOObjectPropertyElementMain };
+CMIOObjectPropertyAddress kDeviceUIDProperty    = { kCMIODevicePropertyDeviceUID,
+                                                    kCMIOObjectPropertyScopeGlobal,
+                                                    kCMIOObjectPropertyElementMain };
+CMIOObjectPropertyAddress kDeviceStreams        = { kCMIODevicePropertyStreams,
+                                                    kCMIOObjectPropertyScopeGlobal,
+                                                    kCMIOObjectPropertyElementMain };
+CMIOObjectPropertyAddress kMagicProperty        = { 'fmag',
+                                                    kCMIOObjectPropertyScopeGlobal,
+                                                    kCMIOObjectPropertyElementMain };
+CMIOObjectPropertyAddress kNameProperty         = { 'fnam',
+                                                    kCMIOObjectPropertyScopeGlobal,
+                                                    kCMIOObjectPropertyElementMain };
+CMIOObjectPropertyAddress kDimensionsProperty   = { 'fdim',
+                                                    kCMIOObjectPropertyScopeGlobal,
+                                                    kCMIOObjectPropertyElementMain };
+CMIOObjectPropertyAddress kFrameRateProperty    = { 'frat',
+                                                    kCMIOObjectPropertyScopeGlobal,
+                                                    kCMIOObjectPropertyElementMain };
+
+int kIOStreamsPerDevice = 2;
+int kWriteBufferCapacity = 100;
 
 NSString *kMagicValue = @"Facade by Paal Maxima";
 
@@ -31,14 +45,15 @@ struct facade_device_data
     CMSimpleQueueRef read_queue;
     CMSimpleQueueRef write_queue;
     CMIOStreamID streams[2];
-    CMVideoFormatDescriptionRef formatDescription;
-    facade_read_callback read_callback;
+    CMVideoFormatDescriptionRef format_description;
+    facade_callback read_callback;
     void *read_context;
     void *read_frame;
-    facade_write_callback write_callback;
+    facade_callback write_callback;
     void *write_context;
-    CVPixelBufferPoolRef pixel_buffer_pool;
-    CFDictionaryRef bux_aux_attributes;
+    CVPixelBufferPoolRef write_buffer_pool;
+    CFDictionaryRef write_buffer_aux_attributes;
+    CFMutableArrayRef write_sample_buffers;
 };
 
 void insert_device(facade_device **list, facade_device *node)
@@ -53,7 +68,7 @@ void insert_device(facade_device **list, facade_device *node)
     }
 }
 
-void facade_init_device_dimensions(facade_device *device)
+static inline facade_error_code read_dimensions(facade_device *device)
 {
     UInt32 dimensions_string_length = 0;
     CMIOObjectGetPropertyDataSize((CMIOObjectID) device->uid, &kDimensionsProperty,
@@ -64,7 +79,6 @@ void facade_init_device_dimensions(facade_device *device)
                               0, nil,
                               dimensions_string_length, &dimensions_string_length,
                               dimensions);
-    printf("%i dimensions length\n", dimensions_string_length);
     NSScanner *scanner = [NSScanner scannerWithString:[NSString stringWithUTF8String:dimensions]];
 
     int temp_width = 0, temp_height = 0;
@@ -84,22 +98,15 @@ void facade_init_device_dimensions(facade_device *device)
 
     free(dimensions);
 
-    NSLog(@"Main thread %@\n", [NSThread currentThread]);
-
-#if DEBUG
-    os_log_debug(logger, "facade_device@%lli - parsed dimensions %i x %i\n",
-                 device->uid, device->width, device->height);
-#endif
+    return facade_error_none;
 }
 
-facade_error_code facade_init_device_frame_rate(facade_device *device)
+static inline facade_error_code read_frame_rate(facade_device *device)
 {
     if (!CMIOObjectHasProperty((CMIOObjectID) device->uid, &kFrameRateProperty)) {
-#if DEBUG
-        os_log_debug(logger, "facade_device@%lli - failed to parse frame rate because property does not exist",
+        os_log_error(logger, "facade_device %lli - Frame rate property not found.",
                      device->uid);
         return facade_error_protocol;
-#endif
     }
 
     UInt32 frame_rate_int_size = 0;
@@ -108,10 +115,10 @@ facade_error_code facade_init_device_frame_rate(facade_device *device)
                                   &frame_rate_int_size);
 
     if (frame_rate_int_size != sizeof(uint32_t)) {
-#if DEBUG
-        os_log_debug(logger, "facade_device@%lli - failed to parse frame rate because data size is %i not %i\n",
-                     device->uid, frame_rate_int_size, (int) sizeof(uint32_t));
-#endif
+        os_log_error(logger,
+                     "facade_device %lli - Frame rate property has unexpected byte size.",
+                     device->uid);
+
         return facade_error_protocol;
     }
 
@@ -120,27 +127,92 @@ facade_error_code facade_init_device_frame_rate(facade_device *device)
                               frame_rate_int_size, &frame_rate_int_size,
                               &device->frame_rate);
 
-#if DEBUG
-    os_log_debug(logger, "facade_device@%lli - parsed frame rate %i\n",
-                 device->uid, device->frame_rate);
-#endif
+    return facade_error_none;
+}
 
+static inline facade_error_code read_format_description(facade_device *device)
+{
+    CMVideoFormatDescriptionCreate(kCFAllocatorDefault,
+                                   kCVPixelFormatType_32BGRA,
+                                   device->width,
+                                   device->height,
+                                   nil,
+                                   &device->data->format_description);
+    return facade_error_none;
+}
+
+static inline facade_error_code create_write_buffer_pool(facade_device *device)
+{
+    uint32_t media_subtype = CMFormatDescriptionGetMediaSubType(device->data->format_description);
+
+#define PIXEL_BUFFER_ATTRIBUTE_ENTRIES 4
+    CFStringRef pixel_buffer_attribute_keys[PIXEL_BUFFER_ATTRIBUTE_ENTRIES] = {
+        kCVPixelBufferWidthKey,
+        kCVPixelBufferHeightKey,
+        kCVPixelBufferPixelFormatTypeKey,
+        kCVPixelBufferIOSurfacePropertiesKey,
+    };
+    CFTypeRef pixel_buffer_attribute_values[PIXEL_BUFFER_ATTRIBUTE_ENTRIES] =  {
+        CFNumberCreate(kCFAllocatorDefault, kCFNumberIntType, &device->width),
+        CFNumberCreate(kCFAllocatorDefault, kCFNumberIntType, &device->height),
+        CFNumberCreate(kCFAllocatorDefault, kCFNumberIntType, &media_subtype),
+        CFDictionaryCreate(kCFAllocatorDefault,
+                           nil,
+                           nil,
+                           0,
+                           &kCFCopyStringDictionaryKeyCallBacks,
+                           &kCFTypeDictionaryValueCallBacks)
+    };
+    CFDictionaryRef pixel_buffer_attributes = CFDictionaryCreate(kCFAllocatorDefault,
+                                                                 (const void **) pixel_buffer_attribute_keys,
+                                                                 (const void **) pixel_buffer_attribute_values,
+                                                                 PIXEL_BUFFER_ATTRIBUTE_ENTRIES,
+                                                                 &kCFCopyStringDictionaryKeyCallBacks,
+                                                                 &kCFTypeDictionaryValueCallBacks);
+    CVPixelBufferPoolCreate(kCFAllocatorDefault,
+                            nil,
+                            pixel_buffer_attributes,
+                            &device->data->write_buffer_pool);
+    CFRelease(pixel_buffer_attributes);
+
+#define BUFFER_AUX_ATTRIBUTE_ENTRIES 1
+    CFStringRef aux_attribute_keys[BUFFER_AUX_ATTRIBUTE_ENTRIES] = { kCVPixelBufferPoolAllocationThresholdKey };
+    CFTypeRef aux_attribute_values[BUFFER_AUX_ATTRIBUTE_ENTRIES] = { CFNumberCreate(kCFAllocatorDefault,
+                                                                                    kCFNumberIntType,
+                                                                                    &kWriteBufferCapacity) };
+    device->data->write_buffer_aux_attributes = CFDictionaryCreate(kCFAllocatorDefault,
+                                                                   (const void **) aux_attribute_keys,
+                                                                   (const void **) aux_attribute_values,
+                                                                   BUFFER_AUX_ATTRIBUTE_ENTRIES,
+                                                                   &kCFCopyStringDictionaryKeyCallBacks,
+                                                                   &kCFTypeDictionaryValueCallBacks);
+    
+    return facade_error_none;
+}
+
+static inline facade_error_code release_write_buffer_pool(facade_device *device)
+{
+    if (device->data->write_buffer_pool == nil)
+    {
+        return facade_error_invalid_state;
+    }
+    
+    CVPixelBufferPoolRelease(device->data->write_buffer_pool);
+    CFRelease(device->data->write_buffer_aux_attributes);
+    
+    device->data->write_buffer_pool = nil;
+    device->data->write_buffer_aux_attributes = nil;
+    
     return facade_error_none;
 }
 
 facade_device *read_device(CMIOObjectID device_id)
 {
-    facade_device *device = malloc(sizeof(facade_device));
-
-    device->next = nil;
-    device->type = video_facade;
+    facade_device *device = calloc(1, sizeof(facade_device));
+    device->type = facade_type_video;
     device->uid = device_id;
-    device->width = 0;
-    device->height = 0;
-    device->frame_rate = 0;
-    device->data = malloc(sizeof(facade_device_data));
-    device->data->read_queue = nil;
-    device->data->write_queue = nil;
+    device->data = calloc(1, sizeof(facade_device_data));
+    device->data->write_sample_buffers = CFArrayCreateMutable(kCFAllocatorDefault, 6, &kCFTypeArrayCallBacks);
 
     UInt32 streamsArrayByteSize = 0;
     CMIOObjectGetPropertyDataSize(device_id, &kDeviceStreams,
@@ -148,9 +220,16 @@ facade_device *read_device(CMIOObjectID device_id)
                                   &streamsArrayByteSize);
     UInt32 streamCount = streamsArrayByteSize / sizeof(CMIOStreamID);
 
-    if (streamCount != 2) {
-        printf("Unexpected number of streams (%i)!", streamCount);
+    if (streamCount != kIOStreamsPerDevice) {
+        os_log_error(logger,
+                     "facade_device @%lli - Unexpected number of streams (%i vs %i)",
+                     device->uid,
+                     streamCount,
+                     kIOStreamsPerDevice);
+
+        free(device->data);
         free(device);
+
         return nil;
     } else {
         CMIOObjectGetPropertyData(device_id, &kDeviceStreams,
@@ -160,52 +239,9 @@ facade_device *read_device(CMIOObjectID device_id)
                                   &device->data->streams);
     }
 
-    // Parse dimensions
-    facade_init_device_dimensions(device);
-    facade_init_device_frame_rate(device);
-
-    CMVideoFormatDescriptionCreate(kCFAllocatorDefault, kCVPixelFormatType_32BGRA,
-                                   device->width, device->height, nil,
-                                   &device->data->formatDescription);
-    uint32_t media_subtype = CMFormatDescriptionGetMediaSubType(device->data->formatDescription);
-    const void *keys[3] = {
-        kCVPixelBufferWidthKey,
-        kCVPixelBufferHeightKey,
-        kCVPixelBufferPixelFormatTypeKey,
-    };
-
-    CFNumberRef widthRef = CFNumberCreate(kCFAllocatorDefault, kCFNumberIntType, &device->width);
-    CFNumberRef heightRef = CFNumberCreate(kCFAllocatorDefault, kCFNumberIntType, &device->height);
-    CFNumberRef mediaSubtypeRef = CFNumberCreate(kCFAllocatorDefault, kCFNumberIntType, &media_subtype);
-    CFNumberRef values[3] =  {
-        widthRef,
-        heightRef,
-        mediaSubtypeRef
-    };
-    CFDictionaryRef pixelBufferAttributes = CFDictionaryCreate(kCFAllocatorDefault,
-                       keys,
-                       (const void **) values,
-                       3,
-                       &kCFCopyStringDictionaryKeyCallBacks,
-                       &kCFTypeDictionaryValueCallBacks);
-    CVPixelBufferPoolCreate(kCFAllocatorDefault, nil, pixelBufferAttributes, &device->data->pixel_buffer_pool);
-    CFRelease(pixelBufferAttributes);
-
-    const void *keys2[1] = {
-        kCVPixelBufferPoolAllocationThresholdKey
-    };
-    int threshold = 100;
-    CFNumberRef thresholdRef = CFNumberCreate(kCFAllocatorDefault, kCFNumberIntType, &threshold);
-    CFNumberRef values2[1] = {
-        thresholdRef
-    };
-
-    device->data->bux_aux_attributes = CFDictionaryCreate(kCFAllocatorDefault,
-                                                          keys2,
-                                                          (const void **) values2,
-                                                          0,
-                                                          &kCFCopyStringDictionaryKeyCallBacks,
-                                                          &kCFTypeDictionaryValueCallBacks);
+    read_dimensions(device);
+    read_frame_rate(device);
+    read_format_description(device);
 
     return device;
 }
@@ -217,7 +253,6 @@ void facade_init(void)
 
 void facade_list_devices(facade_device **list)
 {
-    // kCMIOObjectSystemObject is the system CMIO object that will be used to get a list of device ids.
     CMIOObjectPropertyAddress devicesPropertyAddress = {
         kCMIOHardwarePropertyDevices,
         kCMIOObjectPropertyScopeGlobal,
@@ -225,7 +260,10 @@ void facade_list_devices(facade_device **list)
     };
 
     UInt32 deviceArrayByteSize = 0;
-    CMIOObjectGetPropertyDataSize(kCMIOObjectSystemObject, &devicesPropertyAddress, 0, NULL, &deviceArrayByteSize);
+    CMIOObjectGetPropertyDataSize(kCMIOObjectSystemObject,
+                                  &devicesPropertyAddress,
+                                  0, NULL,
+                                  &deviceArrayByteSize);
 
     CMIOObjectID *deviceIds = (CMIOObjectID *) malloc(deviceArrayByteSize);
     UInt32 deviceArrayByteSizedUsed = 0; // should match deviceArrayByteSize
@@ -270,202 +308,249 @@ void facade_list_devices(facade_device **list)
     }
 }
 
-void facade_read_altered_callback(CMIOStreamID _, void *__, void *device)
+void on_read_queue_ready(CMIOStreamID _, void *__, void *device)
 {
     facade_device_data *data = ((facade_device *) device)->data;
-
-    printf("read_callback\n");
-    NSLog(@"read current thread %@\n", [NSThread currentThread]);
-
     if (data->read_callback != nil)
         (*data->read_callback)(data->read_context);
 }
 
-facade_error_code facade_reader(facade_device *device, facade_read_callback callback, void *context)
+facade_error_code facade_read_open(facade_device *device)
 {
-    OSStatus status = CMIOStreamCopyBufferQueue(device->data->streams[0],
-                                                &facade_read_altered_callback,
-                                                device,
-                                                &device->data->read_queue);
+    if (device->data->read_queue != nil) {
+        os_log_error(logger,
+                     "facade_read_open %lli - Input stream is already open.",
+                     device->uid);
+        return facade_error_invalid_state;
+    }
+    
+    device->data->read_callback = nil;
+    device->data->read_context = nil;
+    
+    OSStatus status = CMIODeviceStartStream((CMIODeviceID) device->uid, device->data->streams[0]);
 
-    device->data->read_callback = callback;
-    device->data->read_context = context;
-    CMIOObjectShow(device->data->streams[0]);
-    CMIOObjectShow(device->data->streams[1]);
-    printf("HERER\n");
-
-    switch ([AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo])
-    {
-        case AVAuthorizationStatusAuthorized:
-        {
-            printf("Authorized");
-            // The user has previously granted access to the camera.
-
-            break;
-        }
-        case AVAuthorizationStatusNotDetermined:
-        {
-            printf("NOtDetermined");
-            // The app hasn't yet asked the user for camera access.
-            [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo completionHandler:^(BOOL granted) {
-                if (granted) {
-                    printf("Granted");
-                }
-            }];
-            break;
-        }
-        case AVAuthorizationStatusDenied:
-        {
-            printf("Denied");
-            // The user has previously denied access.
-            break;
-        }
-        case AVAuthorizationStatusRestricted:
-        {
-            printf("Restriction");
-            // The user can't grant access due to restrictions.
-            break;
-        }
+    if (status != kCMIOHardwareNoError) {
+        os_log_error(logger,
+                     "facade_read_open %lli - Input stream failed to open.",
+                     device->uid);
+        return facade_error_unknown;
     }
 
-    return status != kCMIOHardwareNoError ? facade_error_unknown : facade_error_none;
+    status = CMIOStreamCopyBufferQueue(device->data->streams[0],
+                                       &on_read_queue_ready,
+                                       device,
+                                       &device->data->read_queue);
+    
+    if (status != kCMIOHardwareNoError) {
+        os_log_error(logger,
+                     "facade_read_open %lli - Input buffer queue could not be copied",
+                     device->uid);
+        return facade_error_unknown;
+    }
+
+    return facade_error_none;
 }
 
-facade_error_code facade_read(facade_device *device, void **buffer, size_t *buffer_size)
+facade_error_code facade_read_frame(facade_device *device, void **buffer, size_t *buffer_size)
 {
     if (device->data->read_queue == nil)
         return facade_error_reader_not_ready;
 
     OSStatus status = kCMIOHardwareNoError;
 
-    status = CMIODeviceStartStream((CMIODeviceID) device->uid, device->data->streams[0]);
-    if (status != kCMIOHardwareNoError) {
-        os_log_error(logger,
-                     "facade_device@%lli - Failed to start stream on device.",
-                     device->uid);
-        return facade_error_unknown;
-    }
-
-    CMSampleBufferRef sample_buffer = (CMSampleBufferRef) CMSimpleQueueDequeue(device->data->read_queue);
+    CMSampleBufferRef sample_buffer =
+        (CMSampleBufferRef) CMSimpleQueueDequeue(device->data->read_queue);
 
     if (sample_buffer == nil) {
-        os_log_error(logger, "null sample_buffer");
+#if DEBUG
+        os_log_error(logger,
+                     "facade_read_frame %lli - Input stream has no frames left.",
+                     device->uid);
+#endif
         return facade_error_reader_not_ready;
     }
 
     CVImageBufferRef image_buffer = CMSampleBufferGetImageBuffer(sample_buffer);
-
-
-    if (image_buffer == nil) {
-        os_log_error(logger,
-                    "facade_device@%lli - Image buffer is null",
-                    device->uid);
-
-        return facade_error_reader_not_ready;
-    }
-
     CVPixelBufferLockBaseAddress(image_buffer, 0);
+
     char *data = CVPixelBufferGetBaseAddress(image_buffer);
     size_t data_length = CVPixelBufferGetDataSize(image_buffer);
-    status = kCMIOHardwareNoError;
 
-    if (status != kCMBlockBufferNoErr) {
-        os_log_error(logger,
-                     "facade_device@%lli - Failed to get data pointer to block buffer containing pixel data. (OSStatus %i)",
-                     device->uid,
-                     status);
-        return facade_error_unknown;
-    }
     if (data_length < device->width * device->height * BYTES_PER_PIXEL) {
         os_log_error(logger,
-                     "facade_device@%lli - The byte size of the recieved frame is an unexpected value (%li). (OSStatus %i)",
+                     "facade_read_frame %lli - Receive buffer has wrong size (%li). (OSStatus %i)",
                      device->uid,
                      data_length,
                      status);
+        return facade_error_unknown;
     }
 
     if (device->data->read_frame == nil)
-        device->data->read_frame = malloc(device->width * device->height * BYTES_PER_PIXEL);
-    memcpy(device->data->read_frame, data, device->width * device->height * BYTES_PER_PIXEL);
+        device->data->read_frame = malloc(data_length);
+
+    memcpy(device->data->read_frame, data, data_length);
+
+    CVPixelBufferUnlockBaseAddress(image_buffer, 0);
+    CFRelease(sample_buffer);
 
     *buffer = device->data->read_frame;
     *buffer_size = data_length;
-    CVPixelBufferUnlockBaseAddress(image_buffer, 0);
-
-    CFRelease(sample_buffer);
 
     return facade_error_none;
 }
 
-void facade_write_altered_callback(CMIOStreamID _, void *__, void *device)
+facade_error_code facade_read_close(facade_device *device)
+{
+    OSStatus status = CMIODeviceStopStream((CMIODeviceID) device->uid, device->data->streams[0]);
+ 
+    if (device->data->read_queue != nil)
+    {
+        CFRelease(device->data->read_queue);
+        device->data->read_queue = nil;
+    }
+
+    return status == kCMIOHardwareNoError ? facade_error_none : facade_error_unknown;
+}
+
+void on_write_queue_ready(CMIOStreamID _, void *__, void *device)
 {
     facade_device_data *data = ((facade_device *) device)->data;
 
     if (data->write_callback != nil)
         (*data->write_callback)(data->write_context);
-
-    NSLog(@"write current thread %@\n", [NSThread currentThread]);
 }
 
-facade_error_code facade_writer(facade_device *device, facade_write_callback callback, void *context)
+facade_error_code facade_write_open(facade_device *device)
 {
-    OSStatus status = CMIOStreamCopyBufferQueue(device->data->streams[1],
-                                                &facade_write_altered_callback,
-                                                device,
-                                                &device->data->write_queue);
+    if (device->data->write_queue != nil) {
+        os_log_error(logger,
+                     "facade_write_open %lli - Output stream is already open.",
+                     device->uid);
+        return facade_error_invalid_state;
+    }
+    
+    OSStatus status = CMIODeviceStartStream((CMIODeviceID) device->uid, device->data->streams[1]);
 
+    if (status != kCMIOHardwareNoError) {
+        os_log_error(logger,
+                     "facade_write_open %lli - Output stream failed to open.",
+                     device->uid);
+        return facade_error_unknown;
+    }
+
+    status = CMIOStreamCopyBufferQueue(device->data->streams[1],
+                                       &on_write_queue_ready,
+                                       device,
+                                       &device->data->write_queue);
+
+    if (status != kCMIOHardwareNoError) {
+        os_log_error(logger,
+                     "facade_write_open %lli - Output buffer queue could not be copied.",
+                     device->uid);
+        return facade_error_unknown;
+    }
+
+    return facade_error_none;
+}
+
+facade_error_code facade_write_callback(facade_device *device, facade_callback callback, void *context)
+{
     device->data->write_callback = callback;
     device->data->write_context = context;
-
-    return status != kCMIOHardwareNoError ? facade_error_unknown : facade_error_none;
+    
+    return facade_error_none;
 }
 
-facade_error_code facade_write(facade_device *device, void *buf, size_t buffer_size)
+facade_error_code facade_write_frame(facade_device *device, void *buffer, size_t buffer_size)
 {
-    if (device->data->write_queue == nil)
+    if (device->data->write_queue == nil) {
+        os_log_error(logger,
+                     "facade_write_frame %lli - Output stream was not opened.",
+                     device->uid);
         return facade_error_writer_not_ready;
+    }
+    if (buffer_size < BYTES_PER_PIXEL * device->width * device->height) {
+        os_log_error(logger,
+                     "facade_write_frame %lli - Send buffer has wrong size. (%li vs %li)",
+                     device->uid,
+                     buffer_size,
+                     (size_t) BYTES_PER_PIXEL * device->width * device->height);
+        return facade_error_invalid_input;
+    }
+    if (device->data->write_buffer_pool == nil) {
+#if DEBUG
+        os_log_debug(logger,
+                     "facade_write_frame %lli - Allocating write buffer pool",
+                     device->uid);
+#endif
+        create_write_buffer_pool(device);
+    }
 
     OSStatus status = kCMIOHardwareNoError;
 
-    if (status != kCMIOHardwareNoError) {
-        return facade_error_unknown;
-    }
-
-    printf("here2");
-    status = CMIODeviceStartStream((CMIODeviceID) device->uid, device->data->streams[1]);
-
-    if (status != kCMIOHardwareNoError) {
-        return facade_error_unknown;
-    }
-    printf("here3");
-    CMVideoFormatDescriptionCreate(kCFAllocatorDefault, kCVPixelFormatType_32BGRA,
-                                   1920, 1080, nil,
-                                   &device->data->formatDescription);
     CMSampleTimingInfo timingInfo = { };
     timingInfo.presentationTimeStamp = CMClockGetTime(CMClockGetHostTimeClock());
-    CMSampleBufferRef sbuffer;
+    CMSampleBufferRef sample_buffer;
+    CVPixelBufferRef pixel_buffer;
+    CVReturn success = CVPixelBufferPoolCreatePixelBufferWithAuxAttributes(kCFAllocatorDefault,
+                                                                           device->data->write_buffer_pool,
+                                                                           device->data->write_buffer_aux_attributes,
+                                                                           &pixel_buffer);
+    if (success != kCVReturnSuccess) {
+        os_log_error(logger,
+                     "facade_write_frame %lli - Failed to allocate pixel buffer. (OSStatus %i)",
+                     device->uid,
+                     success);
+        return facade_error_unknown;
+    }
 
-    NSDictionary *pixelAttributes = @{(id)kCVPixelBufferIOSurfacePropertiesKey : @{}};
-    CVPixelBufferRef pixelBuffer;
-    CVReturn success = CVPixelBufferCreate(kCFAllocatorDefault,
-                                           1920, 1080, k32BGRAPixelFormat,
-                                           (__bridge CFDictionaryRef)(pixelAttributes), &pixelBuffer);
+    CVPixelBufferLockBaseAddress(pixel_buffer, 0);
+    memcpy(CVPixelBufferGetBaseAddress(pixel_buffer),
+           buffer,
+           (size_t) BYTES_PER_PIXEL * device->width * device->height);
+    CVPixelBufferUnlockBaseAddress(pixel_buffer, 0);
 
-    printf("%i\n", success);
-    CVPixelBufferLockBaseAddress(pixelBuffer, 0);
-    memcpy(CVPixelBufferGetBaseAddress(pixelBuffer), buf, 4 * 1920 * 1080);
-    CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);
-    CMSampleBufferCreateForImageBuffer(kCFAllocatorDefault,
-                                       pixelBuffer,
-                                       true,
-                                       nil, nil,
-                                       device->data->formatDescription,
-                                       &timingInfo,
-                                       &sbuffer);
-    status = CMSimpleQueueEnqueue(device->data->write_queue, sbuffer);
+    status = CMSampleBufferCreateForImageBuffer(kCFAllocatorDefault,
+                                                pixel_buffer,
+                                                true,
+                                                nil, nil,
+                                                device->data->format_description,
+                                                &timingInfo,
+                                                &sample_buffer);
+    if (status != kCMBlockBufferNoErr) {
+        os_log_error(logger,
+                     "facade_write_frame %lli - Failed to create sample buffer. (OSStatus %i)",
+                     device->uid,
+                     status);
+        CFRelease(sample_buffer);
+        CVPixelBufferRelease(pixel_buffer);
 
-    CFRelease(pixelBuffer);
-    printf("here4");
+        return facade_error_unknown;
+    }
+
+    status = CMSimpleQueueEnqueue(device->data->write_queue, sample_buffer);
+    
+    if (status != kCMBlockBufferNoErr) {
+        os_log_error(logger,
+                     "facade_write_frame %lli - Failed to queue frame. (OSStatus %i)",
+                     device->uid,
+                     status);
+    }
+    
+    CVPixelBufferRelease(pixel_buffer);
+
+    return status == kCMIOHardwareNoError ? facade_error_none : facade_error_unknown;
+}
+
+facade_error_code facade_write_close(facade_device *device)
+{
+    OSStatus status = CMIODeviceStopStream((CMIODeviceID) device->uid, device->data->streams[1]);
+
+    if (device->data->write_queue != nil)
+    {
+        CFRelease(device->data->write_queue);
+        device->data->write_queue = nil;
+    }
 
     return status == kCMIOHardwareNoError ? facade_error_none : facade_error_unknown;
 }

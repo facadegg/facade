@@ -206,7 +206,6 @@ class CameraDeviceSource: NSObject, CMIOExtensionDeviceSource, CameraStreamHandl
                 let bufferByteSize = CVPixelBufferGetBytesPerRow(pixelBuffer) * CVPixelBufferGetHeight(pixelBuffer)
 
                 memcpy(bufferPtr, self.streamFakeSplash.nextFrame(), bufferByteSize)
-                os_log(.info, "painted \(CVPixelBufferGetBytesPerRow(pixelBuffer))")
 
                 CVPixelBufferUnlockBaseAddress(pixelBuffer, [])
                 
@@ -227,7 +226,6 @@ class CameraDeviceSource: NSObject, CMIOExtensionDeviceSource, CameraStreamHandl
                                                   discontinuity: [],
                                                   hostTimeInNanoseconds: hostTimeInNanoseconds)
                 }
-                os_log(.info, "video time \(timingInfo.presentationTimeStamp.seconds) now \(now.seconds) err \(err)")
             }
         }
         
