@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns="https://facade.dev/2023/Facade.xsd"
+           targetNamespace="https://facade.dev/2023/Facade.xsd"
+           elementFormDefault="qualified">
+    <xs:element name="facade">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="apiVersion" type="apiVersion" />
+                <xs:element name="devices">
+                    <xs:annotation>
+                        <xs:documentation>List of virtual devices to be populated by Facade driver.</xs:documentation>
+                    </xs:annotation>
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="video"
+                                        type="video"
+                                        minOccurs="0"
+                                        maxOccurs="unbounded" />
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:simpleType name="apiVersion">
+        <xs:annotation>
+            <xs:documentation>The version of the Facade driver configuration being used.</xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="v1" />
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:complexType name="video">
+        <xs:annotation>
+            <xs:documentation>Virtual camera</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="id" type="xs:simpleType" minOccurs="0" />
+            <xs:element name="name">
+                <xs:simpleType>
+                    <xs:annotation>
+                        <xs:documentation>The name of this virtual camera.</xs:documentation>
+                    </xs:annotation>
+                    <xs:restriction base="xs:string">
+                        <xs:pattern value="\S.+" />
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+            <xs:element name="width">
+                <xs:simpleType>
+                    <xs:annotation>
+                        <xs:documentation>The width of the virtual camera frames (64px to 8192px)</xs:documentation>
+                    </xs:annotation>
+                    <xs:restriction base="xs:unsignedInt">
+                        <xs:minExclusive value="63" />
+                        <xs:maxExclusive value="8193" />
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+            <xs:element name="height">
+                <xs:simpleType>
+                    <xs:annotation>
+                        <xs:documentation>The height of the virtual camera frames (64px to 8192px)</xs:documentation>
+                    </xs:annotation>
+                    <xs:restriction base="xs:unsignedInt">
+                        <xs:minExclusive value="63" />
+                        <xs:maxExclusive value="8193" />
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+            <xs:element name="frameRate">
+                <xs:annotation>
+                    <xs:documentation>The frame rate of the camera feed (from 24 FPS to 120 FPS)</xs:documentation>
+                </xs:annotation>
+                <xs:simpleType>
+                    <xs:restriction base="xs:unsignedInt">
+                        <xs:minExclusive value="23" />
+                        <xs:maxExclusive value="121" />
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+</xs:schema>
