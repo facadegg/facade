@@ -1,5 +1,5 @@
 from abc import ABCMeta, abstractmethod
-from typing import Union, Literal, Callable, Any, List
+from typing import Union, Literal, Callable, List, Optional
 
 from .facade_device_type import FacadeDeviceType
 from .facade_error_code import FacadeError, FacadeErrorCode
@@ -66,6 +66,14 @@ class FacadeDevice(metaclass=ABCMeta):
     def create(device) -> 'FacadeDevice':
         from .video_facade_device import VideoFacadeDevice
         return VideoFacadeDevice(device) if device.type == 0 else FacadeDevice(device)
+
+    @staticmethod
+    def by_id(_id: int) -> Optional['FacadeDevice']:
+        pass
+
+    @staticmethod
+    def by_name(_name: str) -> Optional['FacadeDevice']:
+        pass
 
     @staticmethod
     def list() -> List['FacadeDevice']:
