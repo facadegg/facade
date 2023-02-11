@@ -39,35 +39,35 @@ void write_device(void *context) {
         printf("Buffer not filled yet \n");
         return;
     }
-    
+
     for (int i = 0; i < buff_size; i += 4)
     {
         buf[i + 1] = 255;
         buf[i + 2] = 0;
     }
-    
+
     facade_error_code status = facade_write_frame((facade_device *) context, buf, buff_size);
-    
+
     printf("Write %i\n", status);
 }
 
 int main(int argv, char **argc) {
     facade_device *list = NULL;
-    
+
     facade_init();
     facade_list_devices(&list);
-    
+
     print_devices(&list);
     facade_device * device = list;
-    
+
     printf("dimensions %i x %i\n", list->width, list->height);
     printf("rate %i\n", list->frame_rate);
-        
+
     buf = calloc(4 * device->height * device->width, 1);
     buff_size = 4 * device->width * device->height;
     printf("buff_size is %li", buff_size);
-    
-    
+
+
     facade_write_open(list);
 
     while(true) {

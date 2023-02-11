@@ -6,8 +6,10 @@ class FacadeErrorCode(IntEnum):
     unknown = 1
     protocol = 2
     invalid_type = 3
-    reader_not_ready = 4
-    writer_not_ready = 5
+    invalid_state = 4
+    invalid_input = 5
+    reader_not_ready = 6
+    writer_not_ready = 7
 
 
 class FacadeError(Exception):
@@ -15,5 +17,5 @@ class FacadeError(Exception):
         self.invocation = invocation
         self.code = code
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.invocation} return with error {self.code}"

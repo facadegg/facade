@@ -38,7 +38,8 @@ class CameraDeviceSource: NSObject, CMIOExtensionDeviceSource, CameraStreamHandl
                                            target: .global(qos: .userInteractive))
 
     private var streamCounter: UInt32 = 0
-    private var streamFromSink: Bool = false
+    private var streamSinkClient: CMIOExtensionClient?
+    private var streamSinkCanConsume: Bool = true
     private var streamFakeSplash: SplashAnimator!
     private var streamSource: CameraStreamSource!
     private var streamSink: CameraStreamSink!
@@ -171,6 +172,74 @@ class CameraDeviceSource: NSObject, CMIOExtensionDeviceSource, CameraStreamHandl
         streamFakeSplash = SplashAnimator(width: Int(self.width), height: Int(self.height))
     }
 
+    func consumeFromSplashAnimation() {
+        var err: OSStatus = 0
+        let now = CMClockGetTime(CMClockGetHostTimeClock())
+        
+        var pixelBuffer: CVPixelBuffer?
+        err = CVPixelBufferPoolCreatePixelBufferWithAuxAttributes(kCFAllocatorDefault,
+                                                                  self.bufferPool,
+                                                                  self.bufferAuxAttributes,
+                                                                  &pixelBuffer)
+        if err != 0 {
+            os_log(.error, "out of pixel buffers \(err)")
+        }
+
+        if let pixelBuffer = pixelBuffer {
+            CVPixelBufferLockBaseAddress(pixelBuffer, [])
+
+            let bufferPtr = CVPixelBufferGetBaseAddress(pixelBuffer)!
+            let bufferByteSize = CVPixelBufferGetBytesPerRow(pixelBuffer) * CVPixelBufferGetHeight(pixelBuffer)
+
+            memcpy(bufferPtr, self.streamFakeSplash.nextFrame(), bufferByteSize)
+
+            CVPixelBufferUnlockBaseAddress(pixelBuffer, [])
+            
+            var sbuf: CMSampleBuffer!
+            var timingInfo = CMSampleTimingInfo()
+            timingInfo.presentationTimeStamp = CMClockGetTime(CMClockGetHostTimeClock())
+            err = CMSampleBufferCreateForImageBuffer(allocator: kCFAllocatorDefault,
+                                                     imageBuffer: pixelBuffer,
+                                                     dataReady: true,
+                                                     makeDataReadyCallback: nil,
+                                                     refcon: nil,
+                                                     formatDescription: self.formatDescription,
+                                                     sampleTiming: &timingInfo,
+                                                     sampleBufferOut: &sbuf)
+            if err == 0 {
+                let hostTimeInNanoseconds = UInt64(timingInfo.presentationTimeStamp.seconds * Double(NSEC_PER_SEC))
+                self.streamSource.stream.send(sbuf,
+                                              discontinuity: [],
+                                              hostTimeInNanoseconds: hostTimeInNanoseconds)
+            }
+        }
+    }
+    
+    func consumeFromSink(client: CMIOExtensionClient) {
+        self.streamSinkCanConsume = false
+
+        self.streamSink.stream.consumeSampleBuffer(from: client) { buffer, sequenceNumber, discontinuity, hasMoreSamples, error in
+            if let buffer = buffer {
+                self.lastScheduledOutput.presentationTimeStamp = CMClockGetTime(CMClockGetHostTimeClock())
+                let scheduledOutputTimestampNanos =
+                        UInt64(self.lastScheduledOutput.presentationTimeStamp.seconds * Double(NSEC_PER_SEC))
+                let scheduledOutput = CMIOExtensionScheduledOutput(sequenceNumber: sequenceNumber,
+                                                                   hostTimeInNanoseconds: scheduledOutputTimestampNanos)
+
+                if self.streamCounter > 0 {
+                    self.logger.debug("Sending sink to source")
+                    self.streamSource.stream.send(buffer,
+                                                   discontinuity: discontinuity,
+                                                   hostTimeInNanoseconds: scheduledOutputTimestampNanos)
+                }
+    
+                self.streamSink.stream.notifyScheduledOutputChanged(scheduledOutput)
+            }
+
+            self.streamSinkCanConsume = true
+        }
+    }
+
     func startStreaming() {
         guard let _ = bufferPool else {
             return
@@ -183,49 +252,12 @@ class CameraDeviceSource: NSObject, CMIOExtensionDeviceSource, CameraStreamHandl
         frameTimer!.schedule(deadline: .now(), repeating: Double(1) / Double(kFrameRate), leeway: .seconds(0))
         
         frameTimer!.setEventHandler {
-            if self.streamFromSink {
-                return
-            }
-            
-            var err: OSStatus = 0
-            let now = CMClockGetTime(CMClockGetHostTimeClock())
-            
-            var pixelBuffer: CVPixelBuffer?
-            err = CVPixelBufferPoolCreatePixelBufferWithAuxAttributes(kCFAllocatorDefault,
-                                                                      self.bufferPool,
-                                                                      self.bufferAuxAttributes,
-                                                                      &pixelBuffer)
-            if err != 0 {
-                os_log(.error, "out of pixel buffers \(err)")
-            }
-            
-            if let pixelBuffer = pixelBuffer {
-                CVPixelBufferLockBaseAddress(pixelBuffer, [])
-
-                let bufferPtr = CVPixelBufferGetBaseAddress(pixelBuffer)!
-                let bufferByteSize = CVPixelBufferGetBytesPerRow(pixelBuffer) * CVPixelBufferGetHeight(pixelBuffer)
-
-                memcpy(bufferPtr, self.streamFakeSplash.nextFrame(), bufferByteSize)
-
-                CVPixelBufferUnlockBaseAddress(pixelBuffer, [])
-                
-                var sbuf: CMSampleBuffer!
-                var timingInfo = CMSampleTimingInfo()
-                timingInfo.presentationTimeStamp = CMClockGetTime(CMClockGetHostTimeClock())
-                err = CMSampleBufferCreateForImageBuffer(allocator: kCFAllocatorDefault,
-                                                         imageBuffer: pixelBuffer,
-                                                         dataReady: true,
-                                                         makeDataReadyCallback: nil,
-                                                         refcon: nil,
-                                                         formatDescription: self.formatDescription,
-                                                         sampleTiming: &timingInfo,
-                                                         sampleBufferOut: &sbuf)
-                if err == 0 {
-                    let hostTimeInNanoseconds = UInt64(timingInfo.presentationTimeStamp.seconds * Double(NSEC_PER_SEC))
-                    self.streamSource.stream.send(sbuf,
-                                                  discontinuity: [],
-                                                  hostTimeInNanoseconds: hostTimeInNanoseconds)
+            if let streamSinkClient = self.streamSinkClient {
+                if self.streamSinkCanConsume {
+                    self.consumeFromSink(client: streamSinkClient)
                 }
+            } else {
+                self.consumeFromSplashAnimation()
             }
         }
         
@@ -251,40 +283,15 @@ class CameraDeviceSource: NSObject, CMIOExtensionDeviceSource, CameraStreamHandl
         logger.info("Stop streaming streamCounter=\(self.streamCounter)")
     }
 
-    func copyFromSinkToSource(client: CMIOExtensionClient) {
-        self.streamSink.stream.consumeSampleBuffer(from: client) { buffer, sequenceNumber, discontinuity, hasMoreSamples, error in
-
-            if let buffer = buffer {
-                self.lastScheduledOutput.presentationTimeStamp = CMClockGetTime(CMClockGetHostTimeClock())
-                let scheduledOutputTimestampNanos =
-                        UInt64(self.lastScheduledOutput.presentationTimeStamp.seconds * Double(NSEC_PER_SEC))
-                let scheduledOutput = CMIOExtensionScheduledOutput(sequenceNumber: sequenceNumber,
-                                                                   hostTimeInNanoseconds: scheduledOutputTimestampNanos)
-
-                if self.streamCounter > 0 {
-                    self.logger.debug("Sending sink to source")
-                    self.streamSource.stream.send(buffer,
-                                                   discontinuity: discontinuity,
-                                                   hostTimeInNanoseconds: scheduledOutputTimestampNanos)
-                }
-    
-                self.streamSink.stream.notifyScheduledOutputChanged(scheduledOutput)
-            }
-
-            if self.streamFromSink {
-                self.copyFromSinkToSource(client: client)
-            }
-        }
-    }
-
     func startStreamingFromSink(client: CMIOExtensionClient) {
         logger.info("Start streaming from sink")
-        streamFromSink = true
-        copyFromSinkToSource(client: client)
+        streamSinkClient = client
+        streamSinkCanConsume = true
     }
 
     func stopStreamingFromSink() {
         logger.info("Stop streaming from sink")
-        streamFromSink = false
+        streamSinkClient = nil
+        streamSinkCanConsume = true
     }
 }

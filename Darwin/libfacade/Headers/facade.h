@@ -14,7 +14,7 @@
 
 typedef enum {
     facade_type_video = 0,
-} facade_type;
+} facade_device_type;
 
 typedef enum {
     facade_error_none = 0,
@@ -33,7 +33,7 @@ typedef struct facade_device_data facade_device_data;
 typedef struct facade_device facade_device;
 typedef struct facade_device {
     facade_device *next;
-    facade_type type;
+    facade_device_type type;
     facade_id uid;
     uint32_t width;
     uint32_t height;
