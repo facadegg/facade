@@ -5,8 +5,8 @@
 //  Created by Shukant Pal on 1/29/23.
 //
 
-#ifndef FacadeKit_D557512F84D244B7B3830C04E09468AD
-#define FacadeKit_D557512F84D244B7B3830C04E09468AD
+#ifndef FACADE_H_D557512F84D244B7B3830C04E09468AD
+#define FACADE_H_D557512F84D244B7B3830C04E09468AD
 
 #include <ctype.h>
 
@@ -45,6 +45,7 @@ typedef void (*facade_callback)(void *context);
 
 void facade_init(void);
 void facade_list_devices(facade_device **list);
+char const *facade_xsd(void);
 
 facade_error_code facade_init_device(facade_id, facade_device *);
 facade_error_code facade_dispose_device(facade_device *);
