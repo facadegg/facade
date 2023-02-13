@@ -5,12 +5,12 @@
 from typing import Iterable
 
 
-def copy_to_darwin(xsdContents: Iterable[str]):
+def copy_to_darwin(facade_xsd: Iterable[str]):
     c_literal = '\n'.join(map(lambda l: '"' + str(l)
                               .replace('\\', '\\\\')
                               .replace('\n', '\\n')
                               .replace('"', '\\"') + '"',
-                              xsdContents))
+                              facade_xsd))
     c_src = f"""\
 //
 //  libfacadexml.m
@@ -37,4 +37,3 @@ if __name__ == "__main__":
         xsd_contents = xsd_file.readlines()
 
         copy_to_darwin(xsd_contents)
-
