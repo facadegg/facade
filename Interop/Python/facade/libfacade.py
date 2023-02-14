@@ -47,8 +47,8 @@ typedef struct facade_device {
 typedef void (*facade_callback)(void *context);
 
 void facade_init(void);
-void facade_list_devices(facade_device **list);
 
+facade_error_code facade_list_devices(facade_device **list);
 facade_error_code facade_init_device(facade_id, facade_device *);
 facade_error_code facade_dispose_device(facade_device *);
 facade_error_code facade_create_device(facade_device *options);

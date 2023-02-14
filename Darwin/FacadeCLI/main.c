@@ -53,8 +53,10 @@ void write_device(void *context) {
 
 int main(int argv, char **argc) {
     facade_device *list = NULL;
+    facade_state *output;
 
     facade_init();
+    facade_read_state(&output);
     facade_list_devices(&list);
 
     print_devices(&list);

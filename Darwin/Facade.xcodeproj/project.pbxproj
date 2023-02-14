@@ -15,7 +15,7 @@
 		6021CA832990232900334A6D /* libfacade.dylib.framework in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 6021CA6D2990232900334A6D /* libfacade.dylib.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		6021CA8B299023D600334A6D /* libfacade.dylib.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6021CA6D2990232900334A6D /* libfacade.dylib.framework */; };
 		6021CA8C299023D600334A6D /* libfacade.dylib.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 6021CA6D2990232900334A6D /* libfacade.dylib.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		6021CA912990241300334A6D /* libfacade.m in Sources */ = {isa = PBXBuildFile; fileRef = 60AC78D829872B0E00109B32 /* libfacade.m */; };
+		6021CA912990241300334A6D /* facade.m in Sources */ = {isa = PBXBuildFile; fileRef = 60AC78D829872B0E00109B32 /* facade.m */; };
 		6021CA97299026CD00334A6D /* facade.h in Headers */ = {isa = PBXBuildFile; fileRef = 6021CA96299026CD00334A6D /* facade.h */; };
 		60333FD92993439500070AA9 /* facade.h in Resources */ = {isa = PBXBuildFile; fileRef = 6021CA96299026CD00334A6D /* facade.h */; };
 		6063D39F297E590B00DA3C1B /* FacadeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6063D39E297E590B00DA3C1B /* FacadeApp.swift */; };
@@ -160,7 +160,7 @@
 		60AC78972986C87900109B32 /* SetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetupView.swift; sourceTree = "<group>"; };
 		60AC78BC2987271F00109B32 /* FacadeCLI */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = FacadeCLI; sourceTree = BUILT_PRODUCTS_DIR; };
 		60AC78C72987279C00109B32 /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
-		60AC78D829872B0E00109B32 /* libfacade.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = libfacade.m; sourceTree = "<group>"; };
+		60AC78D829872B0E00109B32 /* facade.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = facade.m; sourceTree = "<group>"; };
 		60F225802998559800AE1E73 /* libfacadexml.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = libfacadexml.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -224,7 +224,7 @@
 			isa = PBXGroup;
 			children = (
 				6021CA922990243A00334A6D /* Headers */,
-				60AC78D829872B0E00109B32 /* libfacade.m */,
+				60AC78D829872B0E00109B32 /* facade.m */,
 				6021CA6F2990232900334A6D /* libfacade.h */,
 				6021CA702990232900334A6D /* libfacade.docc */,
 				60F225802998559800AE1E73 /* libfacadexml.m */,
@@ -612,7 +612,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6021CA912990241300334A6D /* libfacade.m in Sources */,
+				6021CA912990241300334A6D /* facade.m in Sources */,
 				6021CA712990232900334A6D /* libfacade.docc in Sources */,
 				60F225812998559800AE1E73 /* libfacadexml.m in Sources */,
 			);

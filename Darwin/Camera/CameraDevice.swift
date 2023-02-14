@@ -174,7 +174,6 @@ class CameraDeviceSource: NSObject, CMIOExtensionDeviceSource, CameraStreamHandl
 
     func consumeFromSplashAnimation() {
         var err: OSStatus = 0
-        let now = CMClockGetTime(CMClockGetHostTimeClock())
         
         var pixelBuffer: CVPixelBuffer?
         err = CVPixelBufferPoolCreatePixelBufferWithAuxAttributes(kCFAllocatorDefault,
@@ -293,5 +292,17 @@ class CameraDeviceSource: NSObject, CMIOExtensionDeviceSource, CameraStreamHandl
         logger.info("Stop streaming from sink")
         streamSinkClient = nil
         streamSinkCanConsume = true
+    }
+
+    func export() -> XMLElement {
+        let name = XMLElement(name: "name", stringValue: self.device.localizedName)
+        let width = XMLElement(name: "width", stringValue: String(self.width))
+        let height = XMLElement(name: "height", stringValue: String(self.height))
+        let frameRate = XMLElement(name: "frameRate", stringValue: self.frameRate.formatted())
+        
+        let video = XMLElement(name: "video")
+        video.insertChildren([name, width, height, frameRate], at: 0)
+        
+        return video
     }
 }

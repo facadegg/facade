@@ -1,6 +1,6 @@
 //
-//  FacadeKit.cpp
-//  FacadeKit
+//  libfacade.m
+//  libfacade
 //
 //  Created by Shukant Pal on 1/29/23.
 //
@@ -20,6 +20,7 @@ CMIOObjectPropertyAddress kDeviceUIDProperty    = { kCMIODevicePropertyDeviceUID
 CMIOObjectPropertyAddress kDeviceStreams        = { kCMIODevicePropertyStreams,
                                                     kCMIOObjectPropertyScopeGlobal,
                                                     kCMIOObjectPropertyElementMain };
+
 CMIOObjectPropertyAddress kMagicProperty        = { 'fmag',
                                                     kCMIOObjectPropertyScopeGlobal,
                                                     kCMIOObjectPropertyElementMain };
@@ -32,6 +33,14 @@ CMIOObjectPropertyAddress kDimensionsProperty   = { 'fdim',
 CMIOObjectPropertyAddress kFrameRateProperty    = { 'frat',
                                                     kCMIOObjectPropertyScopeGlobal,
                                                     kCMIOObjectPropertyElementMain };
+
+CMIOObjectPropertyAddress kStateProperty        = { 'fsta',
+                                                    kCMIOObjectPropertyScopeGlobal,
+                                                    kCMIOObjectPropertyElementMain };
+
+CFStringRef kPlugInBundleID = CFSTR("com.paalmaxima.Facade.Camera");
+CMIOObjectID kPlugInID = 0;
+
 
 int kIOStreamsPerDevice = 2;
 int kWriteBufferCapacity = 100;
@@ -246,12 +255,132 @@ facade_device *read_device(CMIOObjectID device_id)
     return device;
 }
 
-void facade_init(void)
+facade_error_code facade_init(void)
 {
     logger = os_log_create("com.paalmaxima.Facade", "FacadeKit");
+
+    CMIOObjectPropertyAddress plugInForBundleIDProperty = {
+        kCMIOHardwarePropertyPlugInForBundleID,
+        kCMIOObjectPropertyScopeGlobal,
+        kCMIOHardwarePropertyPlugInForBundleID
+    };
+
+    UInt32 plugInIDByteSize = sizeof(kPlugInID);
+    AudioValueTranslation translation = {
+        .mInputData = &kPlugInBundleID,
+        .mInputDataSize = sizeof(kPlugInBundleID),
+        .mOutputData = &kPlugInID,
+        .mOutputDataSize = sizeof(kPlugInID),
+    };
+    OSStatus result = CMIOObjectGetPropertyData(kCMIOObjectSystemObject,
+                                                &plugInForBundleIDProperty,
+                                                0, nil,
+                                                sizeof(AudioValueTranslation),
+                                                &plugInIDByteSize,
+                                                &translation);
+
+    return result == kCMIOHardwareNoError ? facade_error_none : facade_error_not_installed;
 }
 
-void facade_list_devices(facade_device **list)
+@interface FacadeStateXMLImport : NSObject <NSXMLParserDelegate>
+
+- (facade_state*) import;
+
+@end
+
+@implementation FacadeStateXMLImport
+
+facade_state *state;
+facade_device_info *next_device;
+NSString *tag;
+
+- (facade_state *)import {
+    return state;
+}
+
+- (void)parserDidStartDocument:(NSXMLParser *)parser {
+    if (state == nil)
+        state = calloc(1, sizeof(facade_state));
+}
+
+- (void)parser:(NSXMLParser *)parser didStartElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName attributes:(NSDictionary<NSString *,NSString *> *)attributeDict {
+    
+    tag = elementName;
+
+    if ([elementName isEqualToString:@"video"]) {
+        if (next_device == nil)
+            next_device = calloc(1, sizeof(facade_device_info));
+    }
+}
+
+- (void)parser:(NSXMLParser *)parser foundCharacters:(NSString *)string {
+    if (tag != nil && [tag isEqualToString:@"apiVersion"]) {
+        char majorVersion = [string characterAtIndex:1] - '0';
+        state->api_version = (facade_id) majorVersion;
+    } else if (tag != nil && next_device != nil) {
+        if ([tag isEqualToString:@"id"]) {
+            next_device->uid = (facade_id) [string intValue];
+        } else if ([tag isEqualToString:@"name"]) {
+            next_device->name = calloc(1, [string length] + 1);
+            strcpy(next_device->name, [string UTF8String]);
+        } else if ([tag isEqualToString:@"width"]) {
+            next_device->width = [string intValue];
+        } else if ([tag isEqualToString:@"height"]) {
+            next_device->height = [string intValue];
+        } else if ([tag isEqualToString:@"frameRate"]) {
+            next_device->frame_rate = [string intValue];
+        }
+    }
+}
+
+- (void)parser:(NSXMLParser *)parser didEndElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName {
+    tag = nil;
+
+    if ([elementName isEqualToString:@"video"] && next_device != nil && state != nil) {
+        if (state->devices == nil) {
+            state->devices = next_device;
+            next_device->next = next_device;
+        } else {
+            next_device->next = state->devices->next;
+            state->devices->next = next_device;
+        }
+        
+        next_device = nil;
+    }
+}
+
+@end
+
+facade_error_code facade_read_state(facade_state **state)
+{
+    if (kPlugInID == 0) return facade_error_not_initialized;
+
+    OSStatus result = kCMIOHardwareNoError;
+
+    UInt32 stateValueByteSize = 0;
+    result = CMIOObjectGetPropertyDataSize(kPlugInID, &kStateProperty,
+                                           0, nil,
+                                           &stateValueByteSize);
+    char *stateValue = calloc(stateValueByteSize, sizeof(char));
+    result = CMIOObjectGetPropertyData(kPlugInID, &kStateProperty,
+                                       0, nil,
+                                       stateValueByteSize, &stateValueByteSize,
+                                       stateValue);
+
+    FacadeStateXMLImport *importer = [[FacadeStateXMLImport alloc] init];
+    
+    @autoreleasepool {
+        NSXMLParser *parser = [[NSXMLParser alloc] initWithData:[NSData dataWithBytes:stateValue length:stateValueByteSize]];
+        parser.delegate = importer;
+        [parser parse];
+    }
+    
+    *state = importer.import;
+
+    return result == kCMIOHardwareNoError ? facade_error_none : facade_error_unknown;
+}
+
+facade_error_code facade_list_devices(facade_device **list)
 {
     CMIOObjectPropertyAddress devicesPropertyAddress = {
         kCMIOHardwarePropertyDevices,
@@ -306,6 +435,8 @@ void facade_list_devices(facade_device **list)
 
         free(magicValueBuffer);
     }
+    
+    return facade_error_none;
 }
 
 void on_read_queue_ready(CMIOStreamID _, void *__, void *device)
