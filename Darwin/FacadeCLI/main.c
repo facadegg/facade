@@ -57,25 +57,38 @@ int main(int argv, char **argc) {
 
     facade_init();
     facade_read_state(&output);
-    facade_list_devices(&list);
+    
+    printf("Parsed state %lli ", output->api_version);
+    
+    facade_device_info *next = calloc(1, sizeof(facade_device_info));
+    
+    next->name = "Facade2";
+    next->width = 480;
+    next->height = 360;
+    next->frame_rate = 30;
+    
+    output->devices->next = next;
+    next->next = output->devices;
+    
+    facade_write_state(output);
 
-    print_devices(&list);
-    facade_device * device = list;
-
-    printf("dimensions %i x %i\n", list->width, list->height);
-    printf("rate %i\n", list->frame_rate);
-
-    buf = calloc(4 * device->height * device->width, 1);
-    buff_size = 4 * device->width * device->height;
-    printf("buff_size is %li", buff_size);
-
-
-    facade_write_open(list);
-
-    while(true) {
-        // read_device(list);
-        write_device(list);
-        usleep(16000);
-    }
-    printf("Success\n");
+//    print_devices(&list);
+//    facade_device * device = list;
+//
+//    printf("dimensions %i x %i\n", list->width, list->height);
+//    printf("rate %i\n", list->frame_rate);
+//
+//    buf = calloc(4 * device->height * device->width, 1);
+//    buff_size = 4 * device->width * device->height;
+//    printf("buff_size is %li", buff_size);
+//
+//
+//    facade_write_open(list);
+//
+//    while(true) {
+//        // read_device(list);
+//        write_device(list);
+//        usleep(16000);
+//    }
+//    printf("Success\n");
 }

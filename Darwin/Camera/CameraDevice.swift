@@ -24,11 +24,11 @@ class CameraDeviceSource: NSObject, CMIOExtensionDeviceSource, CameraStreamHandl
     private var bufferPool: CVPixelBufferPool!
     private var dimensions: NSString = "" // cache
     private var formatDescription: CMFormatDescription!
-    private var frameRate: UInt32 = 60
-    private var height: UInt32 = 1080
+    private(set) var frameRate: UInt32 = 60
+    private(set) var height: UInt32 = 1080
     private var lastScheduledOutput = CMSampleTimingInfo()
     private let logger: Logger
-    private var width: UInt32 = 1920
+    private(set) var width: UInt32 = 1920
 
     private var frameTimer: DispatchSourceTimer?
     private let frameQueue = DispatchQueue(label: "frameQueue",
@@ -47,6 +47,7 @@ class CameraDeviceSource: NSObject, CMIOExtensionDeviceSource, CameraStreamHandl
     init(localizedName: String) {
         let deviceID = UUID() // replace this with your device UUID
         self.logger = Logger(subsystem: "com.paalmaxima.Facade.Camera", category: "CameraDeviceSource@\(deviceID)")
+        logger.info("New device with uuid \(deviceID.uuidString)")
         super.init()
 
         self.device = CMIOExtensionDevice(localizedName: localizedName, deviceID: deviceID, legacyDeviceID: nil, source: self)
@@ -136,7 +137,7 @@ class CameraDeviceSource: NSObject, CMIOExtensionDeviceSource, CameraStreamHandl
         }
     }
 
-    private func setDeviceFormat(width: UInt32, height: UInt32, frameRate: UInt32, withStreams: Bool = true) {
+    func setDeviceFormat(width: UInt32, height: UInt32, frameRate: UInt32, withStreams: Bool = true) {
         logger.info("Reformat device to \(width)x\(height) at \(frameRate) FPS")
         self.width = width
         self.height = height
@@ -295,13 +296,14 @@ class CameraDeviceSource: NSObject, CMIOExtensionDeviceSource, CameraStreamHandl
     }
 
     func export() -> XMLElement {
+        let id = XMLElement(name: "id", stringValue: self.device.deviceID.uuidString)
         let name = XMLElement(name: "name", stringValue: self.device.localizedName)
         let width = XMLElement(name: "width", stringValue: String(self.width))
         let height = XMLElement(name: "height", stringValue: String(self.height))
         let frameRate = XMLElement(name: "frameRate", stringValue: self.frameRate.formatted())
         
         let video = XMLElement(name: "video")
-        video.insertChildren([name, width, height, frameRate], at: 0)
+        video.insertChildren([id, name, width, height, frameRate], at: 0)
         
         return video
     }

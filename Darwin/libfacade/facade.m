@@ -319,7 +319,8 @@ NSString *tag;
         state->api_version = (facade_id) majorVersion;
     } else if (tag != nil && next_device != nil) {
         if ([tag isEqualToString:@"id"]) {
-            next_device->uid = (facade_id) [string intValue];
+            next_device->uid = calloc(1, [string length] + 1);
+            strcpy(next_device->uid, [string UTF8String]);
         } else if ([tag isEqualToString:@"name"]) {
             next_device->name = calloc(1, [string length] + 1);
             strcpy(next_device->name, [string UTF8String]);
@@ -376,6 +377,73 @@ facade_error_code facade_read_state(facade_state **state)
     }
     
     *state = importer.import;
+
+    return result == kCMIOHardwareNoError ? facade_error_none : facade_error_unknown;
+}
+
+facade_error_code facade_write_state(facade_state *state)
+{
+    OSStatus result = kCMIOHardwareNoError;
+
+    @autoreleasepool {
+        NSXMLElement *facade = [NSXMLElement elementWithName:@"facade"];
+        NSXMLElement *apiVersion = [NSXMLElement elementWithName:@"apiVersion" stringValue:@"v1"];
+        NSXMLElement *devices = [NSXMLElement elementWithName:@"devices"];
+
+        [facade addChild:apiVersion];
+        [facade addChild:devices];
+        
+        facade_device_info *device_info = state->devices;
+        
+        if (device_info != nil)
+        {
+            do {
+                NSXMLElement *device = [NSXMLElement elementWithName:@"video"];
+                NSXMLElement *_id = device_info->uid
+                    ? [NSXMLElement
+                       elementWithName:@"id"
+                       stringValue:[NSString stringWithUTF8String:device_info->uid]]
+                    : nil;
+                NSXMLElement *name = [NSXMLElement
+                                      elementWithName:@"name"
+                                      stringValue:[NSString stringWithUTF8String:device_info->name]];
+                NSXMLElement *width = [NSXMLElement
+                                       elementWithName:@"width"
+                                       stringValue:[NSString stringWithFormat:@"%u", device_info->width]];
+                NSXMLElement *height = [NSXMLElement
+                                        elementWithName:@"height"
+                                        stringValue:[NSString stringWithFormat:@"%u", device_info->height]];
+                NSXMLElement *frame_rate = [NSXMLElement
+                                            elementWithName: @"frameRate"
+                                            stringValue:[NSString stringWithFormat:@"%u", device_info->frame_rate]];
+
+                if (_id != nil) [device addChild:_id];
+                [device addChild:name];
+                [device addChild:width];
+                [device addChild:height];
+                [device addChild:frame_rate];
+                
+                [devices addChild:device];
+                
+                device_info = device_info->next;
+            } while(device_info != nil && device_info != state->devices);
+        }
+        
+        NSXMLDocument *document = [[NSXMLDocument alloc] initWithRootElement:facade];
+        [document setVersion:@"1.0"];
+        [document setCharacterEncoding:@"UTF-8"];
+    
+        NSData *xmlData = [document XMLDataWithOptions:NSXMLNodePrettyPrint];
+        NSString *xmlString = [[NSString alloc] initWithData:xmlData encoding:NSUTF8StringEncoding];
+
+        result = CMIOObjectSetPropertyData(kPlugInID, &kStateProperty,
+                                           0, nil,
+                                           (UInt32) [xmlString length] + 1,
+                                           xmlString.UTF8String);
+    }
+    
+    if (result != kCMIOHardwareNoError)
+        os_log_error(logger, "Failed to write state (OSStatus %i)", result);
 
     return result == kCMIOHardwareNoError ? facade_error_none : facade_error_unknown;
 }

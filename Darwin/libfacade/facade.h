@@ -35,7 +35,7 @@ typedef struct facade_device_info facade_device_info;
 typedef struct facade_device_info {
     facade_device_info *next;
     facade_device_type type;
-    facade_id uid;
+    char *uid;
     char *name;
     uint32_t width;
     uint32_t height;
@@ -63,12 +63,14 @@ typedef void (*facade_callback)(void *context);
 
 facade_error_code facade_init(void);
 facade_error_code facade_read_state(facade_state **);
-char const *facade_xsd(void);
+facade_error_code facade_write_state(facade_state *);
 
 facade_error_code facade_list_devices(facade_device **list);
-facade_error_code facade_init_device(facade_id, facade_device *);
+facade_error_code facade_find_device(facade_id, facade_device **);
 facade_error_code facade_dispose_device(facade_device *);
 facade_error_code facade_create_device(facade_device_info *options);
+facade_error_code facade_edit_device(facade_id, facade_device_info *options);
+facade_error_code facade_delete_device(facade_id);
 
 facade_error_code facade_read_open(facade_device *);
 facade_error_code facade_read_callback(facade_device *, facade_callback callback, void *context);
