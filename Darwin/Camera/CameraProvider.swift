@@ -16,7 +16,7 @@ let kFrameRate: Int = 60
 let stateProperty = CMIOExtensionProperty(rawValue: "4cc_fsta_glob_0000")
 
 class CameraProviderSource: NSObject, CMIOExtensionProviderSource {
-	private(set) var provider: CMIOExtensionProvider!
+    private(set) var provider: CMIOExtensionProvider!
     private var deviceSources: Set<CameraDeviceSource> = []
     private let logger: Logger
 

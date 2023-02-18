@@ -15,7 +15,7 @@ os_log("com.paalmaxima.Facade.Camera is initializing.", log: scribe, type: .erro
 let providerSource = CameraProviderSource(clientQueue: nil)
 CMIOExtensionProvider.startService(provider: providerSource.provider)
 
-providerSource.createDevice()
+providerSource.createDevice(localizedName: "Facade")
 
 CFRunLoopRun()
 os_log("com.paalmaxima.Facade.Camera has initialized.", log: scribe, type: .info)
