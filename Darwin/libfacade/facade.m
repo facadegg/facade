@@ -14,7 +14,14 @@
 char *FACADE_MODEL = "Facade";
 int FACADE_MODEL_LENGTH = 6;
 
+CMIOObjectPropertyAddress kDeviceIDsProperty    = { kCMIOHardwarePropertyDevices,
+                                                    kCMIOObjectPropertyScopeGlobal,
+                                                    kCMIOObjectPropertyElementMain };
+
 CMIOObjectPropertyAddress kDeviceUIDProperty    = { kCMIODevicePropertyDeviceUID,
+                                                    kCMIOObjectPropertyScopeGlobal,
+                                                    kCMIOObjectPropertyElementMain };
+CMIOObjectPropertyAddress kDeviceNameProperty   = { kCMIOObjectPropertyName,
                                                     kCMIOObjectPropertyScopeGlobal,
                                                     kCMIOObjectPropertyElementMain };
 CMIOObjectPropertyAddress kDeviceStreams        = { kCMIODevicePropertyStreams,
@@ -51,6 +58,7 @@ static os_log_t logger;
 
 struct facade_device_data
 {
+    CMIOObjectID cmio_id;
     CMSimpleQueueRef read_queue;
     CMSimpleQueueRef write_queue;
     CMIOStreamID streams[2];
@@ -77,17 +85,107 @@ void insert_device(facade_device **list, facade_device *node)
     }
 }
 
+void insert_device_info(facade_device_info **list, facade_device_info *node)
+{
+    if (*list == nil) {
+        *list = node;
+        node->next = node;
+    } else { // insert after list head and shift
+        node->next = (*list)->next;
+        (*list)->next = node;
+        *list = node;
+    }
+}
+
+void dispose_device_info(facade_device_info **node_ref)
+{
+    facade_device_info *node = *node_ref;
+    
+    if (node->uid != nil)   free((void *) node->uid);
+    if (node->name != nil)  free((void *) node->name);
+    
+    free(node);
+    *node_ref = nil;
+}
+
+static inline void list_devices(CMIOObjectID **device_ids, UInt32 *device_count)
+{
+    UInt32 device_ids_byte_size = 0;
+    CMIOObjectGetPropertyDataSize(kCMIOObjectSystemObject,
+                                  &kDeviceIDsProperty,
+                                  0, NULL,
+                                  &device_ids_byte_size);
+
+    *device_ids = (CMIOObjectID *) malloc(device_ids_byte_size);
+    CMIOObjectGetPropertyData(kCMIOObjectSystemObject,
+                              &kDeviceIDsProperty,
+                              0,
+                              NULL,
+                              device_ids_byte_size,
+                              &device_ids_byte_size,
+                              *device_ids);
+
+    *device_count = device_ids_byte_size / sizeof(CMIOObjectID);
+    
+#if DEBUG
+    printf("Found %i CoreMediaIO devices on system\n", *device_count);
+#endif
+}
+
+static inline bool read_property(CMIOObjectID device_id, CMIOObjectPropertyAddress *property, void **value)
+{
+    if (!CMIOObjectHasProperty(device_id, property))
+    {
+        *value = nil;
+        return false;
+    }
+    else
+    {
+        UInt32 byte_size = 0;
+        CMIOObjectGetPropertyDataSize(device_id, property,
+                                      0, nil,
+                                      &byte_size);
+        
+        void *data = malloc(byte_size);
+        CMIOObjectGetPropertyData(device_id, property,
+                                  0, nil,
+                                  byte_size, &byte_size,
+                                  data);
+
+        *value = data;
+        return true;
+    }
+}
+
+static inline bool read_magic_value(CMIOObjectID device_id)
+{
+    char *magic_value_buffer = nil;
+    read_property(device_id, &kMagicProperty, (void **) &magic_value_buffer);
+
+    bool match = magic_value_buffer != nil
+        ? [kMagicValue isEqualToString:[NSString stringWithUTF8String:magic_value_buffer]]
+        : false;
+
+    free(magic_value_buffer);
+    
+    return match;
+}
+
+static inline bool read_uid(CMIOObjectID device_id, char **uid)
+{
+    return read_property(device_id, &kDeviceUIDProperty, (void **) uid);
+}
+
+static inline bool read_name(CMIOObjectID device_id, char **name)
+{
+    return read_property(device_id, &kDeviceNameProperty, (void **) name);
+}
+
 static inline facade_error_code read_dimensions(facade_device *device)
 {
-    UInt32 dimensions_string_length = 0;
-    CMIOObjectGetPropertyDataSize((CMIOObjectID) device->uid, &kDimensionsProperty,
-                                  0, nil,
-                                  &dimensions_string_length);
-    char *dimensions = malloc(dimensions_string_length);
-    CMIOObjectGetPropertyData((CMIOObjectID) device->uid, &kDimensionsProperty,
-                              0, nil,
-                              dimensions_string_length, &dimensions_string_length,
-                              dimensions);
+    char *dimensions = nil;
+    read_property(device->data->cmio_id, &kDimensionsProperty, (void **) &dimensions);
+
     NSScanner *scanner = [NSScanner scannerWithString:[NSString stringWithUTF8String:dimensions]];
 
     int temp_width = 0, temp_height = 0;
@@ -112,26 +210,26 @@ static inline facade_error_code read_dimensions(facade_device *device)
 
 static inline facade_error_code read_frame_rate(facade_device *device)
 {
-    if (!CMIOObjectHasProperty((CMIOObjectID) device->uid, &kFrameRateProperty)) {
-        os_log_error(logger, "facade_device %lli - Frame rate property not found.",
+    if (!CMIOObjectHasProperty(device->data->cmio_id, &kFrameRateProperty)) {
+        os_log_error(logger, "facade_device %s - Frame rate property not found.",
                      device->uid);
         return facade_error_protocol;
     }
 
     UInt32 frame_rate_int_size = 0;
-    CMIOObjectGetPropertyDataSize((CMIOObjectID) device->uid, &kFrameRateProperty,
+    CMIOObjectGetPropertyDataSize(device->data->cmio_id, &kFrameRateProperty,
                                   0, nil,
                                   &frame_rate_int_size);
 
     if (frame_rate_int_size != sizeof(uint32_t)) {
         os_log_error(logger,
-                     "facade_device %lli - Frame rate property has unexpected byte size.",
+                     "facade_device %s - Frame rate property has unexpected byte size.",
                      device->uid);
 
         return facade_error_protocol;
     }
 
-    CMIOObjectGetPropertyData((CMIOObjectID) device->uid, &kFrameRateProperty,
+    CMIOObjectGetPropertyData(device->data->cmio_id, &kFrameRateProperty,
                               0, nil,
                               frame_rate_int_size, &frame_rate_int_size,
                               &device->frame_rate);
@@ -219,7 +317,6 @@ facade_device *read_device(CMIOObjectID device_id)
 {
     facade_device *device = calloc(1, sizeof(facade_device));
     device->type = facade_type_video;
-    device->uid = device_id;
     device->data = calloc(1, sizeof(facade_device_data));
     device->data->write_sample_buffers = CFArrayCreateMutable(kCFAllocatorDefault, 6, &kCFTypeArrayCallBacks);
 
@@ -231,7 +328,7 @@ facade_device *read_device(CMIOObjectID device_id)
 
     if (streamCount != kIOStreamsPerDevice) {
         os_log_error(logger,
-                     "facade_device @%lli - Unexpected number of streams (%i vs %i)",
+                     "facade_device @%s - Unexpected number of streams (%i vs %i)",
                      device->uid,
                      streamCount,
                      kIOStreamsPerDevice);
@@ -316,14 +413,16 @@ NSString *tag;
 - (void)parser:(NSXMLParser *)parser foundCharacters:(NSString *)string {
     if (tag != nil && [tag isEqualToString:@"apiVersion"]) {
         char majorVersion = [string characterAtIndex:1] - '0';
-        state->api_version = (facade_id) majorVersion;
+        state->api_version = (facade_version) majorVersion;
     } else if (tag != nil && next_device != nil) {
         if ([tag isEqualToString:@"id"]) {
-            next_device->uid = calloc(1, [string length] + 1);
-            strcpy(next_device->uid, [string UTF8String]);
+            char *uid = calloc(1, [string length] + 1);
+            next_device->uid = uid;
+            strcpy(uid, [string UTF8String]);
         } else if ([tag isEqualToString:@"name"]) {
-            next_device->name = calloc(1, [string length] + 1);
-            strcpy(next_device->name, [string UTF8String]);
+            char *name = calloc(1, [string length] + 1);
+            next_device->name = name;
+            strcpy(name, [string UTF8String]);
         } else if ([tag isEqualToString:@"width"]) {
             next_device->width = [string intValue];
         } else if ([tag isEqualToString:@"height"]) {
@@ -448,63 +547,242 @@ facade_error_code facade_write_state(facade_state *state)
     return result == kCMIOHardwareNoError ? facade_error_none : facade_error_unknown;
 }
 
+facade_error_code facade_dispose_state(facade_state **state)
+{
+    facade_device_info *device_info = (*state)->devices;
+
+    if (device_info != nil)
+    {
+        do
+        {
+            facade_device_info *next = device_info->next;
+            dispose_device_info(&device_info);
+            device_info = next;
+        } while (device_info != (*state)->devices);
+    }
+
+    free(*state);
+    *state = nil;
+    
+    return facade_error_none;
+}
+
 facade_error_code facade_list_devices(facade_device **list)
 {
-    CMIOObjectPropertyAddress devicesPropertyAddress = {
-        kCMIOHardwarePropertyDevices,
-        kCMIOObjectPropertyScopeGlobal,
-        kCMIOObjectPropertyElementMain
-    };
+    CMIOObjectID *device_ids = nil;
+    UInt32 device_count = 0;
+    list_devices(&device_ids, &device_count);
 
-    UInt32 deviceArrayByteSize = 0;
-    CMIOObjectGetPropertyDataSize(kCMIOObjectSystemObject,
-                                  &devicesPropertyAddress,
-                                  0, NULL,
-                                  &deviceArrayByteSize);
-
-    CMIOObjectID *deviceIds = (CMIOObjectID *) malloc(deviceArrayByteSize);
-    UInt32 deviceArrayByteSizedUsed = 0; // should match deviceArrayByteSize
-    CMIOObjectGetPropertyData(kCMIOObjectSystemObject,
-                              &devicesPropertyAddress,
-                              0,
-                              NULL,
-                              deviceArrayByteSize,
-                              &deviceArrayByteSizedUsed,
-                              deviceIds);
-
-    UInt32 deviceCount = deviceArrayByteSizedUsed / sizeof(CMIOObjectID);
-
-#if DEBUG
-    printf("Found %i CoreMediaIO devices on system\n", deviceCount);
-#endif
-
-    for (UInt32 i = 0; i < deviceCount; i++)
+    for (UInt32 i = 0; i < device_count; i++)
     {
-        bool hasMagicProperty = CMIOObjectHasProperty(deviceIds[i], &kMagicProperty);
-        if (!hasMagicProperty)
-            continue;
-
-        UInt32 magicValueLength = 0;
-        CMIOObjectGetPropertyDataSize(deviceIds[i], &kMagicProperty, 0, nil, &magicValueLength);
-        if (magicValueLength != kMagicValue.length + 1)
-            continue;
-
-        char *magicValueBuffer = malloc(magicValueLength);
-        CMIOObjectGetPropertyData(deviceIds[i], &kMagicProperty,
-                                  0, nil,
-                                  magicValueLength, &magicValueLength, magicValueBuffer);
-        if ([kMagicValue isEqualToString:[NSString stringWithUTF8String:magicValueBuffer]])
+        if (read_magic_value(device_ids[i]))
         {
-            facade_device *device = read_device(deviceIds[i]);
+            facade_device *device = read_device(device_ids[i]);
 
             if (device != nil)
                 insert_device(list, device);
         }
-
-        free(magicValueBuffer);
     }
     
+    free(device_ids);
+    
     return facade_error_none;
+}
+
+facade_error_code facade_find_device(const char *name, facade_device **device)
+{
+    CMIOObjectID *device_ids = nil;
+    UInt32 device_count = 0;
+    list_devices(&device_ids, &device_count);
+    
+    *device = nil;
+
+    for (UInt32 i = 0; i < device_count && *device == nil; i++)
+    {
+        if (!read_magic_value(device_ids[i]))
+            continue;
+        
+        char *device_name = nil;
+        read_name(device_ids[i], &device_name);
+        
+        int match = strcmp(device_name, name) == 0;
+        
+        free(device_name);
+
+        if (match)
+            *device = read_device(device_ids[i]);
+    }
+    
+    free(device_ids);
+
+    return *device != nil ? facade_error_none : facade_error_not_found;
+}
+
+facade_error_code facade_dispose_device(facade_device **device_ref)
+{
+    facade_device *device = *device_ref;
+    
+    release_write_buffer_pool(device);
+
+    free(device->data->read_frame);
+    device->data->read_frame = nil;
+    
+    if (device->data->read_queue != nil)
+    {
+        CFRelease(device->data->read_queue);
+        device->data->read_queue = nil;
+    }
+    
+    if (device->data->write_queue != nil)
+    {
+        CFRelease(device->data->write_queue);
+        device->data->write_queue = nil;
+    }
+    
+    if (device->data->format_description != nil)
+    {
+        CFRelease(device->data->format_description);
+        device->data->format_description = nil;
+    }
+    
+    free(device->data);
+    device->data = nil;
+    
+    free((void *) device->uid);
+    device->uid = nil;
+
+    free((void *) device->name);
+    device->name = nil;
+    
+    free(device);
+    *device_ref = nil;
+    
+    return facade_error_none;
+}
+
+facade_error_code facade_create_device(facade_device_info *options)
+{
+    if (options->type != facade_type_video ||
+        options->uid != nil ||
+        options->name == nil ||
+        options->width > 8192 ||
+        options->height > 8192 ||
+        options->frame_rate < 10 ||
+        options->frame_rate > 120)
+        return facade_error_invalid_input;
+    
+    facade_state *state = nil;
+    facade_error_code read_error = facade_read_state(&state);
+    if (read_error != facade_error_none)
+        return read_error;
+    
+    facade_device_info *copy = malloc(sizeof(facade_device_info));
+    memcpy(copy, options, sizeof(facade_device_info));
+    copy->uid = malloc(strlen(options->uid) + 1);
+    copy->name = malloc(strlen(options->name) + 1);
+    strcpy((char *) copy->uid, options->uid);
+    strcpy((char *) copy->name, options->name);
+
+    insert_device_info(&state->devices, copy);
+    facade_error_code write_error = facade_write_state(state);
+    
+    facade_dispose_state(&state);
+
+    return write_error;
+}
+
+facade_error_code facade_edit_device(char const *uid, facade_device_info *options)
+{
+    if (options->name != nil)
+        return facade_error_invalid_input;
+    
+    facade_state *state = nil;
+    facade_error_code read_error = facade_read_state(&state);
+    if (read_error != facade_error_none)
+        return read_error;
+    
+    facade_error_code error = facade_error_none;
+    facade_device_info *target_device = nil;
+    
+    if (state->devices != nil)
+    {
+        facade_device_info *info = state->devices;
+        
+        do {
+            if (strcmp(info->uid, uid))
+                target_device = info;
+            
+            info = info->next;
+        } while (info != state->devices && target_device == nil);
+    }
+    
+    if (target_device == nil)
+    {
+        error = facade_error_not_found;
+    }
+    else if (target_device->type != options->type)
+    {
+        error = facade_error_not_found;
+    }
+    else
+    {
+        if (options->width != 0)        target_device->width = options->width;
+        if (options->height != 0)       target_device->height = options->height;
+        if (options->frame_rate != 0)   target_device->frame_rate = options->frame_rate;
+        
+        error = facade_write_state(state);
+    }
+
+    facade_dispose_state(&state);
+    
+    return error;
+}
+
+facade_error_code facade_delete_device(char const *uid)
+{
+    facade_state *state = nil;
+    facade_error_code read_error = facade_read_state(&state);
+    if (read_error != facade_error_none)
+        return read_error;
+
+    bool found = false;
+    
+    if (state->devices != nil)
+    {
+        facade_device_info *last = state->devices;
+        facade_device_info *info = last->next;
+        
+        do {
+            if (strcmp(info->uid, uid) == 0)
+            {
+                last->next = info->next;
+                
+                if (last == info)
+                {
+                    state->devices = nil;
+                }
+                else if (info == state->devices)
+                {
+                    state->devices = last;
+                }
+
+                dispose_device_info(&info);
+                found = true;
+            }
+            else
+            {
+                info = info->next;
+            }
+        } while (info != nil && info != state->devices->next);
+    }
+    
+    if (!found)
+        return facade_error_not_found;
+
+    facade_error_code write_error = facade_write_state(state);
+    facade_dispose_state(&state);
+    
+    return write_error;
 }
 
 void on_read_queue_ready(CMIOStreamID _, void *__, void *device)
@@ -518,7 +796,7 @@ facade_error_code facade_read_open(facade_device *device)
 {
     if (device->data->read_queue != nil) {
         os_log_error(logger,
-                     "facade_read_open %lli - Input stream is already open.",
+                     "facade_read_open %s - Input stream is already open.",
                      device->uid);
         return facade_error_invalid_state;
     }
@@ -526,11 +804,11 @@ facade_error_code facade_read_open(facade_device *device)
     device->data->read_callback = nil;
     device->data->read_context = nil;
     
-    OSStatus status = CMIODeviceStartStream((CMIODeviceID) device->uid, device->data->streams[0]);
+    OSStatus status = CMIODeviceStartStream(device->data->cmio_id, device->data->streams[0]);
 
     if (status != kCMIOHardwareNoError) {
         os_log_error(logger,
-                     "facade_read_open %lli - Input stream failed to open.",
+                     "facade_read_open %s - Input stream failed to open.",
                      device->uid);
         return facade_error_unknown;
     }
@@ -542,11 +820,19 @@ facade_error_code facade_read_open(facade_device *device)
     
     if (status != kCMIOHardwareNoError) {
         os_log_error(logger,
-                     "facade_read_open %lli - Input buffer queue could not be copied",
+                     "facade_read_open %s - Input buffer queue could not be copied",
                      device->uid);
         return facade_error_unknown;
     }
 
+    return facade_error_none;
+}
+
+facade_error_code facade_read_callback(facade_device *device, facade_callback callback, void *context)
+{
+    device->data->read_callback = callback;
+    device->data->read_context = context;
+    
     return facade_error_none;
 }
 
@@ -563,7 +849,7 @@ facade_error_code facade_read_frame(facade_device *device, void **buffer, size_t
     if (sample_buffer == nil) {
 #if DEBUG
         os_log_error(logger,
-                     "facade_read_frame %lli - Input stream has no frames left.",
+                     "facade_read_frame %s - Input stream has no frames left.",
                      device->uid);
 #endif
         return facade_error_reader_not_ready;
@@ -577,7 +863,7 @@ facade_error_code facade_read_frame(facade_device *device, void **buffer, size_t
 
     if (data_length < device->width * device->height * BYTES_PER_PIXEL) {
         os_log_error(logger,
-                     "facade_read_frame %lli - Receive buffer has wrong size (%li). (OSStatus %i)",
+                     "facade_read_frame %s - Receive buffer has wrong size (%li). (OSStatus %i)",
                      device->uid,
                      data_length,
                      status);
@@ -600,7 +886,7 @@ facade_error_code facade_read_frame(facade_device *device, void **buffer, size_t
 
 facade_error_code facade_read_close(facade_device *device)
 {
-    OSStatus status = CMIODeviceStopStream((CMIODeviceID) device->uid, device->data->streams[0]);
+    OSStatus status = CMIODeviceStopStream(device->data->cmio_id, device->data->streams[0]);
  
     if (device->data->read_queue != nil)
     {
@@ -623,16 +909,16 @@ facade_error_code facade_write_open(facade_device *device)
 {
     if (device->data->write_queue != nil) {
         os_log_error(logger,
-                     "facade_write_open %lli - Output stream is already open.",
+                     "facade_write_open %s - Output stream is already open.",
                      device->uid);
         return facade_error_invalid_state;
     }
     
-    OSStatus status = CMIODeviceStartStream((CMIODeviceID) device->uid, device->data->streams[1]);
+    OSStatus status = CMIODeviceStartStream(device->data->cmio_id, device->data->streams[1]);
 
     if (status != kCMIOHardwareNoError) {
         os_log_error(logger,
-                     "facade_write_open %lli - Output stream failed to open.",
+                     "facade_write_open %s - Output stream failed to open.",
                      device->uid);
         return facade_error_unknown;
     }
@@ -644,7 +930,7 @@ facade_error_code facade_write_open(facade_device *device)
 
     if (status != kCMIOHardwareNoError) {
         os_log_error(logger,
-                     "facade_write_open %lli - Output buffer queue could not be copied.",
+                     "facade_write_open %s - Output buffer queue could not be copied.",
                      device->uid);
         return facade_error_unknown;
     }
@@ -664,13 +950,13 @@ facade_error_code facade_write_frame(facade_device *device, void *buffer, size_t
 {
     if (device->data->write_queue == nil) {
         os_log_error(logger,
-                     "facade_write_frame %lli - Output stream was not opened.",
+                     "facade_write_frame %s - Output stream was not opened.",
                      device->uid);
         return facade_error_writer_not_ready;
     }
     if (buffer_size < BYTES_PER_PIXEL * device->width * device->height) {
         os_log_error(logger,
-                     "facade_write_frame %lli - Send buffer has wrong size. (%li vs %li)",
+                     "facade_write_frame %s - Send buffer has wrong size. (%li vs %li)",
                      device->uid,
                      buffer_size,
                      (size_t) BYTES_PER_PIXEL * device->width * device->height);
@@ -679,7 +965,7 @@ facade_error_code facade_write_frame(facade_device *device, void *buffer, size_t
     if (device->data->write_buffer_pool == nil) {
 #if DEBUG
         os_log_debug(logger,
-                     "facade_write_frame %lli - Allocating write buffer pool",
+                     "facade_write_frame %s - Allocating write buffer pool",
                      device->uid);
 #endif
         create_write_buffer_pool(device);
@@ -697,7 +983,7 @@ facade_error_code facade_write_frame(facade_device *device, void *buffer, size_t
                                                                            &pixel_buffer);
     if (success != kCVReturnSuccess) {
         os_log_error(logger,
-                     "facade_write_frame %lli - Failed to allocate pixel buffer. (OSStatus %i)",
+                     "facade_write_frame %s - Failed to allocate pixel buffer. (OSStatus %i)",
                      device->uid,
                      success);
         return facade_error_unknown;
@@ -718,7 +1004,7 @@ facade_error_code facade_write_frame(facade_device *device, void *buffer, size_t
                                                 &sample_buffer);
     if (status != kCMBlockBufferNoErr) {
         os_log_error(logger,
-                     "facade_write_frame %lli - Failed to create sample buffer. (OSStatus %i)",
+                     "facade_write_frame %s - Failed to create sample buffer. (OSStatus %i)",
                      device->uid,
                      status);
         CFRelease(sample_buffer);
@@ -731,7 +1017,7 @@ facade_error_code facade_write_frame(facade_device *device, void *buffer, size_t
     
     if (status != kCMBlockBufferNoErr) {
         os_log_error(logger,
-                     "facade_write_frame %lli - Failed to queue frame. (OSStatus %i)",
+                     "facade_write_frame %s - Failed to queue frame. (OSStatus %i)",
                      device->uid,
                      status);
     }
@@ -743,7 +1029,7 @@ facade_error_code facade_write_frame(facade_device *device, void *buffer, size_t
 
 facade_error_code facade_write_close(facade_device *device)
 {
-    OSStatus status = CMIODeviceStopStream((CMIODeviceID) device->uid, device->data->streams[1]);
+    OSStatus status = CMIODeviceStopStream(device->data->cmio_id, device->data->streams[1]);
 
     if (device->data->write_queue != nil)
     {
