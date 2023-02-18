@@ -17,7 +17,7 @@ struct GeneralSettingsView: View {
     private var virtualizeSpeaker = false
     @AppStorage("requireSocketAuthorization")
     private var requireSocketAuthorization = true
-
+    
     var body: some View {
         Form {
             LabeledContent("Virtualization: ") {
@@ -25,7 +25,7 @@ struct GeneralSettingsView: View {
                     Toggle("Camera", isOn: $virtualizeCamera)
                     Toggle("Microphone (coming soon)",
                            isOn: $virtualizeMicrophone).disabled(true)
-                        
+                    
                     Toggle("Speaker (coming soon)", isOn: $virtualizeSpeaker)
                         .disabled(true)
                     Button(action: {

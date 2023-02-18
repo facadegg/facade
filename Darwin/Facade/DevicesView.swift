@@ -73,7 +73,7 @@ struct DevicesView: View {
                 .padding(20)
                 
                 Spacer()
-
+                
                 SetupView()
             }
             .frame(maxWidth: .infinity)

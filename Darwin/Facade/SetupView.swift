@@ -11,11 +11,11 @@ import SystemExtensions
 
 class SetupDelegate : NSObject, OSSystemExtensionRequestDelegate {
     var view: SetupView
-
+    
     init(view: SetupView) {
         self.view = view
     }
-
+    
     func request(_ request: OSSystemExtensionRequest, actionForReplacingExtension existing: OSSystemExtensionProperties, withExtension ext: OSSystemExtensionProperties) -> OSSystemExtensionRequest.ReplacementAction {
         view.message += "Facade is already installed. Please uninstall it first."
         view.error = true
@@ -42,7 +42,7 @@ struct SetupView: View {
     @State var delegate: SetupDelegate?
     @State var error = false
     @State var message = "Facade needs permission to create virtual devices"
-
+    
     var body: some View {
         VStack {
             Button(action: { [self] in
@@ -50,7 +50,7 @@ struct SetupView: View {
             }) {
                 Text("Install System Extension")
             }
-
+            
             Text(message)
                 .foregroundColor(error ? Color.red : Color.secondary)
         }
@@ -65,7 +65,7 @@ struct SetupView: View {
         if delegate == nil {
             delegate = SetupDelegate(view: self)
         }
-
+        
         activationRequest.delegate = delegate
         
         return activationRequest

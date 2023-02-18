@@ -19,31 +19,31 @@ class CameraProviderSource: NSObject, CMIOExtensionProviderSource {
     private(set) var provider: CMIOExtensionProvider!
     private var deviceSources: Set<CameraDeviceSource> = []
     private let logger: Logger
-
-	init(clientQueue: DispatchQueue?) {
+    
+    init(clientQueue: DispatchQueue?) {
         self.logger = Logger(subsystem: "com.paalmaxima.Facade.Camera", category: "CameraProviderSource")
-
+        
         super.init()
-
+        
         deviceSources = []
-		provider = CMIOExtensionProvider(source: self, clientQueue: clientQueue)
-	}
-
-	func connect(to client: CMIOExtensionClient) throws {
-		// Handle client connect
-	}
-
-	func disconnect(from client: CMIOExtensionClient) {
-		// Handle client disconnect
-	}
-
+        provider = CMIOExtensionProvider(source: self, clientQueue: clientQueue)
+    }
+    
+    func connect(to client: CMIOExtensionClient) throws {
+        // Handle client connect
+    }
+    
+    func disconnect(from client: CMIOExtensionClient) {
+        // Handle client disconnect
+    }
+    
     var availableProperties: Set<CMIOExtensionProperty> {
         return [.providerName, .providerManufacturer, magicProperty, stateProperty]
-	}
-	
-	func providerProperties(forProperties properties: Set<CMIOExtensionProperty>) throws -> CMIOExtensionProviderProperties {
-		let providerProperties = CMIOExtensionProviderProperties(dictionary: [:])
-
+    }
+    
+    func providerProperties(forProperties properties: Set<CMIOExtensionProperty>) throws -> CMIOExtensionProviderProperties {
+        let providerProperties = CMIOExtensionProviderProperties(dictionary: [:])
+        
         if properties.contains(.providerName) {
             providerProperties.name = "Facade"
         }
@@ -52,26 +52,26 @@ class CameraProviderSource: NSObject, CMIOExtensionProviderSource {
         }
         if properties.contains(magicProperty) {
             providerProperties.setPropertyState(CMIOExtensionPropertyState(value: NSData(bytes: magicValue.utf8String,
-                                                                           length: magicValue.length + 1)),
+                                                                                         length: magicValue.length + 1)),
                                                 forProperty: magicProperty)
         }
         if properties.contains(stateProperty) {
             let stateValue = export().xmlString as NSString
             providerProperties.setPropertyState(CMIOExtensionPropertyState(value: NSData(bytes: stateValue.utf8String,
                                                                                          length: stateValue.length + 1)),
-                                                                           forProperty: stateProperty)
+                                                forProperty: stateProperty)
         }
-
+        
         return providerProperties
-	}
-
+    }
+    
     func setProviderProperties(_ providerProperties: CMIOExtensionProviderProperties) throws {
         if let state = providerProperties.propertiesDictionary[stateProperty] {
             if let stateData = state.value as? NSData {
                 logger.debug("Importing state from client")
                 let str = String(data: stateData as Data, encoding: .utf8)
                 logger.debug("\(str!, privacy: .public)")
-
+                
                 do {
                     importFromXML(try XMLDocument(data: stateData.subdata(with: NSRange(location: 0, length: stateData.length - 1)) as Data))
                 } catch {
@@ -81,13 +81,13 @@ class CameraProviderSource: NSObject, CMIOExtensionProviderSource {
                 logger.error("Failed to extract data from state")
             }
         }
-	}
-
+    }
+    
     func createDevice(localizedName: String = "Facade") -> CameraDeviceSource {
         logger.debug("Creating device '\(localizedName)'")
         
         let deviceSource = CameraDeviceSource(localizedName: "Facade")
-
+        
         do {
             try provider.addDevice(deviceSource.device)
         } catch let error {
@@ -95,10 +95,10 @@ class CameraProviderSource: NSObject, CMIOExtensionProviderSource {
         }
         
         deviceSources.insert(deviceSource)
-
+        
         return deviceSource
     }
-
+    
     func destroyDevice(deviceSource: CameraDeviceSource) {
         logger.debug("Destroying device '\(deviceSource.device.localizedName)'")
         
@@ -107,17 +107,17 @@ class CameraProviderSource: NSObject, CMIOExtensionProviderSource {
         } catch let error {
             fatalError("Failed to remove device: \(error.localizedDescription)")
         }
-
+        
         deviceSources.remove(deviceSource)
     }
-
+    
     func importFromXML(_ document: XMLDocument) {
         guard let facade = document.rootElement() else { return }
         guard let facadeName = facade.name, facadeName == "facade" else {
             logger.warning("importFromXML: <facade> not found at document root")
             return
         }
-
+        
         let apiVersions = facade.elements(forName: "apiVersion")
         guard apiVersions.count == 1 else {
             logger.warning("importFromXML: <apiVersion> declaration is not present or is duplicated")
@@ -137,7 +137,7 @@ class CameraProviderSource: NSObject, CMIOExtensionProviderSource {
             logger.warning("importFromXML: <devices> must be present exactly once")
             return
         }
-
+        
         let devices = deviceLists[0]
         let videos = devices.elements(forName: "video")
         var videosDeleted: Set<CameraDeviceSource> = Set(deviceSources)
@@ -146,14 +146,14 @@ class CameraProviderSource: NSObject, CMIOExtensionProviderSource {
             logger.warning("importFromXML: <devices> can have a maximum of 4 videos devices")
             return
         }
-
+        
         for (videoIndex, video) in videos.enumerated() {
             let id = video.elements(forName: "id")
             let name = video.elements(forName: "name")
             let width = video.elements(forName: "width")
             let height = video.elements(forName: "height")
             let frameRate = video.elements(forName: "frameRate")
-
+            
             guard id.count <= 1 && name.count <= 1 &&
                     width.count <= 1 && height.count <= 1 && frameRate.count <= 1 else {
                 logger.warning("importFromXML: Malformed <device> at index \(videoIndex)")
@@ -187,7 +187,7 @@ class CameraProviderSource: NSObject, CMIOExtensionProviderSource {
             }
             
             let idValue = id.count == 1 ? id[0].stringValue : nil
-
+            
             if let idValue = idValue {
                 guard let modifiedDevice = deviceSources.first(where: {
                     $0.device.deviceID.uuidString == idValue
@@ -195,9 +195,9 @@ class CameraProviderSource: NSObject, CMIOExtensionProviderSource {
                     logger.warning("importFromXML: Unknown device identifier \(idValue)")
                     continue
                 }
-
+                
                 // Note: We cannot modify the localizedName of the device.
-
+                
                 if widthValue != modifiedDevice.width ||
                     heightValue != modifiedDevice.height ||
                     frameRateValue != modifiedDevice.frameRate {
@@ -219,20 +219,20 @@ class CameraProviderSource: NSObject, CMIOExtensionProviderSource {
             destroyDevice(deviceSource: video)
         }
     }
-
+    
     func export() -> XMLDocument {
         let facade = XMLElement(name: "facade")
         let apiVersion = XMLElement(name: "apiVersion", stringValue: "v1")
         let devices = XMLElement(name: "devices")
-
+        
         for source in deviceSources {
             devices.insertChild(source.export(), at: devices.childCount)
         }
         
         facade.insertChild(apiVersion, at: 0)
         facade.insertChild(devices, at: 1)
-
+        
         return XMLDocument(rootElement: facade)
     }
-
+    
 }

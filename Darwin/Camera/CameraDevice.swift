@@ -19,7 +19,7 @@ let frameRateProperty = CMIOExtensionProperty(rawValue: "4cc_frat_glob_0000")
 
 class CameraDeviceSource: NSObject, CMIOExtensionDeviceSource, CameraStreamHandler {
     private(set) var device: CMIOExtensionDevice!
-
+    
     private var bufferAuxAttributes: NSDictionary!
     private var bufferPool: CVPixelBufferPool!
     private var dimensions: NSString = "" // cache
@@ -29,14 +29,14 @@ class CameraDeviceSource: NSObject, CMIOExtensionDeviceSource, CameraStreamHandl
     private var lastScheduledOutput = CMSampleTimingInfo()
     private let logger: Logger
     private(set) var width: UInt32 = 1920
-
+    
     private var frameTimer: DispatchSourceTimer?
     private let frameQueue = DispatchQueue(label: "frameQueue",
                                            qos: .userInteractive,
                                            attributes: [],
                                            autoreleaseFrequency: .workItem,
                                            target: .global(qos: .userInteractive))
-
+    
     private var streamCounter: UInt32 = 0
     private var streamSinkClient: CMIOExtensionClient?
     private var streamSinkCanConsume: Bool = true
@@ -49,18 +49,18 @@ class CameraDeviceSource: NSObject, CMIOExtensionDeviceSource, CameraStreamHandl
         self.logger = Logger(subsystem: "com.paalmaxima.Facade.Camera", category: "CameraDeviceSource@\(deviceID)")
         logger.info("New device with uuid \(deviceID.uuidString)")
         super.init()
-
+        
         self.device = CMIOExtensionDevice(localizedName: localizedName, deviceID: deviceID, legacyDeviceID: nil, source: self)
         setDeviceFormat(width: 1920, height: 1080, frameRate: 60, withStreams: false)
         streamFakeSplash = SplashAnimator(width: Int(self.width), height: Int(self.height))
-
+        
         let streamFormat = CMIOExtensionStreamFormat.init(formatDescription: formatDescription,
                                                           maxFrameDuration: CMTime(value: 1, timescale: Int32(frameRate)),
                                                           minFrameDuration: CMTime(value: 1, timescale: Int32(frameRate)),
                                                           validFrameDurations: nil)
         streamSource = CameraStreamSource(localizedName: "Facade Source", streamFormat: streamFormat, handler: self)
         streamSink = CameraStreamSink(localizedName: "Facade Sink", streamFormat: streamFormat, handler: self)
-
+        
         do {
             try device.addStream(streamSource.stream)
             try device.addStream(streamSink.stream)
@@ -68,14 +68,14 @@ class CameraDeviceSource: NSObject, CMIOExtensionDeviceSource, CameraStreamHandl
             fatalError("Failed to add stream: \(error.localizedDescription)")
         }
     }
-
+    
     var availableProperties: Set<CMIOExtensionProperty> {
         return [.deviceTransportType, .deviceModel, magicProperty, nameProperty, dimensionsProperty, frameRateProperty]
     }
-
+    
     func deviceProperties(forProperties properties: Set<CMIOExtensionProperty>) throws -> CMIOExtensionDeviceProperties {
         let deviceProperties = CMIOExtensionDeviceProperties(dictionary: [:])
-
+        
         if properties.contains(.deviceTransportType) {
             deviceProperties.transportType = kIOAudioDeviceTransportTypeVirtual
         }
@@ -122,7 +122,7 @@ class CameraDeviceSource: NSObject, CMIOExtensionDeviceSource, CameraStreamHandl
                 }
             }
         }
-
+        
         if let frameRatePropertyState = deviceProperties.propertiesDictionary[frameRateProperty] {
             if let frameRateValue = frameRatePropertyState.value?.uint32Value {
                 if frameRateValue >= 1 && frameRateValue <= 120 {
@@ -131,18 +131,18 @@ class CameraDeviceSource: NSObject, CMIOExtensionDeviceSource, CameraStreamHandl
                 }
             }
         }
-
+        
         if newWidth != self.width || newHeight != self.height || newFrameRate != self.frameRate {
             setDeviceFormat(width: newWidth, height: newHeight, frameRate: newFrameRate)
         }
     }
-
+    
     func setDeviceFormat(width: UInt32, height: UInt32, frameRate: UInt32, withStreams: Bool = true) {
         logger.info("Reformat device to \(width)x\(height) at \(frameRate) FPS")
         self.width = width
         self.height = height
         self.frameRate = frameRate
-
+        
         CMVideoFormatDescriptionCreate(allocator: kCFAllocatorDefault,
                                        codecType: kCVPixelFormatType_32BGRA,
                                        width: Int32(width),
@@ -158,10 +158,10 @@ class CameraDeviceSource: NSObject, CMIOExtensionDeviceSource, CameraStreamHandl
         ]
         bufferAuxAttributes = [kCVPixelBufferPoolAllocationThresholdKey: 5]
         CVPixelBufferPoolCreate(kCFAllocatorDefault, nil, pixelBufferAttributes, &bufferPool)
-
+        
         if withStreams { setStreamFormat() }
     }
-
+    
     private func setStreamFormat() {
         let streamFormat = CMIOExtensionStreamFormat.init(formatDescription: formatDescription,
                                                           maxFrameDuration: CMTime(value: 1, timescale: Int32(frameRate)),
@@ -169,10 +169,10 @@ class CameraDeviceSource: NSObject, CMIOExtensionDeviceSource, CameraStreamHandl
                                                           validFrameDurations: nil)
         streamSource.format = streamFormat
         streamSink.format = streamFormat
-
+        
         streamFakeSplash = SplashAnimator(width: Int(self.width), height: Int(self.height))
     }
-
+    
     func consumeFromSplashAnimation() {
         var err: OSStatus = 0
         
@@ -184,15 +184,15 @@ class CameraDeviceSource: NSObject, CMIOExtensionDeviceSource, CameraStreamHandl
         if err != 0 {
             os_log(.error, "out of pixel buffers \(err)")
         }
-
+        
         if let pixelBuffer = pixelBuffer {
             CVPixelBufferLockBaseAddress(pixelBuffer, [])
-
+            
             let bufferPtr = CVPixelBufferGetBaseAddress(pixelBuffer)!
             let bufferByteSize = CVPixelBufferGetBytesPerRow(pixelBuffer) * CVPixelBufferGetHeight(pixelBuffer)
-
+            
             memcpy(bufferPtr, self.streamFakeSplash.nextFrame(), bufferByteSize)
-
+            
             CVPixelBufferUnlockBaseAddress(pixelBuffer, [])
             
             var sbuf: CMSampleBuffer!
@@ -217,37 +217,37 @@ class CameraDeviceSource: NSObject, CMIOExtensionDeviceSource, CameraStreamHandl
     
     func consumeFromSink(client: CMIOExtensionClient) {
         self.streamSinkCanConsume = false
-
+        
         self.streamSink.stream.consumeSampleBuffer(from: client) { buffer, sequenceNumber, discontinuity, hasMoreSamples, error in
             if let buffer = buffer {
                 self.lastScheduledOutput.presentationTimeStamp = CMClockGetTime(CMClockGetHostTimeClock())
                 let scheduledOutputTimestampNanos =
-                        UInt64(self.lastScheduledOutput.presentationTimeStamp.seconds * Double(NSEC_PER_SEC))
+                UInt64(self.lastScheduledOutput.presentationTimeStamp.seconds * Double(NSEC_PER_SEC))
                 let scheduledOutput = CMIOExtensionScheduledOutput(sequenceNumber: sequenceNumber,
                                                                    hostTimeInNanoseconds: scheduledOutputTimestampNanos)
-
+                
                 if self.streamCounter > 0 {
                     self.logger.debug("Sending sink to source")
                     self.streamSource.stream.send(buffer,
-                                                   discontinuity: discontinuity,
-                                                   hostTimeInNanoseconds: scheduledOutputTimestampNanos)
+                                                  discontinuity: discontinuity,
+                                                  hostTimeInNanoseconds: scheduledOutputTimestampNanos)
                 }
-    
+                
                 self.streamSink.stream.notifyScheduledOutputChanged(scheduledOutput)
             }
-
+            
             self.streamSinkCanConsume = true
         }
     }
-
+    
     func startStreaming() {
         guard let _ = bufferPool else {
             return
         }
-
+        
         streamCounter += 1
         logger.info("Start streaming \(self.streamCounter)")
-
+        
         frameTimer = DispatchSource.makeTimerSource(flags: .strict, queue: frameQueue)
         frameTimer!.schedule(deadline: .now(), repeating: Double(1) / Double(kFrameRate), leeway: .seconds(0))
         
@@ -266,7 +266,7 @@ class CameraDeviceSource: NSObject, CMIOExtensionDeviceSource, CameraStreamHandl
         
         frameTimer!.resume()
     }
-
+    
     func stopStreaming() {
         if streamCounter > 1 {
             streamCounter -= 1
@@ -282,19 +282,19 @@ class CameraDeviceSource: NSObject, CMIOExtensionDeviceSource, CameraStreamHandl
         
         logger.info("Stop streaming streamCounter=\(self.streamCounter)")
     }
-
+    
     func startStreamingFromSink(client: CMIOExtensionClient) {
         logger.info("Start streaming from sink")
         streamSinkClient = client
         streamSinkCanConsume = true
     }
-
+    
     func stopStreamingFromSink() {
         logger.info("Stop streaming from sink")
         streamSinkClient = nil
         streamSinkCanConsume = true
     }
-
+    
     func export() -> XMLElement {
         let id = XMLElement(name: "id", stringValue: self.device.deviceID.uuidString)
         let name = XMLElement(name: "name", stringValue: self.device.localizedName)
