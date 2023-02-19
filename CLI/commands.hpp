@@ -6,6 +6,7 @@
 int command_device_create(boost::program_options::variables_map& vm);
 int command_device_edit  (boost::program_options::variables_map& vm);
 int command_device_delete(boost::program_options::variables_map& vm);
+int command_device_find  (boost::program_options::variables_map& vm);
 int command_state_import (boost::program_options::variables_map& vm);
 int command_state_export (boost::program_options::variables_map& vm);
 

@@ -23,24 +23,56 @@ std::map<facade_error_code, std::optional<std::string>> codes = {
 };
 
 std::string unknown_error = "unknown_error (maybe a future version of libfacade?)";
+std::string empty = "";
 
-int command_device_create(boost::program_options::variables_map& vm)
+#define GUARD(condition, message)           \
+    if ( condition )                        \
+    {                                       \
+        std::cerr << message << std::endl;  \
+        return -1;                          \
+    }
+
+#define WARN(condition, message)            \
+    if ( condition )                        \
+    {                                       \
+        std::cerr << message << std::endl;  \
+    }
+
+inline void print_xml(facade_device_info *info, std::string& i1 = empty)
 {
-    if (!vm.count("type") ||
-        !vm.count("name") ||
-        !vm.count("width") ||
-        !vm.count("height") ||
-        !vm.count("frame-rate"))
+    std::string i2 = i1 + "    ";
+    std::cout << i1 << "<device>"                                           << std::endl
+              << i2 << "<uid>" << info->uid << "</uid>"                     << std::endl
+              << i2 << "<name>" << info->name << "</name>"                  << std::endl
+              << i2 << "<width>" << info->width << "</width>"               << std::endl
+              << i2 << "<height>" << info->height << "</height>"            << std::endl
+              << i2 << "<frameRate>" << info->frame_rate << "</frameRate>"  << std::endl
+              << i1 << "</device>"                                          << std::endl;
+}
+
+inline int with(facade_error_code code)
+{
+    if (code != facade_error_none)
     {
-        std::cout << "facade device create requires --type, --name, --width, --height, --frame-rate" << std::endl;
+        std::cerr << codes[code].value_or(unknown_error) << std::endl;
         return -1;
     }
 
+    return 0;
+}
+
+int command_device_create(boost::program_options::variables_map& vm)
+{
+    GUARD(!vm.count("type") ||
+          !vm.count("name") ||
+          !vm.count("width") ||
+          !vm.count("height") ||
+          !vm.count("frame-rate"),
+          "'facade device create' requires --type, --name, --width, --height, --frame-rate")
+    WARN(vm.count("uid"), "Warning: --uid is ignored when creating device!")
+
     std::string type = vm["type"].as<std::string>();
     std::string name = vm["name"].as<std::string>();
-    int width = vm["width"].as<int>();
-    int height = vm["height"].as<int>();
-    int frame_rate = vm["frame-rate"].as<int>();
 
     if (type != "video")
     {
@@ -52,37 +84,136 @@ int command_device_create(boost::program_options::variables_map& vm)
             .type = facade_type_video,
             .uid = nullptr,
             .name = name.c_str(),
-            .width = (uint32_t) width,
-            .height = (uint32_t) height,
-            .frame_rate = (uint32_t) frame_rate
+            .width = (uint32_t) vm["width"].as<int>(),
+            .height = (uint32_t) vm["height"].as<int>(),
+            .frame_rate = (uint32_t) vm["frame-rate"].as<int>()
     };
     facade_error_code code = facade_create_device(&info);
 
-    if (code != facade_error_none)
+    return with(code);
+}
+
+int command_device_edit(boost::program_options::variables_map& vm)
+{
+    GUARD(!vm.count("uid"), "'facade device edit' requires --uid")
+    WARN(vm.count("type"), "Warning: --type is ignored when editing device.")
+    WARN(vm.count("name"), "Warning: --name has no effect on macOS")
+
+    std::string uid = vm["uid"].as<std::string>();
+    facade_device *device = nullptr;
+    facade_error_code code = facade_find_device(uid.c_str(), &device);
+
+    if (code != facade_error_none || device == nullptr)
     {
-        std::cerr << codes[code].value_or(unknown_error) << std::endl;
+        std::cerr << "Failed to find device '" << uid
+                  << "' (" << codes[code].value_or(unknown_error) << ") " << std::endl;
         return -1;
     }
 
-    return 0;
-}
+    GUARD(device->type != facade_type_video,
+          "CLI only supports video devices!")
+    GUARD(!vm.count("width") &&
+          !vm.count("height") &&
+          !vm.count("frame-rate"),
+          "At least one of --width, --height, --frame-rate must be provided to edit device")
 
-int command_device_edit  (boost::program_options::variables_map& vm)
-{
-    return -1;
+    facade_device_info edits = {
+            .uid = nullptr,
+            .name = nullptr,
+            .width = vm.count("width") ? (uint32_t) vm["width"].as<int>() : 0,
+            .height = vm.count("height") ? (uint32_t) vm["height"].as<int>() : 0,
+            .frame_rate = vm.count("frame-rate") ? (uint32_t) vm["frame-rate"].as<int>() : 0,
+    };
+
+    code = facade_edit_device(uid.c_str(), &edits);
+
+    return with(code);
 }
 
 int command_device_delete(boost::program_options::variables_map& vm)
 {
-    return -1;
+    GUARD(!vm.count("uid"), "'facade device delete' requires --uid")
+
+    std::string uid = vm["uid"].as<std::string>();
+    facade_error_code code = facade_delete_device(uid.c_str());
+
+    return with(code);
 }
 
-int command_state_import (boost::program_options::variables_map& vm)
+int command_device_find(boost::program_options::variables_map& vm)
 {
-    return -1;
+    GUARD(!vm.count("uid") &&
+          !vm.count("name") &&
+          !vm.count("type"),
+          "'facade device find' requires at least one filter --uid, --name, or --type")
+
+    std::string uid = vm.count("uid") ? vm["uid"].as<std::string>() : "";
+    std::string type = vm.count("video") ? vm["type"].as<std::string>() : "";
+    std::string name = vm.count("name") ? vm["name"].as<std::string>() : "";
+
+    facade_state *state = nullptr;
+    facade_error_code code = facade_read_state(&state);
+
+    if (state != nullptr)
+    {
+        if (state->devices != nullptr)
+        {
+            facade_device_info *info = state->devices;
+
+            do
+            {
+                if ((uid.empty() || uid.compare(info->uid) == 0) &&
+                        (type.empty() || (type == "video" && info->type == facade_type_video)) &&
+                        (name.empty() || name.compare(info->name) == 0))
+                {
+                    print_xml(info);
+                }
+            } while(info != state->devices);
+        }
+
+        facade_dispose_state(&state);
+    }
+
+    return with(code);
 }
 
-int command_state_export (boost::program_options::variables_map& vm)
+int command_state_import(boost::program_options::variables_map& vm)
 {
-    return -1;
+    GUARD(true, "This has not been implemented! Contact support@facade.dev if you need this.")
+}
+
+int command_state_export(boost::program_options::variables_map& vm)
+{
+    GUARD(vm.count("output") && vm["output"].as<std::string>() != "xml", "--output must be 'xml'")
+
+    facade_state *state = nullptr;
+    facade_error_code code = facade_read_state(&state);
+
+    if (state != nullptr)
+    {
+        std::cout << R"(<?xml version="1.0" encoding="UTF-8" ?>)"                       << std::endl
+                  << "<facade>"                                                         << std::endl
+                  << "    <apiVersion>v" << state->api_version << "</apiVersion>"       << std::endl
+                  << "    <devices>"                                                    << std::endl;
+
+        facade_device_info *info = state->devices;
+
+        if (info != nullptr)
+        {
+            std::string indent = "    ";
+
+            do
+            {
+                print_xml(info, indent);
+                info = info->next;
+            } while(info != state->devices);
+        }
+
+        std::cout << "    </devices>"                                                   << std::endl
+                  << "</facade>"                                                        << std::endl;
+
+        facade_dispose_state(&state);
+    }
+
+    return with(code);
 }
