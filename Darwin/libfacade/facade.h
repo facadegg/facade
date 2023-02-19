@@ -38,7 +38,7 @@ extern "C" {
  * @brief An enumeration of the different types of facade devices.
  */
 typedef enum {
-    facade_type_video = 0,       /*!< A video device (camera). */
+    facade_device_type_video = 0,      /*!< A video device (camera). */
 } facade_device_type;
 
 /**
@@ -162,7 +162,7 @@ facade_error_code facade_write_state(facade_state *p);
 
 /**
  * @brief Dispose a copy of state data.
- * @param[in, out] - The pointer holding the state data.
+ * @param[in, out] p - The pointer holding the state data.
  * @return \c facade_error_none on success.
  */
 facade_error_code facade_dispose_state(facade_state **p);
@@ -227,7 +227,7 @@ facade_error_code facade_edit_device(char const *uid, facade_device_info *option
 
 /**
  * @brief Delete a device by its UID.
- * @param[id] uid - The UID string of the device to delete.
+ * @param[in] uid - The UID string of the device to delete.
  * @return \c facade_error_none on success.
  * @return \c facade_error_not_found if the device doesn't exist.
  * @return \c facade_error_unknown if there is an error reading or writing state.

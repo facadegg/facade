@@ -316,7 +316,7 @@ static inline facade_error_code release_write_buffer_pool(facade_device *device)
 facade_device *read_device(CMIOObjectID device_id)
 {
     facade_device *device = calloc(1, sizeof(facade_device));
-    device->type = facade_type_video;
+    device->type = facade_device_type_video;
     device->data = calloc(1, sizeof(facade_device_data));
     device->data->write_sample_buffers = CFArrayCreateMutable(kCFAllocatorDefault, 6, &kCFTypeArrayCallBacks);
 
@@ -662,7 +662,7 @@ facade_error_code facade_dispose_device(facade_device **device_ref)
 
 facade_error_code facade_create_device(facade_device_info *options)
 {
-    if (options->type != facade_type_video ||
+    if (options->type != facade_device_type_video ||
         options->uid != nil ||
         options->name == nil ||
         options->width > 8192 ||

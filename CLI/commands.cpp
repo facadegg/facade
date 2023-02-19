@@ -81,7 +81,7 @@ int command_device_create(boost::program_options::variables_map& vm)
     }
 
     facade_device_info info = {
-            .type = facade_type_video,
+            .type = facade_device_type_video,
             .uid = nullptr,
             .name = name.c_str(),
             .width = (uint32_t) vm["width"].as<int>(),
@@ -110,7 +110,7 @@ int command_device_edit(boost::program_options::variables_map& vm)
         return -1;
     }
 
-    GUARD(device->type != facade_type_video,
+    GUARD(device->type != facade_device_type_video,
           "CLI only supports video devices!")
     GUARD(!vm.count("width") &&
           !vm.count("height") &&
@@ -163,8 +163,8 @@ int command_device_find(boost::program_options::variables_map& vm)
             do
             {
                 if ((uid.empty() || uid.compare(info->uid) == 0) &&
-                        (type.empty() || (type == "video" && info->type == facade_type_video)) &&
-                        (name.empty() || name.compare(info->name) == 0))
+                    (type.empty() || (type == "video" && info->type == facade_device_type_video)) &&
+                    (name.empty() || name.compare(info->name) == 0))
                 {
                     print_xml(info);
                 }
