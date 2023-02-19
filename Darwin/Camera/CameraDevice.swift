@@ -13,6 +13,7 @@ import os.log
 let magicProperty = CMIOExtensionProperty(rawValue: "4cc_fmag_glob_0000")
 let magicValue = "Facade by Paal Maxima" as NSString
 
+let uidProperty = CMIOExtensionProperty(rawValue: "4cc_fuid_glob_0000")
 let nameProperty = CMIOExtensionProperty(rawValue: "4cc_fnam_glob_0000")
 let dimensionsProperty = CMIOExtensionProperty(rawValue: "4cc_fdim_glob_0000")
 let frameRateProperty = CMIOExtensionProperty(rawValue: "4cc_frat_glob_0000")
@@ -47,7 +48,7 @@ class CameraDeviceSource: NSObject, CMIOExtensionDeviceSource, CameraStreamHandl
     init(localizedName: String) {
         let deviceID = UUID() // replace this with your device UUID
         self.logger = Logger(subsystem: "com.paalmaxima.Facade.Camera", category: "CameraDeviceSource@\(deviceID)")
-        logger.info("New device with uuid \(deviceID.uuidString)")
+        logger.info("New device with uuid \(deviceID.uuidString, privacy: .public)")
         super.init()
         
         self.device = CMIOExtensionDevice(localizedName: localizedName, deviceID: deviceID, legacyDeviceID: nil, source: self)
@@ -70,7 +71,8 @@ class CameraDeviceSource: NSObject, CMIOExtensionDeviceSource, CameraStreamHandl
     }
     
     var availableProperties: Set<CMIOExtensionProperty> {
-        return [.deviceTransportType, .deviceModel, magicProperty, nameProperty, dimensionsProperty, frameRateProperty]
+        return [.deviceTransportType, .deviceModel,
+                magicProperty, uidProperty, nameProperty, dimensionsProperty, frameRateProperty]
     }
     
     func deviceProperties(forProperties properties: Set<CMIOExtensionProperty>) throws -> CMIOExtensionDeviceProperties {
@@ -86,6 +88,12 @@ class CameraDeviceSource: NSObject, CMIOExtensionDeviceSource, CameraStreamHandl
             deviceProperties.setPropertyState(CMIOExtensionPropertyState(value: NSData(bytes: magicValue.utf8String,
                                                                                        length: magicValue.length + 1)),
                                               forProperty: magicProperty)
+        }
+        if properties.contains(uidProperty) {
+            let nameValue = NSData(bytes: (device.deviceID.uuidString as NSString).utf8String,
+                                   length: device.deviceID.uuidString.count + 1)
+            deviceProperties.setPropertyState(CMIOExtensionPropertyState(value: nameValue),
+                                              forProperty: uidProperty)
         }
         if properties.contains(nameProperty) {
             deviceProperties.setPropertyState(CMIOExtensionPropertyState(value: device.localizedName as NSString),
@@ -160,6 +168,13 @@ class CameraDeviceSource: NSObject, CMIOExtensionDeviceSource, CameraStreamHandl
         CVPixelBufferPoolCreate(kCFAllocatorDefault, nil, pixelBufferAttributes, &bufferPool)
         
         if withStreams { setStreamFormat() }
+        
+        do {
+            let changedProperties = try deviceProperties(forProperties: [dimensionsProperty, frameRateProperty])
+            self.device.notifyPropertiesChanged(changedProperties.propertiesDictionary)
+        } catch {
+            logger.error("CameraDeviceSource: notifyPropertiesChanged threw an error")
+        }
     }
     
     private func setStreamFormat() {

@@ -38,7 +38,7 @@ extern "C" {
  * @brief An enumeration of the different types of facade devices.
  */
 typedef enum {
-    facade_device_type_video = 0,      /*!< A video device (camera). */
+    facade_device_type_video = 0,       /*!< A video device (camera). */
 } facade_device_type;
 
 /**
@@ -161,6 +161,14 @@ facade_error_code facade_read_state(facade_state **p);
 facade_error_code facade_write_state(facade_state *p);
 
 /**
+ * @brief Listen for changes to global Facade state. This will replace any existing listener.
+ * @param callback - To be called when any state changes.
+ * @param context - The (only) argument passed to \p callback.
+ * @return \c facade_error_none on success.
+ */
+facade_error_code facade_on_state_changed(facade_callback callback, void *context);
+
+/**
  * @brief Dispose a copy of state data.
  * @param[in, out] p - The pointer holding the state data.
  * @return \c facade_error_none on success.
@@ -186,13 +194,22 @@ facade_error_code facade_dispose_state(facade_state **p);
 facade_error_code facade_list_devices(facade_device **p);
 
 /**
+ * @brief Find a device by it's UID.
+ * @param[in] uid - The UID the device to find, by exact match.
+ * @param[out] p - The device found.
+ * @return \c facade_error_none on success.
+ * @return \c facade_error_not_found if such a device was not found.
+ */
+facade_error_code facade_find_device_by_uid(char const *uid, facade_device **p);
+
+/**
  * @brief Find a device by its name.
  * @param[in] name - The name of the device to find, by exact match.
  * @param[out] p - The device found.
  * @return \c facade_error_none on success.
  * @return \c facade_error_not_found if such a device was not found.
  */
-facade_error_code facade_find_device(char const *name, facade_device **p);
+facade_error_code facade_find_device_by_name(char const *name, facade_device **p);
 
 /**
  * @brief Dispose a \c facade_device object.
@@ -220,7 +237,8 @@ facade_error_code facade_create_device(facade_device_info *options);
  * @param[in] uid - The UID string of the device to edit.
  * @param[in] options - The modified parameters. Any fields set to \c NULL or \c 0 will be ignored.
  * @return \c facade_error_none on success.
- * @return \c facade_error_not_found if the device doesn't exist or if device type does not match.
+ * @return \c facade_error_not_found if the device doesn't exist.
+ * @return \c facade_error_invalid_type if the device type does not match.
  * @return \c facade_error_unknown if there is an error reading or writing state.
  */
 facade_error_code facade_edit_device(char const *uid, facade_device_info *options);
@@ -233,6 +251,15 @@ facade_error_code facade_edit_device(char const *uid, facade_device_info *option
  * @return \c facade_error_unknown if there is an error reading or writing state.
  */
 facade_error_code facade_delete_device(char const *uid);
+
+/**
+ * @brief Listen for changes to device configuration
+ * @return \c facade_error_none on success.
+ *
+ * \c facade_device will auto-update automatically on device configuration changes. This function merely
+ * registers the callback to also be called.
+ */
+facade_error_code facade_on_device_changed(facade_device *, facade_callback callback, void *context);
 
 /**
  * @}

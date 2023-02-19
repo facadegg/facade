@@ -58,7 +58,14 @@ int main(int argc, char **argv)
     {
         if (vm.count("command"))
         {
-            facade_init();
+            facade_error_code init_error = facade_init();
+
+            if (init_error == facade_error_not_installed)
+            {
+                std::cerr << "Facade is not installed! Go to https://facade.dev" << std::endl;
+                return -1;
+            }
+
             std::string command = vm["command"].as<std::string>();
 
             if (scope == "device")

@@ -18,9 +18,6 @@ CMIOObjectPropertyAddress kDeviceIDsProperty    = { kCMIOHardwarePropertyDevices
                                                     kCMIOObjectPropertyScopeGlobal,
                                                     kCMIOObjectPropertyElementMain };
 
-CMIOObjectPropertyAddress kDeviceUIDProperty    = { kCMIODevicePropertyDeviceUID,
-                                                    kCMIOObjectPropertyScopeGlobal,
-                                                    kCMIOObjectPropertyElementMain };
 CMIOObjectPropertyAddress kDeviceNameProperty   = { kCMIOObjectPropertyName,
                                                     kCMIOObjectPropertyScopeGlobal,
                                                     kCMIOObjectPropertyElementMain };
@@ -29,6 +26,9 @@ CMIOObjectPropertyAddress kDeviceStreams        = { kCMIODevicePropertyStreams,
                                                     kCMIOObjectPropertyElementMain };
 
 CMIOObjectPropertyAddress kMagicProperty        = { 'fmag',
+                                                    kCMIOObjectPropertyScopeGlobal,
+                                                    kCMIOObjectPropertyElementMain };
+CMIOObjectPropertyAddress kUIDProperty          = { 'fuid',
                                                     kCMIOObjectPropertyScopeGlobal,
                                                     kCMIOObjectPropertyElementMain };
 CMIOObjectPropertyAddress kNameProperty         = { 'fnam',
@@ -54,6 +54,12 @@ int kWriteBufferCapacity = 100;
 
 NSString *kMagicValue = @"Facade by Paal Maxima";
 
+facade_callback state_changed_callback = nil;
+void *state_changed_context = nil;
+CMIOObjectPropertyListenerBlock state_changed_block = nil;
+
+dispatch_queue_t listener_queue;
+
 static os_log_t logger;
 
 struct facade_device_data
@@ -71,6 +77,9 @@ struct facade_device_data
     CVPixelBufferPoolRef write_buffer_pool;
     CFDictionaryRef write_buffer_aux_attributes;
     CFMutableArrayRef write_sample_buffers;
+    facade_callback changed_callback;
+    void *changed_context;
+    CMIOObjectPropertyListenerBlock changed_block;
 };
 
 void insert_device(facade_device **list, facade_device *node)
@@ -173,12 +182,22 @@ static inline bool read_magic_value(CMIOObjectID device_id)
 
 static inline bool read_uid(CMIOObjectID device_id, char **uid)
 {
-    return read_property(device_id, &kDeviceUIDProperty, (void **) uid);
+    return read_property(device_id, &kUIDProperty, (void **) uid);
 }
 
 static inline bool read_name(CMIOObjectID device_id, char **name)
 {
-    return read_property(device_id, &kDeviceNameProperty, (void **) name);
+    CFStringRef *ref = nil;
+    read_property(device_id, &kDeviceNameProperty, (void **) &ref);
+    
+    if (ref == nil) return false;
+    
+    size_t length = CFStringGetLength(*ref) + 1;
+    *name = malloc(length);
+    CFStringGetCString(*ref, *name, length, kCFStringEncodingUTF8);
+    
+    CFRelease(*ref);
+    return true;
 }
 
 static inline facade_error_code read_dimensions(facade_device *device)
@@ -313,11 +332,37 @@ static inline facade_error_code release_write_buffer_pool(facade_device *device)
     return facade_error_none;
 }
 
+int on_device_changed(CMIOObjectID cmio_id,
+                      UInt32 number_addresses,
+                      const CMIOObjectPropertyAddress addresses[],
+                      void *client_data)
+{
+    facade_device *device = (facade_device *) client_data;
+
+    for (int i = 0; i < number_addresses; i++)
+    {
+        if (addresses[i].mElement == kCMIOObjectPropertyElementMain &&
+            addresses[i].mScope == kCMIOObjectPropertyScopeGlobal)
+        {
+            if(addresses[i].mSelector == kDimensionsProperty.mSelector)
+                read_dimensions(device);
+            else if(addresses[i].mSelector == kFrameRateProperty.mSelector)
+                read_frame_rate(device);
+        }
+    }
+
+    if (device->data->changed_callback != nil)
+        device->data->changed_callback(device->data->changed_context);
+    
+    return 0;
+}
+
 facade_device *read_device(CMIOObjectID device_id)
 {
     facade_device *device = calloc(1, sizeof(facade_device));
     device->type = facade_device_type_video;
     device->data = calloc(1, sizeof(facade_device_data));
+    device->data->cmio_id = device_id;
     device->data->write_sample_buffers = CFArrayCreateMutable(kCFAllocatorDefault, 6, &kCFTypeArrayCallBacks);
 
     UInt32 streamsArrayByteSize = 0;
@@ -345,11 +390,28 @@ facade_device *read_device(CMIOObjectID device_id)
                                   &device->data->streams);
     }
 
+    read_uid(device_id, (char **) &device->uid);
+    read_name(device_id, (char **) &device->name);
     read_dimensions(device);
     read_frame_rate(device);
     read_format_description(device);
+   
+    device->data->changed_block = ^(UInt32 inClientDataSize,
+                                    const CMIOObjectPropertyAddress *properties) {
+        on_device_changed(device_id, inClientDataSize, properties, device);
+    };
+    CMIOObjectAddPropertyListenerBlock(device_id, &kDimensionsProperty,
+                                       listener_queue, device->data->changed_block);
+    CMIOObjectAddPropertyListenerBlock(device_id, &kFrameRateProperty,
+                                       listener_queue, device->data->changed_block);
 
     return device;
+}
+
+void on_state_changed(void)
+{
+    if (state_changed_callback)
+        state_changed_callback(state_changed_context);
 }
 
 facade_error_code facade_init(void)
@@ -375,8 +437,19 @@ facade_error_code facade_init(void)
                                                 sizeof(AudioValueTranslation),
                                                 &plugInIDByteSize,
                                                 &translation);
-
-    return result == kCMIOHardwareNoError ? facade_error_none : facade_error_not_installed;
+       
+    listener_queue = dispatch_queue_create("com.paalmaxima.Facade.libfacade",
+                                           DISPATCH_QUEUE_SERIAL);
+    state_changed_block = ^(UInt32 inClientDataSize,
+                            const CMIOObjectPropertyAddress *properties) {
+        on_state_changed();
+    };
+    CMIOObjectAddPropertyListenerBlock(kPlugInID, &kStateProperty,
+                                       listener_queue, state_changed_block);
+    
+    
+    return result == kCMIOHardwareNoError && kPlugInID != kCMIOObjectUnknown
+        ? facade_error_none : facade_error_not_installed;
 }
 
 @interface FacadeStateXMLImport : NSObject <NSXMLParserDelegate>
@@ -437,6 +510,8 @@ NSString *tag;
     tag = nil;
 
     if ([elementName isEqualToString:@"video"] && next_device != nil && state != nil) {
+        next_device->type = facade_device_type_video;
+
         if (state->devices == nil) {
             state->devices = next_device;
             next_device->next = next_device;
@@ -547,6 +622,14 @@ facade_error_code facade_write_state(facade_state *state)
     return result == kCMIOHardwareNoError ? facade_error_none : facade_error_unknown;
 }
 
+facade_error_code facade_on_state_changed(facade_callback callback, void *context)
+{
+    state_changed_callback = callback;
+    state_changed_context = context;
+    
+    return facade_error_none;
+}
+
 facade_error_code facade_dispose_state(facade_state **state)
 {
     facade_device_info *device_info = (*state)->devices;
@@ -589,7 +672,36 @@ facade_error_code facade_list_devices(facade_device **list)
     return facade_error_none;
 }
 
-facade_error_code facade_find_device(const char *name, facade_device **device)
+facade_error_code facade_find_device_by_uid(const char *uid, facade_device **device)
+{
+    CMIOObjectID *device_ids = nil;
+    UInt32 device_count = 0;
+    list_devices(&device_ids, &device_count);
+    
+    *device = nil;
+
+    for (UInt32 i = 0; i < device_count && *device == nil; i++)
+    {
+        if (!read_magic_value(device_ids[i]))
+            continue;
+        
+        char *device_uid = nil;
+        read_uid(device_ids[i], &device_uid);
+        
+        int match = strcmp(device_uid, uid) == 0;
+        
+        free(device_uid);
+
+        if (match)
+            *device = read_device(device_ids[i]);
+    }
+    
+    free(device_ids);
+
+    return *device != nil ? facade_error_none : facade_error_not_found;
+}
+
+facade_error_code facade_find_device_by_name(const char *name, facade_device **device)
 {
     CMIOObjectID *device_ids = nil;
     UInt32 device_count = 0;
@@ -623,6 +735,11 @@ facade_error_code facade_dispose_device(facade_device **device_ref)
     facade_device *device = *device_ref;
     
     release_write_buffer_pool(device);
+
+    CMIOObjectRemovePropertyListenerBlock(device->data->cmio_id, &kDimensionsProperty,
+                                          listener_queue, device->data->changed_block);
+    CMIOObjectRemovePropertyListenerBlock(device->data->cmio_id, &kFrameRateProperty,
+                                          listener_queue, device->data->changed_block);
 
     free(device->data->read_frame);
     device->data->read_frame = nil;
@@ -709,7 +826,7 @@ facade_error_code facade_edit_device(char const *uid, facade_device_info *option
         facade_device_info *info = state->devices;
         
         do {
-            if (strcmp(info->uid, uid))
+            if (strcmp(info->uid, uid) == 0)
                 target_device = info;
             
             info = info->next;
@@ -722,7 +839,7 @@ facade_error_code facade_edit_device(char const *uid, facade_device_info *option
     }
     else if (target_device->type != options->type)
     {
-        error = facade_error_not_found;
+        error = facade_error_invalid_type;
     }
     else
     {
@@ -783,6 +900,16 @@ facade_error_code facade_delete_device(char const *uid)
     facade_dispose_state(&state);
     
     return write_error;
+}
+
+facade_error_code facade_on_device_changed(facade_device *device,
+                                           facade_callback callback,
+                                           void *context)
+{
+    device->data->changed_callback = callback;
+    device->data->changed_context = context;
+
+    return facade_error_none;
 }
 
 void on_read_queue_ready(CMIOStreamID _, void *__, void *device)

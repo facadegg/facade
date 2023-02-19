@@ -80,6 +80,14 @@ class CameraProviderSource: NSObject, CMIOExtensionProviderSource {
             } else {
                 logger.error("Failed to extract data from state")
             }
+
+// For SOME reason, this is not necessary
+//            do {
+//                let changedProperties = try self.providerProperties(forProperties: [stateProperty])
+//                self.provider.notifyPropertiesChanged(changedProperties.propertiesDictionary)
+//            } catch {
+//                logger.error("CameraProviderSource: notifyPropertiesChanged threw an error")
+//            }
         }
     }
     
