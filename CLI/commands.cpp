@@ -92,6 +92,8 @@ int command_device_create(boost::program_options::variables_map& vm)
         return -1;
     }
 
+    std::cout << " here " << std::endl;
+
     facade_device_info info = {
             .type = facade_device_type_video,
             .uid = nullptr,
@@ -100,6 +102,9 @@ int command_device_create(boost::program_options::variables_map& vm)
             .height = (uint32_t) vm["height"].as<int>(),
             .frame_rate = (uint32_t) vm["frame-rate"].as<int>()
     };
+    std::cout << " here " << std::endl;
+
+
     facade_error_code code = facade_create_device(&info);
 
     return with(code);

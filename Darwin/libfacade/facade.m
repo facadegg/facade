@@ -795,9 +795,8 @@ facade_error_code facade_create_device(facade_device_info *options)
     
     facade_device_info *copy = malloc(sizeof(facade_device_info));
     memcpy(copy, options, sizeof(facade_device_info));
-    copy->uid = malloc(strlen(options->uid) + 1);
+    copy->uid = nil;
     copy->name = malloc(strlen(options->name) + 1);
-    strcpy((char *) copy->uid, options->uid);
     strcpy((char *) copy->name, options->name);
 
     insert_device_info(&state->devices, copy);

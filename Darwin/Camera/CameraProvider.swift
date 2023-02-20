@@ -92,9 +92,9 @@ class CameraProviderSource: NSObject, CMIOExtensionProviderSource {
     }
     
     func createDevice(localizedName: String = "Facade") -> CameraDeviceSource {
-        logger.debug("Creating device '\(localizedName)'")
+        logger.debug("Creating device '\(localizedName, privacy: .public)'")
         
-        let deviceSource = CameraDeviceSource(localizedName: "Facade")
+        let deviceSource = CameraDeviceSource(localizedName: localizedName)
         
         do {
             try provider.addDevice(deviceSource.device)

@@ -7,14 +7,16 @@
 //
 
 import SwiftUI
-import CoreMediaIO
 
 @main
 struct FacadeApp: App {
+    @StateObject var devices: Devices = Devices()
+
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            ContentView().environmentObject(devices)
         }
         .windowResizability(WindowResizability.contentSize)
+        .windowStyle(HiddenTitleBarWindowStyle())
     }
 }

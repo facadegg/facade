@@ -32,6 +32,9 @@
 		60AC78942986ABFB00109B32 /* CameraStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60AC78932986ABFB00109B32 /* CameraStream.swift */; };
 		60AC78962986BED600109B32 /* SplashAnimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60AC78952986BED600109B32 /* SplashAnimator.swift */; };
 		60AC78982986C87900109B32 /* SetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60AC78972986C87900109B32 /* SetupView.swift */; };
+		60D10E9A29A3AEE900E394CD /* Devices.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60D10E9929A3AEE900E394CD /* Devices.swift */; };
+		60D10E9C29A3CA1B00E394CD /* CameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60D10E9B29A3CA1B00E394CD /* CameraView.swift */; };
+		60D10E9E29A3CB8C00E394CD /* CameraCapture.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60D10E9D29A3CB8C00E394CD /* CameraCapture.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -125,6 +128,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		601E0DAE29A2E93700392923 /* Facade-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Facade-Bridging-Header.h"; sourceTree = "<group>"; };
 		6021CA6D2990232900334A6D /* libfacade.dylib.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = libfacade.dylib.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		6021CA702990232900334A6D /* libfacade.docc */ = {isa = PBXFileReference; lastKnownFileType = folder.documentationcatalog; path = libfacade.docc; sourceTree = "<group>"; };
 		6021CA762990232900334A6D /* libfacadeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = libfacadeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -154,6 +158,9 @@
 		60AC78972986C87900109B32 /* SetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetupView.swift; sourceTree = "<group>"; };
 		60AC78BC2987271F00109B32 /* FacadeCLI */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = FacadeCLI; sourceTree = BUILT_PRODUCTS_DIR; };
 		60AC78D829872B0E00109B32 /* facade.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = facade.m; sourceTree = "<group>"; };
+		60D10E9929A3AEE900E394CD /* Devices.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Devices.swift; sourceTree = "<group>"; };
+		60D10E9B29A3CA1B00E394CD /* CameraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraView.swift; sourceTree = "<group>"; };
+		60D10E9D29A3CB8C00E394CD /* CameraCapture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraCapture.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -276,6 +283,10 @@
 				6063D3DC297E631300DA3C1B /* GeneralSettingsView.swift */,
 				6063D3DE297E647F00DA3C1B /* DevicesView.swift */,
 				60AC78972986C87900109B32 /* SetupView.swift */,
+				601E0DAE29A2E93700392923 /* Facade-Bridging-Header.h */,
+				60D10E9929A3AEE900E394CD /* Devices.swift */,
+				60D10E9B29A3CA1B00E394CD /* CameraView.swift */,
+				60D10E9D29A3CB8C00E394CD /* CameraCapture.swift */,
 			);
 			path = Facade;
 			sourceTree = "<group>";
@@ -489,6 +500,7 @@
 					};
 					6063D39A297E590B00DA3C1B = {
 						CreatedOnToolsVersion = 14.2;
+						LastSwiftMigration = 1420;
 					};
 					6063D3AB297E590C00DA3C1B = {
 						CreatedOnToolsVersion = 14.2;
@@ -600,10 +612,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				6063D3DF297E647F00DA3C1B /* DevicesView.swift in Sources */,
+				60D10E9C29A3CA1B00E394CD /* CameraView.swift in Sources */,
 				6063D3A1297E590B00DA3C1B /* ContentView.swift in Sources */,
+				60D10E9E29A3CB8C00E394CD /* CameraCapture.swift in Sources */,
 				6063D39F297E590B00DA3C1B /* FacadeApp.swift in Sources */,
 				60AC78982986C87900109B32 /* SetupView.swift in Sources */,
 				6063D3DD297E631300DA3C1B /* GeneralSettingsView.swift in Sources */,
+				60D10E9A29A3AEE900E394CD /* Devices.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -833,6 +848,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OBJC_BRIDGING_HEADER = libfacade.h;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
@@ -886,6 +902,7 @@
 				MTL_FAST_MATH = YES;
 				SDKROOT = macosx;
 				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OBJC_BRIDGING_HEADER = libfacade.h;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 			};
 			name = Release;
@@ -896,6 +913,7 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Facade/Facade.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -905,6 +923,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSCameraUsageDescription = "Preview the stream output from Facade's virtual cameras";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -914,6 +933,8 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.paalmaxima.Facade;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "Facade/Facade-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
@@ -924,6 +945,7 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Facade/Facade.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -933,6 +955,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSCameraUsageDescription = "Preview the stream output from Facade's virtual cameras";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -942,6 +965,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.paalmaxima.Facade;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "Facade/Facade-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
@@ -1042,6 +1066,7 @@
 				PRODUCT_NAME = "$(inherited)";
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
@@ -1070,6 +1095,7 @@
 				PRODUCT_NAME = "$(inherited)";
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
