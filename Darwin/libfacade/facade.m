@@ -460,9 +460,16 @@ facade_error_code facade_init(void)
 
 @implementation FacadeStateXMLImport
 
-facade_state *state;
-facade_device_info *next_device;
-NSString *tag;
+facade_state *state = nil;
+facade_device_info *next_device = nil;
+NSString *tag = nil;
+
+- (instancetype)init {
+    state = nil;
+    next_device = nil;
+    tag = nil;
+    return self;
+}
 
 - (facade_state *)import {
     return state;
@@ -825,6 +832,7 @@ facade_error_code facade_edit_device(char const *uid, facade_device_info *option
         facade_device_info *info = state->devices;
         
         do {
+            printf("%s vs %s\n", info->uid, uid);
             if (strcmp(info->uid, uid) == 0)
                 target_device = info;
             

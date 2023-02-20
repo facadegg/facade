@@ -93,6 +93,7 @@ class CameraCapture: ObservableObject {
                 let input = try AVCaptureDeviceInput(device: captureDevice)
                 addInput(input)
                 startSession()
+                deviceFailed = false
             } else {
                 print("Device not found for some reason!")
                 deviceFailed = true

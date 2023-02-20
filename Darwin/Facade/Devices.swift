@@ -20,7 +20,12 @@ struct Device: Identifiable, Hashable {
     var id: UUID { uid }
     
     func hash(into hasher: inout Hasher) {
+        hasher.combine(type.rawValue)
         hasher.combine(uid)
+        hasher.combine(name)
+        hasher.combine(width)
+        hasher.combine(height)
+        hasher.combine(frameRate)
     }
 }
 
@@ -40,12 +45,26 @@ class Devices: ObservableObject {
         self.devices = devices
     }
     
+    deinit {
+        facade_on_state_changed(nil, nil);
+    }
+    
     func checkInstall() {
         if (!didInit) {
             initializing = true
             
             DispatchQueue.global().async {
                 didInit = (facade_init() == facade_error_none)
+                
+                if (didInit) {
+                    facade_on_state_changed({ context in
+                        print("facade_on_state_changed")
+                        if let devices = context {
+                            Unmanaged<Devices>.fromOpaque(devices).takeUnretainedValue().load()
+                        }
+                    },
+                    Unmanaged.passUnretained(self).toOpaque());
+                }
                 
                 DispatchQueue.main.async {
                     self.initializing = false
@@ -68,7 +87,7 @@ class Devices: ObservableObject {
         
         loading = true
         
-        DispatchQueue.global().async {
+        DispatchQueue.global().asyncAfter(deadline: .now() + 0.2) {
             var state: UnsafeMutablePointer<facade_state>? = nil
             facade_read_state(&state)
             
@@ -90,7 +109,13 @@ class Devices: ObservableObject {
                         device = device.pointee.next
                     } while (device != data.devices)
                 }
+                
+                facade_dispose_state(&state)
             }
+            
+            listedDevices = listedDevices.sorted(by: { $0.name < $1.name })
+            
+            print("New list \(listedDevices.count)")
             
             DispatchQueue.main.async {
                 self.devices = listedDevices
