@@ -8,7 +8,7 @@ if __name__ == "__main__":
     import facade
     libfacade.facade_init()
 
-    devices = facade.FacadeDevice.list()
+    devices = [facade.FacadeDevice.by_name("Facade")]
     print(*devices)
     devices[0].open('w')
     buffer = bytearray(devices[0].width * devices[0].height * 4)

@@ -112,7 +112,7 @@ int command_device_create(boost::program_options::variables_map& vm)
 
 void command_device_edit_on_done(void *context)
 {
-    facade_device *device = (facade_device *) context;
+    auto *device = (facade_device *) context;
 
     print_xml(device);
     facade_dispose_device(&device);
