@@ -1,11 +1,11 @@
 from setuptools import setup
 
 setup(
-    name='facade',
+    name='pyfacade',
     version='1.0.0rc1',
     description='A Python interface to the libktx library',
     author='Shukant Pal',
-    author_email='commercial@shukantpal.com',
+    author_email='facade@palcor.net',
     classifiers=[
         "Programming Language :: Python :: 3",
     ],
