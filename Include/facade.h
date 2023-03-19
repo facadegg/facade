@@ -11,6 +11,7 @@
 #include <ctype.h>
 
 #ifdef __cplusplus
+#include <cstdint>
 extern "C" {
 #endif /* __cplusplus */
 

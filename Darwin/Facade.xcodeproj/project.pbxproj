@@ -35,6 +35,8 @@
 		60D10E9A29A3AEE900E394CD /* Devices.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60D10E9929A3AEE900E394CD /* Devices.swift */; };
 		60D10E9C29A3CA1B00E394CD /* CameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60D10E9B29A3CA1B00E394CD /* CameraView.swift */; };
 		60D10E9E29A3CB8C00E394CD /* CameraCapture.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60D10E9D29A3CB8C00E394CD /* CameraCapture.swift */; };
+		60EDC23129BE4F4000C32467 /* libfacade.dylib.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6021CA6D2990232900334A6D /* libfacade.dylib.framework */; };
+		60EDC23229BE4F4000C32467 /* libfacade.dylib.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 6021CA6D2990232900334A6D /* libfacade.dylib.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -79,6 +81,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = 6063D3CC297E596700DA3C1B;
 			remoteInfo = Camera;
+		};
+		60EDC23329BE4F4000C32467 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6063D393297E590B00DA3C1B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 6021CA6C2990232900334A6D;
+			remoteInfo = libfacade;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -125,6 +134,26 @@
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 		};
+		60EDC22629BE405700C32467 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+		60EDC23529BE4F4000C32467 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				60EDC23229BE4F4000C32467 /* libfacade.dylib.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
@@ -161,6 +190,7 @@
 		60D10E9929A3AEE900E394CD /* Devices.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Devices.swift; sourceTree = "<group>"; };
 		60D10E9B29A3CA1B00E394CD /* CameraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraView.swift; sourceTree = "<group>"; };
 		60D10E9D29A3CB8C00E394CD /* CameraCapture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraCapture.swift; sourceTree = "<group>"; };
+		60EDC22829BE405700C32467 /* MLTest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = MLTest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -216,6 +246,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		60EDC22529BE405700C32467 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				60EDC23129BE4F4000C32467 /* libfacade.dylib.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -268,6 +306,7 @@
 				60AC78BC2987271F00109B32 /* FacadeCLI */,
 				6021CA6D2990232900334A6D /* libfacade.dylib.framework */,
 				6021CA762990232900334A6D /* libfacadeTests.xctest */,
+				60EDC22829BE405700C32467 /* MLTest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -481,6 +520,25 @@
 			productReference = 60AC78BC2987271F00109B32 /* FacadeCLI */;
 			productType = "com.apple.product-type.tool";
 		};
+		60EDC22729BE405700C32467 /* MLTest */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 60EDC22E29BE405700C32467 /* Build configuration list for PBXNativeTarget "MLTest" */;
+			buildPhases = (
+				60EDC22429BE405700C32467 /* Sources */,
+				60EDC22529BE405700C32467 /* Frameworks */,
+				60EDC22629BE405700C32467 /* CopyFiles */,
+				60EDC23529BE4F4000C32467 /* Embed Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				60EDC23429BE4F4000C32467 /* PBXTargetDependency */,
+			);
+			name = MLTest;
+			productName = MLTest;
+			productReference = 60EDC22829BE405700C32467 /* MLTest */;
+			productType = "com.apple.product-type.tool";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -516,6 +574,9 @@
 					60AC78BB2987271E00109B32 = {
 						CreatedOnToolsVersion = 14.2;
 					};
+					60EDC22729BE405700C32467 = {
+						CreatedOnToolsVersion = 14.2;
+					};
 				};
 			};
 			buildConfigurationList = 6063D396297E590B00DA3C1B /* Build configuration list for PBXProject "Facade" */;
@@ -538,6 +599,7 @@
 				60AC78BB2987271E00109B32 /* FacadeCLI */,
 				6021CA6C2990232900334A6D /* libfacade */,
 				6021CA752990232900334A6D /* libfacadeTests */,
+				60EDC22729BE405700C32467 /* MLTest */,
 			);
 		};
 /* End PBXProject section */
@@ -658,6 +720,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		60EDC22429BE405700C32467 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -690,6 +759,11 @@
 			isa = PBXTargetDependency;
 			target = 6063D3CC297E596700DA3C1B /* Camera */;
 			targetProxy = 6063D3D5297E596700DA3C1B /* PBXContainerItemProxy */;
+		};
+		60EDC23429BE4F4000C32467 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 6021CA6C2990232900334A6D /* libfacade */;
+			targetProxy = 60EDC23329BE4F4000C32467 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -1124,6 +1198,30 @@
 			};
 			name = Release;
 		};
+		60EDC22C29BE405700C32467 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				INFOPLIST_KEY_NSCameraUsageDescription = Test;
+				MACOSX_DEPLOYMENT_TARGET = 13.1;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "MLTest/Facade-Bridging-Header.h";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		60EDC22D29BE405700C32467 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				INFOPLIST_KEY_NSCameraUsageDescription = Test;
+				MACOSX_DEPLOYMENT_TARGET = 13.1;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "MLTest/Facade-Bridging-Header.h";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -1195,6 +1293,15 @@
 			buildConfigurations = (
 				60AC78C12987271F00109B32 /* Debug */,
 				60AC78C22987271F00109B32 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		60EDC22E29BE405700C32467 /* Build configuration list for PBXNativeTarget "MLTest" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				60EDC22C29BE405700C32467 /* Debug */,
+				60EDC22D29BE405700C32467 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
