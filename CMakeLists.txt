@@ -18,7 +18,7 @@ include_directories(Include)
 add_executable(Facade
         Include/facade.h CLI/main.cpp CLI/commands.cpp CLI/commands.hpp)
 
-add_executable(mirage Mirage/main.cpp Mirage/mirage.hpp Mirage/face_pipeline.cpp Mirage/pipeline_control_delegate.cpp)
+add_executable(mirage Mirage/main.cpp Mirage/mirage.hpp Mirage/face_pipeline.cpp Mirage/pipeline_control_delegate.cpp Mirage/data.cpp)
 
 if(APPLE)
     include_directories(/usr/local/include ~/PaalMaxima/onnxruntime/include SYSTEM)

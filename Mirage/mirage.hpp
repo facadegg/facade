@@ -4,7 +4,10 @@
 #include "facade.h"
 #include <oneapi/tbb.h>
 #include <onnxruntime/core/session/onnxruntime_cxx_api.h>
+#include <opencv2/opencv.hpp>
 #include <tuple>
+
+extern cv::Mat NORMALIZED_FACIAL_LANDMARKS;
 
 enum FacialLandmark {
     LEFT_EYE = 0,
@@ -56,9 +59,25 @@ struct face_extraction
     facade::point landmarks[5];
 };
 
+struct face
+{
+    cv::Rect2i bounds;
+    cv::Mat landmarks;
+    cv::Mat transform;
+};
+
+struct face_swap
+{
+    facade::bounds bounds;
+    facade::point landmarks[5];
+    cv::Mat &source;
+    cv::Mat &destination;
+};
+
 class video_pipeline;
 typedef std::tuple<video_pipeline *, frame> vp_input;
 typedef std::tuple<video_pipeline *, frame, std::vector<face_extraction>> vp_face_extracted;
+typedef std::tuple<video_pipeline *, frame, std::vector<face>> vp_face_mesh;
 typedef int vp_output;
 
 class pipeline_control_delegate
@@ -77,11 +96,13 @@ class video_pipeline
 {
 public:
     explicit video_pipeline(facade_device *sink);
+    ~video_pipeline();
     void operator<<(facade::frame frame);
 private:
     facade_device *output_device;
     Ort::Session *center_face;
     Ort::Session *face_swap;
+    Ort::Session *face_mesh;
 
     oneapi::tbb::concurrent_queue<facade::frame> input_queue;
     oneapi::tbb::concurrent_queue<facade::frame> output_queue;
@@ -96,7 +117,8 @@ private:
     oneapi::tbb::flow::function_node<vp_face_extracted, int> output_node;
 
     static vp_face_extracted run_face_extraction(vp_input);
-    static vp_face_extracted run_face_swap(vp_face_extracted);
+    static vp_face_mesh run_face_mesh(vp_face_extracted);
+    static vp_face_mesh run_face_swap(vp_face_mesh);
     static vp_output run_output(vp_face_extracted);
     static void write_callback(facade::video_pipeline *);
 };
