@@ -59,7 +59,7 @@ struct SetupView: View {
     }
     
     func newRequest() -> OSSystemExtensionRequest {
-        let identifier = "com.paalmaxima.Facade.Camera"
+        let identifier = "dev.facade.Facade.Camera"
         let activationRequest = OSSystemExtensionRequest.activationRequest(forExtensionWithIdentifier: identifier, queue: .main)
         
         if delegate == nil {

@@ -5,9 +5,7 @@
 	<key>CMIOExtension</key>
 	<dict>
 		<key>CMIOExtensionMachServiceName</key>
-		<string>com.paalmaxima.facade</string>
+		<string>dev.facade.Facade.Camera</string>
 	</dict>
-	<key>NSSystemExtensionUsageDescription</key>
-	<string></string>
 </dict>
 </plist>

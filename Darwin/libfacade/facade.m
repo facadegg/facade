@@ -45,7 +45,7 @@ CMIOObjectPropertyAddress kStateProperty        = { 'fsta',
                                                     kCMIOObjectPropertyScopeGlobal,
                                                     kCMIOObjectPropertyElementMain };
 
-CFStringRef kPlugInBundleID = CFSTR("com.paalmaxima.Facade.Camera");
+CFStringRef kPlugInBundleID = CFSTR("dev.facade.Facade.Camera");
 CMIOObjectID kPlugInID = 0;
 
 

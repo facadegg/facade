@@ -8,7 +8,7 @@
 	<true/>
 	<key>com.apple.security.application-groups</key>
 	<array>
-		<string>com.paalmaxima.facade</string>
+		<string>dev.facade</string>
 	</array>
 	<key>com.apple.security.device.camera</key>
 	<true/>

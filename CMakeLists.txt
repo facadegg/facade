@@ -21,8 +21,8 @@ add_executable(Facade
 add_executable(mirage Mirage/main.cpp Mirage/mirage.hpp Mirage/face_pipeline.cpp Mirage/pipeline_control_delegate.cpp Mirage/data.cpp)
 
 if(APPLE)
-    include_directories(/usr/local/include ~/PaalMaxima/onnxruntime/include SYSTEM)
-    include_directories(~/PaalMaxima/onnxruntime/include/onnxruntime/core/session)
+    include_directories(/usr/local/include ~/PaalMaxima/onnxruntime/include ~/Workspace/PaalMaxima/onnxruntime/include /opt/homebrew/include SYSTEM)
+    include_directories(~/PaalMaxima/onnxruntime/include/onnxruntime/core/session ~/Workspace/PaalMaxima/onnxruntime/include/onnxruntime/core/session)
 
     target_link_directories(Facade PUBLIC
             /Applications/Facade.app/Contents/Frameworks
@@ -33,6 +33,8 @@ if(APPLE)
             /Applications/Facade.app/Contents/Frameworks
             /Applications/Facade.app/Contents/Frameworks/libfacade.dylib.framework
             ~/PaalMaxima/onnxruntime/build/MacOS/RelWithDebInfo
-            /usr/local/lib)
+            ~/Workspace/PaalMaxima/onnxruntime/build/MacOS/RelWithDebInfo
+            /usr/local/lib
+            /opt/homebrew/lib)
     target_link_libraries(mirage facade ${OpenCV_LIBS} tbb onnxruntime)
 endif()

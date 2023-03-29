@@ -18,7 +18,7 @@ int main(int argc, char **argv)
         return -1;
     }
 
-    cv::VideoCapture cap(1);
+    cv::VideoCapture cap(0, cv::VideoCaptureAPIs::CAP_AVFOUNDATION);
 
     if (!cap.isOpened())
     {

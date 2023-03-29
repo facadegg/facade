@@ -33,9 +33,9 @@ facade::video_pipeline::video_pipeline(facade_device *sink_device) :
 
     OrtSessionOptionsAppendExecutionProvider_CoreML(session_options, COREML_FLAG_USE_NONE);
 
-    center_face = new Ort::Session(env, "/Users/shukantpal/Downloads/CenterFace640x480.onnx", session_options);
-    face_swap = new Ort::Session(env, "/Users/shukantpal/Downloads/Bryan_Greynolds.onnx", Ort::SessionOptions());
-    face_mesh = new Ort::Session(env, "/Users/shukantpal/Downloads/FaceMesh.onnx", session_options);
+    center_face = new Ort::Session(env, "/opt/facade/CenterFace640x480.onnx", session_options);
+    face_swap = new Ort::Session(env, "/opt/facade/Bryan_Greynolds.onnx", Ort::SessionOptions());
+    face_mesh = new Ort::Session(env, "/opt/facade/FaceMesh.onnx", session_options);
 
     facade_error_code code = facade_write_open(output_device);
     std::cout << "open " << code << std::endl;
