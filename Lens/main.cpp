@@ -1,7 +1,6 @@
 #include "facade.h"
 #include "mirage.hpp"
 #include <iostream>
-#include <onnxruntime/core/session/onnxruntime_c_api.h>
 #include <opencv2/opencv.hpp>
 #include <thread>
 
@@ -39,7 +38,7 @@ int main(int argc, char **argv)
         }
     }
 
-    facade::video_pipeline pipeline(device);
+    lens::video_pipeline pipeline(device);
 
     for (int i = 0; i < 1000000; i++)
     {
@@ -56,7 +55,7 @@ int main(int argc, char **argv)
         auto *frame_data = new uint8_t[cv_frame.channels() * width * height];
         memcpy(frame_data, cv_frame.data, cv_frame.channels() * width * height);
 
-        facade::frame next_frame = {
+        lens::frame next_frame = {
                 .pixels = frame_data,
                 .channels = static_cast<size_t>(cv_frame.channels()),
                 .width = width,

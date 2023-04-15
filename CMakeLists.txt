@@ -18,24 +18,29 @@ include_directories(Include)
 add_executable(Facade
         Include/facade.h CLI/main.cpp CLI/commands.cpp CLI/commands.hpp)
 
-add_executable(mirage Mirage/main.cpp Mirage/mirage.hpp Mirage/face_pipeline.cpp Mirage/pipeline_control_delegate.cpp Mirage/data.cpp)
+add_executable(Lens Lens/main.cpp Lens/mirage.hpp Lens/face_pipeline.cpp Lens/data.cpp Lens/include/ml.h Lens/ml/coreml.mm)
 add_executable(ttest Test/main.cpp)
 
 if(APPLE)
+    find_library(FOUNDATION Foundation)
+    find_library(CORE_ML CoreML)
+    find_library(CORE_VIDEO CoreVideo)
+
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall")
     set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wall")
 
     include_directories(/usr/local/include ~/PaalMaxima/onnxruntime/include ~/Workspace/PaalMaxima/onnxruntime/include /opt/homebrew/include SYSTEM)
     include_directories(~/PaalMaxima/onnxruntime/include/onnxruntime/core/session
             ~/Workspace/PaalMaxima/onnxruntime/include/onnxruntime/core/session ~/Workspace/PaalMaxima/onnxruntime/onnxruntime
-            ~/PaalMaxima/onnxruntime/onnxruntime)
+            ~/PaalMaxima/onnxruntime/onnxruntime
+            ./Lens/include)
 
     target_link_directories(Facade PUBLIC
             /Applications/Facade.app/Contents/Frameworks
             /Applications/Facade.app/Contents/Frameworks/libfacade.dylib.framework)
     target_link_libraries(Facade facade Boost::program_options)
 
-    target_link_directories(mirage PUBLIC
+    target_link_directories(Lens PUBLIC
             /Applications/Facade.app/Contents/Frameworks
             /Applications/Facade.app/Contents/Frameworks/libfacade.dylib.framework
             ~/PaalMaxima/onnxruntime/build/MacOS/RelWithDebInfo
@@ -48,6 +53,6 @@ if(APPLE)
             /usr/local/lib
             /opt/homebrew/lib)
 
-    target_link_libraries(mirage facade ${OpenCV_LIBS} tbb onnxruntime)
+    target_link_libraries(Lens facade ${OpenCV_LIBS} tbb onnxruntime ${CORE_ML} ${CORE_VIDEO} ${FOUNDATION})
     target_link_libraries(ttest tbb onnxruntime)
 endif()
