@@ -11,6 +11,20 @@ def find_initializer_by_name(name: str, model: onnx.ModelProto):
     return [x for x in model.graph.initializer if x.name == name][0]
 
 
+def delete_node_recursive(name: str, model: onnx.ModelProto):
+    node = find_node_by_name(name, model)
+
+    if len(node.output) > 0:
+        output = node.output[0]
+
+        for other_node in list(model.graph.node):
+            if len(other_node.input) > 0 and output in list(other_node.input):
+                delete_node_recursive(other_node.name, model)
+                break
+
+    model.graph.node.remove(node)
+
+
 if __name__ == "__main__":
     model = onnx.load('/Users/shukantpal/Downloads/Bryan_Greynolds.onnx')
 
@@ -162,5 +176,72 @@ if __name__ == "__main__":
     print('---------------------------------------------------------------------------------------')
     print('---------------------------------------------------------------------------------------')
 
+    square_node = find_node_by_name('Square_1', model)
+    sni = list(model.graph.node).index(square_node)
+    model.graph.node.remove(square_node)
+    model.graph.initializer.append(onnx.TensorProto(name='equiv_pow_2',
+                                                    dims=[1],
+                                                    data_type=onnx.TensorProto.FLOAT,
+                                                    float_data=[2]))
+    model.graph.node.insert(sni,
+                            onnx.NodeProto(name=square_node.name + '_Equiv',
+                                           input=[square_node.input[0], 'equiv_pow_2'],
+                                           output=[square_node.output[0]],
+                                           op_type='Pow'
+                                           ))
+
+    print('---------------------------------------------------------------------------------------')
+    print('---------------------------------------------------------------------------------------')
+    print('---------------------------------------------------------------------------------------')
+
+    nodes:  List[Tuple[onnx.NodeProto, onnx.NodeProto]] = [
+        (find_node_by_name('Reshape_143', model), find_node_by_name('transpose_29', model)),
+        (find_node_by_name('Reshape_146', model), find_node_by_name('transpose_30', model)),
+        (find_node_by_name('Reshape_149', model), find_node_by_name('transpose_31', model)),
+        (find_node_by_name('Reshape_152', model), find_node_by_name('transpose_32', model)),
+        (find_node_by_name('Reshape_155', model), find_node_by_name('transpose_33', model)),
+
+        (find_node_by_name('Reshape_117', model), find_node_by_name('transpose_24', model)),
+        (find_node_by_name('Reshape_122', model), find_node_by_name('transpose_25', model)),
+        (find_node_by_name('Reshape_127', model), find_node_by_name('transpose_26', model)),
+        (find_node_by_name('Reshape_132', model), find_node_by_name('transpose_27', model)),
+        (find_node_by_name('Reshape_140', model), find_node_by_name('transpose_28', model)),
+
+        (find_node_by_name('Reshape_185', model), find_node_by_name('transpose_39', model)),
+        (find_node_by_name('Reshape_188', model), find_node_by_name('transpose_40', model)),
+        (find_node_by_name('Reshape_191', model), find_node_by_name('transpose_41', model)),
+        (find_node_by_name('Reshape_194', model), find_node_by_name('transpose_42', model)),
+        (find_node_by_name('Reshape_197', model), find_node_by_name('transpose_43', model))
+    ]
+
+    for reshape_node, transpose_node in nodes:
+        shape_name = reshape_node.input[1]
+        shape_weights = find_initializer_by_name(shape_name, model)
+
+        if shape_weights.raw_data:
+            shape = np.frombuffer(shape_weights.raw_data, dtype=np.int64)
+
+            d1 = shape[1]
+            d2 = shape[2]
+            d3 = shape[3]
+            d4 = shape[4]
+            d5 = shape[5]
+            shape_weights.CopyFrom(onnx.TensorProto(name=shape_weights.name,
+                                                    dims=[4],
+                                                    data_type=onnx.TensorProto.INT64,
+                                                    int64_data=[d1, d2, d3 * d4, d5]))
+
+        perm = transpose_node.attribute[0]
+        perm.CopyFrom(onnx.AttributeProto(name=perm.name,
+                                          ints=[2,0,3,1],
+                                          type=onnx.AttributeProto.INTS))
+
+
+    print('---------------------------------------------------------------------------------------')
+    print('---------------------------------------------------------------------------------------')
+    print('---------------------------------------------------------------------------------------')
+
+    delete_node_recursive('Conv_Equiv_4', model)
+    model.graph.output.pop(0)
 
     onnx.save(model, '/opt/facade/Bryan_Greynolds.onnx')

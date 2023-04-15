@@ -13,7 +13,7 @@
 #include <utility>
 #include "mirage.hpp"
 
-Ort::Env env(ORT_LOGGING_LEVEL_WARNING, "CenterFace");
+Ort::Env env(ORT_LOGGING_LEVEL_INFO, "CenterFace");
 Ort::SessionOptions session_options;
 
 facade::video_pipeline::video_pipeline(facade_device *sink_device) :
@@ -34,7 +34,7 @@ facade::video_pipeline::video_pipeline(facade_device *sink_device) :
     OrtSessionOptionsAppendExecutionProvider_CoreML(session_options, COREML_FLAG_USE_NONE);
 
     center_face = new Ort::Session(env, "/opt/facade/CenterFace640x480.onnx", session_options);
-    face_swap = new Ort::Session(env, "/opt/facade/Bryan_Greynolds.onnx", Ort::SessionOptions());
+    face_swap = new Ort::Session(env, "/opt/facade/Bryan_Greynolds.onnx", session_options);
     face_mesh = new Ort::Session(env, "/opt/facade/FaceMesh.onnx", session_options);
 
     facade_error_code code = facade_write_open(output_device);
@@ -426,17 +426,16 @@ facade::vp_face_mesh facade::video_pipeline::run_face_swap(vp_face_mesh args)
         };
 
         static const char *output_names[3] = {
-                "out_face_mask:0",
                 "out_celeb_face:0",
                 "out_celeb_face_mask:0",
         };
         Ort::RunOptions run_options{nullptr};
         auto start_time = std::chrono::high_resolution_clock::now();
-        std::vector<Ort::Value> output_tensors = pipeline->face_swap->Run(run_options, input_names, input_tensors, 1, output_names, 3);
+        std::vector<Ort::Value> output_tensors = pipeline->face_swap->Run(run_options, input_names, input_tensors, 1, output_names, 2);
         auto end_time = std::chrono::high_resolution_clock::now();
         std::cout << " TIME WAS " <<  std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count() << std::endl;
-        Ort::Value& out_celeb_face_tensor = output_tensors[1];
-        Ort::Value& out_celeb_face_mask_tensor = output_tensors[2];
+        Ort::Value& out_celeb_face_tensor = output_tensors[0];
+        Ort::Value& out_celeb_face_mask_tensor = output_tensors[1];
 
         cv::Mat out_celeb_face(swap_height, swap_width, CV_32FC3, out_celeb_face_tensor.GetTensorMutableData<float>());
         cv::Mat out_celeb_face_mask(swap_height, swap_width, CV_32FC1, out_celeb_face_mask_tensor.GetTensorMutableData<float>());
