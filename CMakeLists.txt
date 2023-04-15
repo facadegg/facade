@@ -18,7 +18,7 @@ include_directories(Include)
 add_executable(Facade
         Include/facade.h CLI/main.cpp CLI/commands.cpp CLI/commands.hpp)
 
-add_executable(Lens Lens/main.cpp Lens/mirage.hpp Lens/face_pipeline.cpp Lens/data.cpp Lens/include/ml.h Lens/ml/coreml.mm)
+add_executable(Lens Lens/main.cpp Lens/include/lens.hpp Lens/face_pipeline.cpp Lens/data.cpp Lens/include/ml.h Lens/ml/coreml.mm)
 add_executable(ttest Test/main.cpp)
 
 if(APPLE)

@@ -12,7 +12,7 @@
 #include <opencv2/opencv.hpp>
 #include <utility>
 #include "ml.h"
-#include "mirage.hpp"
+#include "lens.hpp"
 
 Ort::Env env(ORT_LOGGING_LEVEL_INFO, "CenterFace");
 Ort::SessionOptions session_options;
