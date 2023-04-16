@@ -25,7 +25,8 @@ lens::video_pipeline::video_pipeline(facade_device *sink_device) :
     input_queue(),
     output_queue(),
     output_ready(true),
-    ml_face_swap(face_swap_model::build("/opt/facade/Bryan_Greynolds.mlmodel"))
+    ml_face_swap(face_swap_model::build("/opt/facade/Bryan_Greynolds.mlmodel")),
+    gaussian_blur(gaussian_blur::build())
 {
     OrtSessionOptionsAppendExecutionProvider_CoreML(session_options, COREML_FLAG_USE_NONE);
 
@@ -57,6 +58,11 @@ lens::video_pipeline::~video_pipeline()
 void lens::video_pipeline::operator<<(lens::frame frame)
 {
     bool success = this->input_queue.try_push(frame);
+
+    if (!success)
+    {
+        delete[] frame.pixels;
+    }
     std::cout << "pushed: " << success << std::endl;
 }
 
@@ -92,7 +98,7 @@ lens::vp_face_extracted lens::video_pipeline::run_face_extraction(vp_input input
     std::vector<cv::Mat> channels(3);
     cv::split(ml_image, channels);
 
-    std::unique_ptr<float> ml_buffer(new float[640 * 480 * 3]);
+    std::unique_ptr<float[]> ml_buffer(new float[640 * 480 * 3]);
     memcpy(ml_buffer.get(), channels[0].data, 640 * 480 * sizeof(float));
     memcpy(&ml_buffer.get()[640 * 480], channels[1].data, 640 * 480 * sizeof(float));
     memcpy(&ml_buffer.get()[640 * 480 * 2], channels[2].data, 640 * 480 * sizeof(float));
@@ -189,11 +195,11 @@ lens::vp_face_extracted lens::video_pipeline::run_face_extraction(vp_input input
             extraction.landmarks[i].x = center_x + (landmarks_x[p_index] - 0.5f) * scale_x;
             extraction.landmarks[i].y = center_y + (landmarks_y[p_index] - 0.5f) * scale_y;
 
-#ifdef DEBUG
+#ifdef DEBUG_FEATURE_CENTER_FACE
             cv::circle(image,
                        cv::Point(extraction.landmarks[i].x, extraction.landmarks[i].y),
                        4,
-                       cv::Scalar(255, 255, 0),
+                       cv::Scalar(0, 255, 255),
                        4);
 #endif
         }
@@ -286,7 +292,7 @@ lens::vp_face_mesh lens::video_pipeline::run_face_mesh(vp_face_extracted args)
 
     cv::Mat texture(frame.height, frame.width, CV_8UC3, (void *) frame.pixels);
     cv::Mat image(frame.height, frame.width, CV_8UC3, (void *) frame.pixels);
-    image = std::move(image.clone());
+    image = image.clone();
     image.convertTo(image, CV_32FC3);
     image *= 1.0f / 255.0f;
 
@@ -328,11 +334,21 @@ lens::vp_face_mesh lens::video_pipeline::run_face_mesh(vp_face_extracted args)
         for (int i = 0; i < landmarks.rows; i++)
         {
             auto landmark = landmarks.at<cv::Vec2f>(i);
-            cv::circle(texture,
-                       cv::Point(cvRound(landmark[0]), cvRound(landmark[1])),
-                       1,
-                       cv::Scalar(255, 255, 0),
-                       2);
+            
+            if (i == 249) {
+                cv::circle(texture,
+                           cv::Point(cvRound(landmark[0]), cvRound(landmark[1])),
+                           8,
+                           cv::Scalar(0, 255, 0),
+                           6);
+            } else {
+                cv::circle(texture,
+                           cv::Point(cvRound(landmark[0]), cvRound(landmark[1])),
+                           1,
+                           cv::Scalar(255, 255, 0),
+                           2);
+
+            }
         }
 #endif
 
@@ -344,7 +360,7 @@ lens::vp_face_mesh lens::video_pipeline::run_face_mesh(vp_face_extracted args)
 
 Ort::AllocatorWithDefaultOptions allocator;
 
-cv::Mat erode_blur(cv::Mat& img, int erode, int blur)
+cv::Mat erode_blur(cv::Mat& img, int erode, int blur, lens::gaussian_blur& op)
 {
     cv::Mat out;
     cv::copyMakeBorder(img, out, img.rows, img.rows, img.cols, img.cols, cv::BORDER_CONSTANT);
@@ -370,7 +386,9 @@ cv::Mat erode_blur(cv::Mat& img, int erode, int blur)
 
     if (blur > 0) {
         double sigma = blur * 0.125 * 2;
-        cv::GaussianBlur(out, out, cv::Size(0, 0), sigma);
+        op.set_radius(sigma);
+        op.run(out, out);
+//        cv::GaussianBlur(out, out, cv::Size(0, 0), sigma);
     }
 
     out = out(cv::Range(img.rows, out.rows - img.rows),
@@ -464,10 +482,10 @@ lens::vp_face_mesh lens::video_pipeline::run_face_swap(vp_face_mesh args)
         cv::Mat out_celeb_face(swap_height, swap_width, CV_32FC3, out_celeb_face_tensor.GetTensorMutableData<float>());
         cv::Mat out_celeb_face_mask(swap_height, swap_width, CV_32FC1, out_celeb_face_mask_tensor.GetTensorMutableData<float>());
 #endif
+        out_celeb_face_mask = erode_blur(out_celeb_face_mask, 5, 25, *pipeline->gaussian_blur);
         cv::cvtColor(out_celeb_face_mask, out_celeb_face_mask, cv::COLOR_GRAY2RGB);
 
-        out_celeb_face_mask = std::move(erode_blur(out_celeb_face_mask, 5, 25));
-        out_celeb_face = std::move(rct(out_celeb_face, si_clone));
+        out_celeb_face = rct(out_celeb_face, si_clone);
 
         cv::multiply(out_celeb_face, cv::Scalar(255, 255, 255), out_celeb_face);
         cv::multiply(out_celeb_face, out_celeb_face_mask, out_celeb_face);
@@ -536,12 +554,11 @@ void lens::video_pipeline::write_callback(lens::video_pipeline *pipeline)
         facade_write_frame(pipeline->output_device,
                            (void *) rgba_image.data,
                            4 * frame.width * frame.height);
-        delete frame.pixels;
+        delete[] const_cast<uint8_t*>(frame.pixels);
 
         auto end_time = std::chrono::high_resolution_clock::now();
         std::cout << " Frame time was " <<  std::chrono::duration_cast<std::chrono::milliseconds>(end_time - last_push_time).count() << std::endl;
         last_push_time = end_time;
-
 
         pipeline->output_ready = false; // Wait for next write_callback
     }

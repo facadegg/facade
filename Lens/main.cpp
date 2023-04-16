@@ -17,7 +17,7 @@ int main(int argc, char **argv)
         return -1;
     }
 
-    cv::VideoCapture cap(0, cv::VideoCaptureAPIs::CAP_AVFOUNDATION);
+    cv::VideoCapture cap(1, cv::VideoCaptureAPIs::CAP_AVFOUNDATION);
 
     if (!cap.isOpened())
     {
@@ -52,7 +52,7 @@ int main(int argc, char **argv)
 
         size_t width = cv_frame.cols;
         size_t height = cv_frame.rows;
-        auto *frame_data = new uint8_t[cv_frame.channels() * width * height];
+        auto *frame_data = new uint8_t[cv_frame.channels() * width * height * 2];
         memcpy(frame_data, cv_frame.data, cv_frame.channels() * width * height);
 
         lens::frame next_frame = {

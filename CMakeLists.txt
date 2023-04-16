@@ -16,15 +16,31 @@ include_directories(.)
 include_directories(Include)
 
 add_executable(Facade
-        Include/facade.h CLI/main.cpp CLI/commands.cpp CLI/commands.hpp)
+        Include/facade.h
+        CLI/main.cpp
+        CLI/commands.cpp
+        CLI/commands.hpp)
 
-add_executable(Lens Lens/main.cpp Lens/include/lens.hpp Lens/face_pipeline.cpp Lens/data.cpp Lens/include/ml.h Lens/ml/coreml.mm)
+add_executable(Lens
+        Lens/main.cpp
+        Lens/include/lens.hpp
+        Lens/include/filters.hpp
+        Lens/face_pipeline.cpp
+        Lens/data.cpp
+        Lens/include/ml.h
+        Lens/ml/coreml.mm
+        Lens/include/filters.hpp
+        Lens/platform/darwin/filters.mm)
 add_executable(ttest Test/main.cpp)
 
 if(APPLE)
-    find_library(FOUNDATION Foundation)
+    find_library(CORE_GRAPHICS CoreGraphics)
+    find_library(CORE_IMAGE CoreImage)
     find_library(CORE_ML CoreML)
     find_library(CORE_VIDEO CoreVideo)
+    find_library(METAL Metal)
+    find_library(MPS MetalPerformanceShaders)
+    find_library(FOUNDATION Foundation)
 
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall")
     set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wall")
@@ -53,6 +69,6 @@ if(APPLE)
             /usr/local/lib
             /opt/homebrew/lib)
 
-    target_link_libraries(Lens facade ${OpenCV_LIBS} tbb onnxruntime ${CORE_ML} ${CORE_VIDEO} ${FOUNDATION})
+    target_link_libraries(Lens facade ${OpenCV_LIBS} tbb onnxruntime ${CORE_GRAPHICS} ${CORE_IMAGE} ${CORE_ML} ${CORE_VIDEO} ${FOUNDATION} ${METAL} ${MPS})
     target_link_libraries(ttest tbb onnxruntime)
 endif()

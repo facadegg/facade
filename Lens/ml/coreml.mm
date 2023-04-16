@@ -35,20 +35,27 @@ void face_swap_impl::run(cv::Mat &in_face, cv::Mat &out_celebrity_face, cv::Mat 
         @throw error;
     }
 
-    id<MLFeatureProvider> input = [[MLDictionaryFeatureProvider alloc] initWithDictionary:@{@"in_face:0": [MLFeatureValue featureValueWithMultiArray:in_face_data]} error:&error];
-    id<MLFeatureProvider> output = [this->model predictionFromFeatures:input error:&error];
+    MLDictionaryFeatureProvider* dict = [[MLDictionaryFeatureProvider alloc] initWithDictionary:@{@"in_face:0": [MLFeatureValue featureValueWithMultiArray:in_face_data]} error:&error];
+    id<MLFeatureProvider> input = dict;
 
-    if (error)
+    @autoreleasepool
     {
-        NSLog(@"Failed to execute face-swap model: %@", error);
-        @throw error;
+        id <MLFeatureProvider> output = [this->model predictionFromFeatures:input error:&error];
+
+        if (error) {
+            NSLog(@"Failed to execute face-swap model: %@", error);
+            @throw error;
+        }
+
+        MLMultiArray *out_celebrity_face_data = [[output featureValueForName:@"out_celeb_face:0"] multiArrayValue];
+        MLMultiArray *out_celebrity_face_mask_data = [[output featureValueForName:@"out_celeb_face_mask:0"] multiArrayValue];
+
+        out_celebrity_face = cv::Mat(224, 224, CV_32FC3, [out_celebrity_face_data dataPointer]).clone();
+        out_celebrity_face_mask = cv::Mat(224, 224, CV_32FC1, [out_celebrity_face_mask_data dataPointer]).clone();
     }
 
-    MLMultiArray *out_celebrity_face_data = [[output featureValueForName:@"out_celeb_face:0"] multiArrayValue];
-    MLMultiArray *out_celebrity_face_mask_data = [[output featureValueForName:@"out_celeb_face_mask:0"] multiArrayValue];
-
-    out_celebrity_face = cv::Mat(224, 224, CV_32FC3, [out_celebrity_face_data dataPointer]).clone();
-    out_celebrity_face_mask = cv::Mat(224, 224, CV_32FC1, [out_celebrity_face_mask_data dataPointer]).clone();
+    [dict release];
+    [in_face_data release];
 }
 
 face_swap_impl::face_swap_impl(MLModel const *model) :
@@ -87,6 +94,8 @@ std::unique_ptr<face_swap_model> face_swap_model::build(const std::string& filen
         NSLog(@"%@", error);
         @throw error;
     }
+
+    [configuration release];
 
     return std::unique_ptr<face_swap_model>(new face_swap_impl(model));
 }

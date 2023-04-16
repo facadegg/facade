@@ -2,6 +2,7 @@
 #define MIRAGE_HPP
 
 #include "facade.h"
+#include "filters.hpp"
 #include "ml.h"
 #include <oneapi/tbb.h>
 #include <onnxruntime/core/session/onnxruntime_cxx_api.h>
@@ -106,6 +107,7 @@ private:
     Ort::Session *face_mesh;
 
     std::unique_ptr<face_swap_model> ml_face_swap;
+    std::unique_ptr<gaussian_blur> gaussian_blur;
 
     oneapi::tbb::concurrent_bounded_queue<lens::frame> input_queue;
     oneapi::tbb::concurrent_bounded_queue<lens::frame> output_queue;
