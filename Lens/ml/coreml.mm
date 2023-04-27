@@ -35,8 +35,13 @@ void face_swap_impl::run(cv::Mat &in_face, cv::Mat &out_celebrity_face, cv::Mat 
         @throw error;
     }
 
-    MLDictionaryFeatureProvider* dict = [[MLDictionaryFeatureProvider alloc] initWithDictionary:@{@"in_face:0": [MLFeatureValue featureValueWithMultiArray:in_face_data]} error:&error];
-    id<MLFeatureProvider> input = dict;
+    auto options = @{
+        @"in_face:0": [MLFeatureValue featureValueWithMultiArray:in_face_data]
+    };
+    MLDictionaryFeatureProvider* input_provider = [[MLDictionaryFeatureProvider alloc]
+                                                   initWithDictionary:options
+                                                   error:&error];
+    id<MLFeatureProvider> input = input_provider;
 
     @autoreleasepool
     {
@@ -54,7 +59,7 @@ void face_swap_impl::run(cv::Mat &in_face, cv::Mat &out_celebrity_face, cv::Mat 
         out_celebrity_face_mask = cv::Mat(224, 224, CV_32FC1, [out_celebrity_face_mask_data dataPointer]).clone();
     }
 
-    [dict release];
+    [input_provider release];
     [in_face_data release];
 }
 
@@ -73,6 +78,11 @@ face_swap_impl::~face_swap_impl() noexcept
 
 std::unique_ptr<face_swap_model> face_swap_model::build(const std::string& filename)
 {
+    if (!filename.ends_with(".mlmodel"))
+    {
+        return nullptr;
+    }
+
     NSString* const model_path = [NSString stringWithCString:filename.c_str() encoding:NSASCIIStringEncoding];
     NSURL* const model_url = [NSURL fileURLWithPath:model_path];
     MLModelConfiguration *configuration = [[MLModelConfiguration alloc] init];

@@ -20,32 +20,32 @@ Ort::SessionOptions session_options;
 auto last_pull_time = std::chrono::high_resolution_clock::now();
 auto last_push_time = std::chrono::high_resolution_clock::now();
 
-lens::video_pipeline::video_pipeline(facade_device *sink_device) :
+lens::face_pipeline::face_pipeline(facade_device *sink_device, std::string& face_swap_model) :
     output_device(sink_device),
     input_queue(),
     output_queue(),
     output_ready(true),
-    ml_face_swap(face_swap_model::build("/opt/facade/Bryan_Greynolds.mlmodel")),
+    ml_face_swap(face_swap_model::build(face_swap_model)),
     gaussian_blur(gaussian_blur::build())
 {
     OrtSessionOptionsAppendExecutionProvider_CoreML(session_options, COREML_FLAG_USE_NONE);
 
     center_face = new Ort::Session(env, "/opt/facade/CenterFace640x480.onnx", session_options);
-//    face_swap = new Ort::Session(env, "/opt/facade/Bryan_Greynolds.onnx", session_options);
+    face_swap = face_swap_model.ends_with(".onnx") ? new Ort::Session(env, face_swap_model.c_str(), session_options) : nullptr;
     face_mesh = new Ort::Session(env, "/opt/facade/FaceMesh.onnx", session_options);
 
     const int pool_capacity = 2;
     input_queue.set_capacity(pool_capacity);
     output_queue.set_capacity(pool_capacity);
     for (int i = 0; i < pool_capacity; i++)
-        thread_pool.emplace_back(&video_pipeline::run, this, i);
+        thread_pool.emplace_back(&face_pipeline::run, this, i);
 
     facade_error_code code = facade_write_open(output_device);
     std::cout << "open " << code << std::endl;
-    facade_write_callback(output_device, reinterpret_cast<facade_callback>(video_pipeline::write_callback), this);
+    facade_write_callback(output_device, reinterpret_cast<facade_callback>(face_pipeline::write_callback), this);
 }
 
-lens::video_pipeline::~video_pipeline()
+lens::face_pipeline::~face_pipeline()
 {
     facade_write_close(output_device);
     facade_dispose_device(&output_device);
@@ -55,7 +55,7 @@ lens::video_pipeline::~video_pipeline()
     delete face_mesh;
 }
 
-void lens::video_pipeline::operator<<(lens::frame frame)
+void lens::face_pipeline::operator<<(lens::frame frame)
 {
     bool success = this->input_queue.try_push(frame);
 
@@ -66,7 +66,7 @@ void lens::video_pipeline::operator<<(lens::frame frame)
     std::cout << "pushed: " << success << std::endl;
 }
 
-void lens::video_pipeline::run(int id)
+void lens::face_pipeline::run(int id)
 {
     lens::frame frame = { };
 
@@ -74,18 +74,18 @@ void lens::video_pipeline::run(int id)
     {
         input_queue.pop(frame);
         auto end_time = std::chrono::high_resolution_clock::now();
-        std::cout << id << " grabbing after " <<  std::chrono::duration_cast<std::chrono::milliseconds>(end_time - last_pull_time).count() << std::endl;
+        std::cout << id << " grabbing " << frame.id <<  " after " <<  std::chrono::duration_cast<std::chrono::milliseconds>(end_time - last_pull_time).count() << std::endl;
         last_pull_time = end_time;
 
         vp_input input = { this, frame };
-        auto extracted = video_pipeline::run_face_extraction(input);
-        auto mesh = video_pipeline::run_face_mesh(extracted);
-        video_pipeline::run_face_swap(mesh);
-        video_pipeline::run_output(extracted);
+        auto extracted = face_pipeline::run_face_extraction(input);
+        auto mesh = face_pipeline::run_face_mesh(extracted);
+        face_pipeline::run_face_swap(mesh);
+        face_pipeline::run_output(extracted);
     }
 }
 
-lens::vp_face_extracted lens::video_pipeline::run_face_extraction(vp_input input)
+lens::vp_face_extracted lens::face_pipeline::run_face_extraction(vp_input input)
 {
     auto [pipeline, frame] = std::move(input);
 
@@ -279,7 +279,7 @@ cv::Mat umeyama2(const cv::Mat& src, const cv::Mat& dst)
     return T;
 }
 
-lens::vp_face_mesh lens::video_pipeline::run_face_mesh(vp_face_extracted args)
+lens::vp_face_mesh lens::face_pipeline::run_face_mesh(vp_face_extracted args)
 {
     static const char *INPUTS[1] = { "input_1" };
     static const char *OUTPUTS[1] = { "conv2d_21" };
@@ -430,7 +430,7 @@ cv::Mat rct(cv::Mat& src, cv::Mat& like)
     return out;
 }
 
-lens::vp_face_mesh lens::video_pipeline::run_face_swap(vp_face_mesh args)
+lens::vp_face_mesh lens::face_pipeline::run_face_swap(vp_face_mesh args)
 {
     auto [pipeline, frame, extractions] = args;
 
@@ -455,33 +455,47 @@ lens::vp_face_mesh lens::video_pipeline::run_face_swap(vp_face_mesh args)
         Ort::MemoryInfo memory_info("Cpu", OrtDeviceAllocator, 0, OrtMemTypeDefault);
         const int64_t input_tensor_shape[4] = { 1, swap_height, swap_width, 3 };
 
-#ifdef __APPLE__
         cv::Mat out_celeb_face, out_celeb_face_mask;
-        pipeline->ml_face_swap->run(si_clone, out_celeb_face, out_celeb_face_mask);
-#else
-        static const char *input_names[1] = { "in_face:0" };
-        Ort::Value input_tensors[1] = {
-                Ort::Value::CreateTensor<float>(memory_info,
-                                                reinterpret_cast<float *>(si_clone.data),
-                                                swap_height * swap_width * 3,
-                                                input_tensor_shape, 4),
-        };
 
-        static const char *output_names[3] = {
-                "out_celeb_face:0",
-                "out_celeb_face_mask:0",
-        };
-        Ort::RunOptions run_options{nullptr};
-        auto start_time = std::chrono::high_resolution_clock::now();
-        std::vector<Ort::Value> output_tensors = pipeline->face_swap->Run(run_options, input_names, input_tensors, 1, output_names, 2);
-        auto end_time = std::chrono::high_resolution_clock::now();
-        std::cout << " TIME WAS " <<  std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count() << std::endl;
-        Ort::Value& out_celeb_face_tensor = output_tensors[0];
-        Ort::Value& out_celeb_face_mask_tensor = output_tensors[1];
+        if (pipeline->ml_face_swap)
+        {
+            pipeline->ml_face_swap->run(si_clone, out_celeb_face, out_celeb_face_mask);
+        }
+        else if (pipeline->face_swap)
+        {
+            static const char *input_names[1] = {"in_face:0"};
+            Ort::Value input_tensors[1] = {
+                    Ort::Value::CreateTensor<float>(memory_info,
+                                                    reinterpret_cast<float *>(si_clone.data),
+                                                    swap_height * swap_width * 3,
+                                                    input_tensor_shape, 4),
+            };
 
-        cv::Mat out_celeb_face(swap_height, swap_width, CV_32FC3, out_celeb_face_tensor.GetTensorMutableData<float>());
-        cv::Mat out_celeb_face_mask(swap_height, swap_width, CV_32FC1, out_celeb_face_mask_tensor.GetTensorMutableData<float>());
-#endif
+            static const char *output_names[3] = {
+                    "out_celeb_face:0",
+                    "out_celeb_face_mask:0",
+            };
+            Ort::RunOptions run_options{nullptr};
+            auto start_time = std::chrono::high_resolution_clock::now();
+            std::vector<Ort::Value> output_tensors = pipeline->face_swap->Run(run_options, input_names, input_tensors,
+                                                                              1, output_names, 2);
+            auto end_time = std::chrono::high_resolution_clock::now();
+            std::cout << " TIME WAS "
+                      << std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count()
+                      << std::endl;
+            Ort::Value &out_celeb_face_tensor = output_tensors[0];
+            Ort::Value &out_celeb_face_mask_tensor = output_tensors[1];
+
+            out_celeb_face = cv::Mat(swap_height, swap_width, CV_32FC3,
+                                     out_celeb_face_tensor.GetTensorMutableData<float>());
+            out_celeb_face_mask = cv::Mat(swap_height, swap_width, CV_32FC1,
+                                          out_celeb_face_mask_tensor.GetTensorMutableData<float>());
+        }
+        else
+        {
+            throw std::runtime_error("No model executor available");
+        }
+
         out_celeb_face_mask = erode_blur(out_celeb_face_mask, 5, 25, *pipeline->gaussian_blur);
         cv::cvtColor(out_celeb_face_mask, out_celeb_face_mask, cv::COLOR_GRAY2RGB);
 
@@ -527,7 +541,7 @@ lens::vp_face_mesh lens::video_pipeline::run_face_swap(vp_face_mesh args)
     return args;
 }
 
-lens::vp_output lens::video_pipeline::run_output(vp_face_extracted args)
+lens::vp_output lens::face_pipeline::run_output(vp_face_extracted args)
 {
     auto [pipeline, frame, extractions] = std::move(args);
 
@@ -539,7 +553,7 @@ lens::vp_output lens::video_pipeline::run_output(vp_face_extracted args)
     return (int) extractions.size();
 }
 
-void lens::video_pipeline::write_callback(lens::video_pipeline *pipeline)
+void lens::face_pipeline::write_callback(lens::face_pipeline *pipeline)
 {
     pipeline->write_mutex.lock();
 

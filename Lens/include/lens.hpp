@@ -49,6 +49,7 @@ struct point
 
 struct frame
 {
+    int id;
     uint8_t const *pixels;
     size_t channels;
     size_t width;
@@ -76,29 +77,17 @@ struct face_swap
     cv::Mat &destination;
 };
 
-class video_pipeline;
-typedef std::tuple<video_pipeline *, frame> vp_input;
-typedef std::tuple<video_pipeline *, frame, std::vector<face_extraction>> vp_face_extracted;
-typedef std::tuple<video_pipeline *, frame, std::vector<face>> vp_face_mesh;
+class face_pipeline;
+typedef std::tuple<face_pipeline *, frame> vp_input;
+typedef std::tuple<face_pipeline *, frame, std::vector<face_extraction>> vp_face_extracted;
+typedef std::tuple<face_pipeline *, frame, std::vector<face>> vp_face_mesh;
 typedef int vp_output;
 
-class pipeline_control_delegate
+class face_pipeline
 {
 public:
-    explicit pipeline_control_delegate(oneapi::tbb::concurrent_bounded_queue<lens::frame>& queue);
-    std::tuple<video_pipeline *, lens::frame> operator()(oneapi::tbb::flow_control& fc);
-    void operator<<(lens::video_pipeline *);
-private:
-    oneapi::tbb::concurrent_bounded_queue<lens::frame>& queue;
-    video_pipeline *ptr;
-    video_pipeline **ptr_ptr;
-};
-
-class video_pipeline
-{
-public:
-    explicit video_pipeline(facade_device *sink);
-    ~video_pipeline();
+    face_pipeline(facade_device *sink, std::string& face_swap_model);
+    ~face_pipeline();
     void operator<<(lens::frame frame);
 private:
     facade_device *output_device;
@@ -122,7 +111,7 @@ private:
     static vp_face_mesh run_face_mesh(vp_face_extracted);
     static vp_face_mesh run_face_swap(vp_face_mesh);
     static vp_output run_output(vp_face_extracted);
-    static void write_callback(lens::video_pipeline *);
+    static void write_callback(lens::face_pipeline *);
 };
 
 }

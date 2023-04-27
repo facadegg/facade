@@ -21,16 +21,16 @@ add_executable(Facade
         CLI/commands.cpp
         CLI/commands.hpp)
 
-add_executable(Lens
-        Lens/main.cpp
-        Lens/include/lens.hpp
-        Lens/include/filters.hpp
-        Lens/face_pipeline.cpp
-        Lens/data.cpp
-        Lens/include/ml.h
-        Lens/ml/coreml.mm
-        Lens/include/filters.hpp
-        Lens/platform/darwin/filters.mm)
+add_executable(lens
+                Lens/main.cpp
+                Lens/include/lens.hpp
+                Lens/include/filters.hpp
+                Lens/face_pipeline.cpp
+                Lens/data.cpp
+                Lens/include/ml.h
+                Lens/ml/coreml.mm
+                Lens/include/filters.hpp
+                Lens/platform/darwin/filters.mm)
 add_executable(ttest Test/main.cpp)
 
 if(APPLE)
@@ -56,11 +56,12 @@ if(APPLE)
             /Applications/Facade.app/Contents/Frameworks/libfacade.dylib.framework)
     target_link_libraries(Facade facade Boost::program_options)
 
-    target_link_directories(Lens PUBLIC
+    target_link_directories(lens PUBLIC
             /Applications/Facade.app/Contents/Frameworks
             /Applications/Facade.app/Contents/Frameworks/libfacade.dylib.framework
             ~/PaalMaxima/onnxruntime/build/MacOS/RelWithDebInfo
             ~/Workspace/PaalMaxima/onnxruntime/build/MacOS/RelWithDebInfo
+            Darwin/DerivedData/Facade/Build/Products/Debug/libfacade.dylib.framework/
             /usr/local/lib
             /opt/homebrew/lib)
     target_link_directories(ttest PUBLIC
@@ -69,6 +70,6 @@ if(APPLE)
             /usr/local/lib
             /opt/homebrew/lib)
 
-    target_link_libraries(Lens facade ${OpenCV_LIBS} tbb onnxruntime ${CORE_GRAPHICS} ${CORE_IMAGE} ${CORE_ML} ${CORE_VIDEO} ${FOUNDATION} ${METAL} ${MPS})
+    target_link_libraries(lens facade Boost::program_options ${OpenCV_LIBS} tbb onnxruntime ${CORE_GRAPHICS} ${CORE_IMAGE} ${CORE_ML} ${CORE_VIDEO} ${FOUNDATION} ${METAL} ${MPS})
     target_link_libraries(ttest tbb onnxruntime)
 endif()
