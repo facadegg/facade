@@ -8,9 +8,73 @@
 import AVFoundation
 import Foundation
 
-struct FaceSwapTarget {
+class FaceSwapTarget: ObservableObject {
     let name: String
-    let builtin: Bool = true
+    let builtin: Bool
+
+    @Published var downloadProgress: Double = 0
+    @Published private(set) var downloaded: Bool
+    @Published private(set) var downloading: Bool = false
+    private var _downloadObservation: NSKeyValueObservation?
+    
+    init(name: String) {
+        let fileManager = FileManager.default
+        let containerURL = fileManager.containerURL(forSecurityApplicationGroupIdentifier: "dev.facade")!
+        let documentsDirectory = containerURL.appendingPathComponent("Library/Models")
+        let faceSwapModelURL = documentsDirectory.appendingPathComponent("\(name.replacingOccurrences(of: " ", with: "_")).mlmodel")
+
+        self.name = name
+        self.builtin = true
+        self.downloaded = fileManager.fileExists(atPath: faceSwapModelURL.path)
+    }
+    
+    deinit {
+        _downloadObservation?.invalidate()
+    }
+    
+    func download() {
+        if self.downloading { return }
+        
+        self.downloading = true
+        
+        let filename = name.replacingOccurrences(of: " ", with: "_")
+        let url = URL(string: "https://facade.nyc3.cdn.digitaloceanspaces.com/models/face-swap/\(filename)/\(filename).mlmodel")!
+        
+        print("Downloading \(url)")
+        
+        let task = URLSession.shared.downloadTask(with: url) { (localURL, response, error) in
+            defer { self.downloading = false }
+
+            guard let localURL = localURL, error == nil else {
+                print("Download error:", error?.localizedDescription ?? "unknown")
+                return
+            }
+
+            // Move downloaded file to the destination directory
+            do {
+                let fileManager = FileManager.default
+                let containerURL = fileManager.containerURL(forSecurityApplicationGroupIdentifier: "dev.facade")!
+                let documentsDirectory = containerURL.appendingPathComponent("Library/Models")
+                let faceSwapModelURL = documentsDirectory.appendingPathComponent("\(self.name.replacingOccurrences(of: " ", with: "_")).mlmodel")
+                
+                try fileManager.createDirectory(at: documentsDirectory, withIntermediateDirectories: true, attributes: nil)
+                try fileManager.moveItem(at: localURL, to: faceSwapModelURL)
+                self.downloaded = true
+                print("Downloaded \(self.name) successfully.")
+            } catch {
+                print("Download error:", error.localizedDescription)
+            }
+        }
+
+        task.resume()
+        
+        _downloadObservation = task.progress.observe(\.fractionCompleted) { progress, _ in
+            DispatchQueue.main.async {
+                print("Downloaded \(url) \(progress.fractionCompleted * 100)%")
+                self.downloadProgress = progress.fractionCompleted
+            }
+        }
+    }
 };
 
 class CameraFilterProperties {
@@ -103,7 +167,7 @@ class CameraFilterProperties {
 
 class CameraFilter: ObservableObject {
     
-    let availableFaceSwapTargets = [
+    @Published private(set) var availableFaceSwapTargets = [
         FaceSwapTarget(name: "Bryan Greynolds"),
         FaceSwapTarget(name: "David Kovalniy"),
         FaceSwapTarget(name: "Ewon Spice"),
@@ -113,7 +177,7 @@ class CameraFilter: ObservableObject {
         FaceSwapTarget(name: "Zahar Lupin")
     ]
     
-    let preferredInputDevice: String? = nil
+    @Published var preferredInputDevice: String? = nil
     private(set) var properties: CameraFilterProperties? = nil
     private let devices: Devices
     
