@@ -4,6 +4,8 @@ project(Facade CXX)
 set(CMAKE_C_STANDARD 20)
 set(CMAKE_CXX_STANDARD 20)
 set(TBB_DIR /usr/local/opt/onetbb/onetbb/lib/cmake/TBB)
+set(LENS Lens)
+set(LENS_BUNDLE "${CMAKE_CURRENT_BINARY_DIR}/${LENS}.app")
 
 find_package(Boost COMPONENTS program_options REQUIRED)
 find_package(OpenCV REQUIRED)
@@ -70,6 +72,18 @@ if(APPLE)
             /usr/local/lib
             /opt/homebrew/lib)
 
-    target_link_libraries(lens facade Boost::program_options ${OpenCV_LIBS} tbb onnxruntime ${CORE_GRAPHICS} ${CORE_IMAGE} ${CORE_ML} ${CORE_VIDEO} ${FOUNDATION} ${METAL} ${MPS})
+    target_link_libraries(lens facade Boost::program_options tbb ${OpenCV_LIBS} onnxruntime ${CORE_GRAPHICS} ${CORE_IMAGE} ${CORE_ML} ${CORE_VIDEO} ${FOUNDATION} ${METAL} ${MPS})
     target_link_libraries(ttest tbb onnxruntime)
+
+    set_target_properties(lens PROPERTIES
+            MACOSX_BUNDLE TRUE
+            MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/Lens/Info.plist.in"
+            OUTPUT_NAME ${LENS}
+            INSTALL_RPATH "@executable_path/../Frameworks;/Applications/Facade.app/Contents/Frameworks"
+            BUILD_WITH_INSTALL_RPATH TRUE
+            INSTALL_RPATH_USE_LINK_PATH FALSE)
+
+    add_custom_command(TARGET lens POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E echo "Running bundle.py"
+            COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${CMAKE_CURRENT_SOURCE_DIR}/Buildscripts ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/Buildscripts/bundle.py ${LENS_BUNDLE} ${LENS})
 endif()

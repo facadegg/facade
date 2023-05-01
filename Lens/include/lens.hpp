@@ -7,6 +7,7 @@
 #include <oneapi/tbb.h>
 #include <onnxruntime/core/session/onnxruntime_cxx_api.h>
 #include <opencv2/opencv.hpp>
+#include <filesystem>
 #include <tuple>
 
 extern cv::Mat NORMALIZED_FACIAL_LANDMARKS;
@@ -86,7 +87,7 @@ typedef int vp_output;
 class face_pipeline
 {
 public:
-    face_pipeline(facade_device *sink, std::string& face_swap_model);
+    face_pipeline(facade_device *sink, const std::filesystem::path& root_dir, const std::string& face_swap_model);
     ~face_pipeline();
     void operator<<(lens::frame frame);
 private:

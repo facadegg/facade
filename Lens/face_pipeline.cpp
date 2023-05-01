@@ -6,6 +6,7 @@
 
 #include <algorithm>
 #include <iostream>
+#include <filesystem>
 #include <onnxruntime/core/session/onnxruntime_c_api.h>
 #include <onnxruntime/core/session/onnxruntime_cxx_api.h>
 #include <onnxruntime/core/providers/coreml/coreml_provider_factory.h>
@@ -20,7 +21,12 @@ Ort::SessionOptions session_options;
 auto last_pull_time = std::chrono::high_resolution_clock::now();
 auto last_push_time = std::chrono::high_resolution_clock::now();
 
-lens::face_pipeline::face_pipeline(facade_device *sink_device, std::string& face_swap_model) :
+namespace fs = std::filesystem;
+
+const fs::path center_face_filename = "CenterFace.onnx";
+const fs::path face_mesh_filename = "FaceMesh.onnx";
+
+lens::face_pipeline::face_pipeline(facade_device *sink_device, const fs::path& root_dir, const std::string& face_swap_model) :
     output_device(sink_device),
     input_queue(),
     output_queue(),
@@ -30,9 +36,14 @@ lens::face_pipeline::face_pipeline(facade_device *sink_device, std::string& face
 {
     OrtSessionOptionsAppendExecutionProvider_CoreML(session_options, COREML_FLAG_USE_NONE);
 
-    center_face = new Ort::Session(env, "/opt/facade/CenterFace640x480.onnx", session_options);
+    const std::string center_face_path = (root_dir / center_face_filename).string();
+    const std::string face_mesh_path = (root_dir / face_mesh_filename).string();
+
+    std::cout << " root_dir " << root_dir << " center " << center_face_path << std::endl;
+
+    center_face = new Ort::Session(env, center_face_path.c_str(), session_options);
     face_swap = face_swap_model.ends_with(".onnx") ? new Ort::Session(env, face_swap_model.c_str(), session_options) : nullptr;
-    face_mesh = new Ort::Session(env, "/opt/facade/FaceMesh.onnx", session_options);
+    face_mesh = new Ort::Session(env, face_mesh_path.c_str(), session_options);
 
     const int pool_capacity = 2;
     input_queue.set_capacity(pool_capacity);

@@ -14,7 +14,8 @@ int main(int argc, char **argv)
             ("dst", po::value<std::string>(), "The name of the video output device")
             ("src", po::value<std::string>(), "The name of the video input device")
             ("frame-rate", po::value<int>(), "The frame rate at which the src should be processed.")
-            ("face-swap-model", po::value<std::string>(), "The face swap model to use.");
+            ("face-swap-model", po::value<std::string>(), "The face swap model to use.")
+            ("root-dir", po::value<std::string>(), "The directory in which ML models are stored");
 
     po::variables_map vm;
 
@@ -42,8 +43,14 @@ int main(int argc, char **argv)
         std::cerr << "No --face-swap-model provided" << std::endl;
         return -3;
     }
+    if (!vm.contains("root-dir"))
+    {
+        std::cerr << "No --root-dir provided" << std::endl;
+        return -4;
+    }
 
     std::string dst = vm["dst"].as<std::string>();
+    std::string root_dir = vm["root-dir"].as<std::string>();
     std::string face_swap_model = vm["face-swap-model"].as<std::string>();
     int frame_rate = vm.contains("frame-rate") ? vm["frame-rate"].as<int>() : 30;
     int frame_interval = 1000 / frame_rate;
@@ -54,10 +61,15 @@ int main(int argc, char **argv)
         return -4;
     }
 
-    facade_device *device;
+    facade_device *device = nullptr;
 
     facade_init();
     facade_find_device_by_name(dst.c_str(), &device);
+
+    if (!device)
+    {
+        facade_find_device_by_uid(dst.c_str(), &device);
+    }
 
     if (!device)
     {
@@ -87,7 +99,7 @@ int main(int argc, char **argv)
         }
     }
 
-    lens::face_pipeline pipeline(device, face_swap_model);
+    lens::face_pipeline pipeline(device, root_dir, face_swap_model);
     std::chrono::time_point last_read = std::chrono::high_resolution_clock::now();
 
     for (int i = 0; i < 1000000; i++)
