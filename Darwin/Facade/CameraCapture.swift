@@ -15,7 +15,7 @@ class CameraCapture: ObservableObject {
     
     var captureSession: AVCaptureSession!
     private var cancellables = Set<AnyCancellable>()
-    private let uniqueID: String
+    let uniqueID: String
 
     init(uniqueID: String) {
         self.uniqueID = uniqueID
@@ -85,8 +85,10 @@ class CameraCapture: ObservableObject {
 
     func startSessionForDevice(_ device: AVCaptureDevice) {
         do {
-            let discoverySession = AVCaptureDevice.DiscoverySession(deviceTypes: [.externalUnknown], mediaType: .video, position: .unspecified)
+            let discoverySession = AVCaptureDevice.DiscoverySession(deviceTypes: [.builtInWideAngleCamera, .externalUnknown], mediaType: .video, position: .unspecified)
             let devices = discoverySession.devices
+            
+            print(devices)
 
             if let captureDevice = devices.first(where: { $0.uniqueID == uniqueID }) {
                 // Use the captureDevice

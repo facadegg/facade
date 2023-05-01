@@ -35,6 +35,12 @@
 		60D10E9A29A3AEE900E394CD /* Devices.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60D10E9929A3AEE900E394CD /* Devices.swift */; };
 		60D10E9C29A3CA1B00E394CD /* CameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60D10E9B29A3CA1B00E394CD /* CameraView.swift */; };
 		60D10E9E29A3CB8C00E394CD /* CameraCapture.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60D10E9D29A3CB8C00E394CD /* CameraCapture.swift */; };
+		60EB33C529FD753200BD47A7 /* FaceChooserView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60EB33C429FD753200BD47A7 /* FaceChooserView.swift */; };
+		60EB33C729FD769E00BD47A7 /* CameraFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60EB33C629FD769E00BD47A7 /* CameraFilter.swift */; };
+		60EB33C929FD7D1100BD47A7 /* FaceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60EB33C829FD7D1100BD47A7 /* FaceView.swift */; };
+		60EB33CD29FF168500BD47A7 /* Lens.app in CopyFiles */ = {isa = PBXBuildFile; fileRef = 60EB33CC29FF168500BD47A7 /* Lens.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		60EB33D829FF1DDE00BD47A7 /* CenterFace.onnx in CopyFiles */ = {isa = PBXBuildFile; fileRef = 60EB33CE29FF1CC600BD47A7 /* CenterFace.onnx */; };
+		60EB33D929FF1DE000BD47A7 /* FaceMesh.onnx in CopyFiles */ = {isa = PBXBuildFile; fileRef = 60EB33D029FF1CE500BD47A7 /* FaceMesh.onnx */; };
 		60EDC23129BE4F4000C32467 /* libfacade.dylib.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6021CA6D2990232900334A6D /* libfacade.dylib.framework */; };
 		60EDC23229BE4F4000C32467 /* libfacade.dylib.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 6021CA6D2990232900334A6D /* libfacade.dylib.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
@@ -134,6 +140,36 @@
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 		};
+		60EB33C129FD67D100BD47A7 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 12;
+			dstPath = "";
+			dstSubfolderSpec = 6;
+			files = (
+				60EB33CD29FF168500BD47A7 /* Lens.app in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		60EB33D229FF1D4800BD47A7 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 7;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		60EB33D729FF1DDA00BD47A7 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 7;
+			files = (
+				60EB33D929FF1DE000BD47A7 /* FaceMesh.onnx in CopyFiles */,
+				60EB33D829FF1DDE00BD47A7 /* CenterFace.onnx in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		60EDC22629BE405700C32467 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -193,6 +229,12 @@
 		60D10E9929A3AEE900E394CD /* Devices.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Devices.swift; sourceTree = "<group>"; };
 		60D10E9B29A3CA1B00E394CD /* CameraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraView.swift; sourceTree = "<group>"; };
 		60D10E9D29A3CB8C00E394CD /* CameraCapture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraCapture.swift; sourceTree = "<group>"; };
+		60EB33C429FD753200BD47A7 /* FaceChooserView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FaceChooserView.swift; sourceTree = "<group>"; };
+		60EB33C629FD769E00BD47A7 /* CameraFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraFilter.swift; sourceTree = "<group>"; };
+		60EB33C829FD7D1100BD47A7 /* FaceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FaceView.swift; sourceTree = "<group>"; };
+		60EB33CC29FF168500BD47A7 /* Lens.app */ = {isa = PBXFileReference; lastKnownFileType = wrapper.application; name = Lens.app; path = "../cmake-build-debug/Lens.app"; sourceTree = "<group>"; };
+		60EB33CE29FF1CC600BD47A7 /* CenterFace.onnx */ = {isa = PBXFileReference; lastKnownFileType = file; name = CenterFace.onnx; path = ../../../../../../opt/facade/CenterFace.onnx; sourceTree = "<group>"; };
+		60EB33D029FF1CE500BD47A7 /* FaceMesh.onnx */ = {isa = PBXFileReference; lastKnownFileType = file; name = FaceMesh.onnx; path = ../../../../../../opt/facade/FaceMesh.onnx; sourceTree = "<group>"; };
 		60EDC22829BE405700C32467 /* MLTest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = MLTest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -288,6 +330,9 @@
 		6063D392297E590B00DA3C1B = {
 			isa = PBXGroup;
 			children = (
+				60EB33D029FF1CE500BD47A7 /* FaceMesh.onnx */,
+				60EB33CE29FF1CC600BD47A7 /* CenterFace.onnx */,
+				60EB33CC29FF168500BD47A7 /* Lens.app */,
 				6063D39D297E590B00DA3C1B /* Facade */,
 				6063D3AF297E590C00DA3C1B /* FacadeTests */,
 				6063D3B9297E590C00DA3C1B /* FacadeUITests */,
@@ -317,19 +362,22 @@
 		6063D39D297E590B00DA3C1B /* Facade */ = {
 			isa = PBXGroup;
 			children = (
-				6063D39E297E590B00DA3C1B /* FacadeApp.swift */,
-				6063D3A0297E590B00DA3C1B /* ContentView.swift */,
 				6063D3A2297E590C00DA3C1B /* Assets.xcassets */,
-				6063D3A7297E590C00DA3C1B /* Facade.entitlements */,
-				6063D3A4297E590C00DA3C1B /* Preview Content */,
-				6063D3DC297E631300DA3C1B /* GeneralSettingsView.swift */,
-				6063D3DE297E647F00DA3C1B /* DevicesView.swift */,
-				60AC78972986C87900109B32 /* SetupView.swift */,
-				601E0DAE29A2E93700392923 /* Facade-Bridging-Header.h */,
-				60D10E9929A3AEE900E394CD /* Devices.swift */,
-				60D10E9B29A3CA1B00E394CD /* CameraView.swift */,
 				60D10E9D29A3CB8C00E394CD /* CameraCapture.swift */,
+				60EB33C629FD769E00BD47A7 /* CameraFilter.swift */,
+				60D10E9B29A3CA1B00E394CD /* CameraView.swift */,
+				6063D3A0297E590B00DA3C1B /* ContentView.swift */,
+				60D10E9929A3AEE900E394CD /* Devices.swift */,
+				6063D3DE297E647F00DA3C1B /* DevicesView.swift */,
+				601E0DAE29A2E93700392923 /* Facade-Bridging-Header.h */,
+				6063D3A7297E590C00DA3C1B /* Facade.entitlements */,
+				6063D39E297E590B00DA3C1B /* FacadeApp.swift */,
+				60EB33C429FD753200BD47A7 /* FaceChooserView.swift */,
+				60EB33C829FD7D1100BD47A7 /* FaceView.swift */,
+				6063D3DC297E631300DA3C1B /* GeneralSettingsView.swift */,
 				60A9F01F29F8C79B00D03298 /* Lens-Bridging-Header.h */,
+				6063D3A4297E590C00DA3C1B /* Preview Content */,
+				60AC78972986C87900109B32 /* SetupView.swift */,
 			);
 			path = Facade;
 			sourceTree = "<group>";
@@ -405,6 +453,7 @@
 				6021CA692990232900334A6D /* Sources */,
 				6021CA6A2990232900334A6D /* Frameworks */,
 				6021CA6B2990232900334A6D /* Resources */,
+				60EB33D229FF1D4800BD47A7 /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -443,6 +492,8 @@
 				6063D399297E590B00DA3C1B /* Resources */,
 				6063D3DB297E596700DA3C1B /* Embed System Extensions */,
 				604263DC299016AE00D848A1 /* Embed Libraries */,
+				60EB33C129FD67D100BD47A7 /* CopyFiles */,
+				60EB33D729FF1DDA00BD47A7 /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -681,12 +732,15 @@
 			files = (
 				6063D3DF297E647F00DA3C1B /* DevicesView.swift in Sources */,
 				60D10E9C29A3CA1B00E394CD /* CameraView.swift in Sources */,
+				60EB33C729FD769E00BD47A7 /* CameraFilter.swift in Sources */,
 				6063D3A1297E590B00DA3C1B /* ContentView.swift in Sources */,
 				60D10E9E29A3CB8C00E394CD /* CameraCapture.swift in Sources */,
 				6063D39F297E590B00DA3C1B /* FacadeApp.swift in Sources */,
 				60AC78982986C87900109B32 /* SetupView.swift in Sources */,
 				6063D3DD297E631300DA3C1B /* GeneralSettingsView.swift in Sources */,
 				60D10E9A29A3AEE900E394CD /* Devices.swift in Sources */,
+				60EB33C929FD7D1100BD47A7 /* FaceView.swift in Sources */,
+				60EB33C529FD753200BD47A7 /* FaceChooserView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -994,7 +1048,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_ENTITLEMENTS = Facade/Facade.entitlements;
+				CODE_SIGN_ENTITLEMENTS = Facade/FacadeDebug.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;

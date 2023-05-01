@@ -73,6 +73,7 @@ struct DevicesView_Previews: PreviewProvider {
                    height: 600,
                    frameRate: 60)
         ]))
+        .environmentObject(CameraFilter(availableOutputDevices: Devices()))
     }
 }
 
