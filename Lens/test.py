@@ -26,9 +26,14 @@ def delete_node_recursive(name: str, model: onnx.ModelProto):
 
 
 if __name__ == "__main__":
-    model = onnx.load('/Users/shukantpal/Downloads/Bryan_Greynolds.onnx')
+    model = onnx.load('/Users/shukantpal/Downloads/Zahar_Lupin.onnx')
+    model.graph.input[0].type.tensor_type.shape.dim.pop(0)
+    model.graph.input[0].type.tensor_type.shape.dim.insert(0, onnx.TensorShapeProto.Dimension(dim_value=1))
+    for output in model.graph.output:
+        output.type.tensor_type.shape.dim[0].CopyFrom(onnx.TensorShapeProto.Dimension(dim_value=1))
 
-    critical_shape = find_initializer_by_name('const_fold_opt__167', model)
+    reshape_109 = find_node_by_name('Reshape_109', model)
+    critical_shape = find_initializer_by_name(reshape_109.input[1], model)
     critical_shape.CopyFrom(onnx.TensorProto(name=critical_shape.name,
                                              dims=[4],
                                              data_type=onnx.TensorProto.INT64,
@@ -244,4 +249,4 @@ if __name__ == "__main__":
     delete_node_recursive('Conv_Equiv_4', model)
     model.graph.output.pop(0)
 
-    onnx.save(model, '/opt/facade/Bryan_Greynolds.onnx')
+    onnx.save(model, '/opt/facade/Zahar_Lupin.onnx')
