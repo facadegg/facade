@@ -38,6 +38,7 @@ struct CameraView: NSViewRepresentable {
     let captureSession: AVCaptureSession
 
     init(captureSession: AVCaptureSession) {
+        print("New camera view")
         self.captureSession = captureSession
     }
 
@@ -45,5 +46,5 @@ struct CameraView: NSViewRepresentable {
         return PlayerView(captureSession: captureSession)
     }
 
-    func updateNSView(_ nsView: PlayerView, context: Context) { }
+    func updateNSView(_ nsView: PlayerView, context: Context) {}
 }

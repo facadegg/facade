@@ -12,20 +12,42 @@ import Foundation
 class CameraCapture: ObservableObject {
     @Published var isGranted: Bool = false
     @Published var deviceFailed: Bool = false
-    
-    var captureSession: AVCaptureSession!
+    let captureSession: AVCaptureSession
+
     private var cancellables = Set<AnyCancellable>()
-    let uniqueID: String
+    private(set) var uniqueID: String
 
     init(uniqueID: String) {
         self.uniqueID = uniqueID
         captureSession = AVCaptureSession()
         setupBindings()
     }
+    
+    deinit {
+        cancellables.forEach { cancellable in
+            cancellable.cancel()
+        }
+        captureSession.stopRunning()
+    }
+    
+    func changeDevice(newUniqueID: String) {
+        cancellables.forEach { cancellable in
+            cancellable.cancel()
+        }
+        captureSession.stopRunning()
+        
+        uniqueID = newUniqueID
+        
+        captureSession.inputs.forEach { input in
+            captureSession.removeInput(input)
+        }
+        setupBindings()
+    }
 
     func setupBindings() {
         $isGranted
             .sink { [weak self] isGranted in
+                print("Got granted \(isGranted)")
                 if isGranted {
                     self?.prepareCamera()
                 } else {
@@ -63,7 +85,9 @@ class CameraCapture: ObservableObject {
 
     func startSession() {
         guard !captureSession.isRunning else { return }
-        captureSession.startRunning()
+        DispatchQueue.global(qos: .userInitiated).async {
+            self.captureSession.startRunning()
+        }
     }
 
     func stopSession() {
@@ -73,17 +97,10 @@ class CameraCapture: ObservableObject {
 
     func prepareCamera() {
         captureSession.sessionPreset = .high
-
-        if let device = AVCaptureDevice.default(for: .video) {
-            print("Started session")
-            startSessionForDevice(device)
-        } else {
-            print("Device not found")
-            deviceFailed = true
-        }
+        startSessionForDevice()
     }
 
-    func startSessionForDevice(_ device: AVCaptureDevice) {
+    func startSessionForDevice() {
         do {
             let discoverySession = AVCaptureDevice.DiscoverySession(deviceTypes: [.builtInWideAngleCamera, .externalUnknown], mediaType: .video, position: .unspecified)
             let devices = discoverySession.devices
@@ -96,6 +113,7 @@ class CameraCapture: ObservableObject {
                 addInput(input)
                 startSession()
                 deviceFailed = false
+                captureSession.commitConfiguration()
             } else {
                 print("Device not found for some reason!")
                 deviceFailed = true
@@ -108,6 +126,7 @@ class CameraCapture: ObservableObject {
 
     func addInput(_ input: AVCaptureInput) {
         guard captureSession.canAddInput(input) == true else {
+            print("Can't add input!!")
             return
         }
         captureSession.addInput(input)

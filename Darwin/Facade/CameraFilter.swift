@@ -43,7 +43,12 @@ class FaceSwapTarget: ObservableObject {
         print("Downloading \(url)")
         
         let task = URLSession.shared.downloadTask(with: url) { (localURL, response, error) in
-            defer { self.downloading = false }
+            defer {
+                DispatchQueue.main.async {
+                    self.downloading = false
+                    self.downloaded = true
+                }
+            }
 
             guard let localURL = localURL, error == nil else {
                 print("Download error:", error?.localizedDescription ?? "unknown")
@@ -59,7 +64,6 @@ class FaceSwapTarget: ObservableObject {
                 
                 try fileManager.createDirectory(at: documentsDirectory, withIntermediateDirectories: true, attributes: nil)
                 try fileManager.moveItem(at: localURL, to: faceSwapModelURL)
-                self.downloaded = true
                 print("Downloaded \(self.name) successfully.")
             } catch {
                 print("Download error:", error.localizedDescription)
@@ -77,12 +81,12 @@ class FaceSwapTarget: ObservableObject {
     }
 };
 
-class CameraFilterProperties {
+class CameraFilterProperties: ObservableObject {
     let inputDevice: String?
     let outputDevice: String
     let faceSwapTarget: FaceSwapTarget
     
-    private var process: Process?
+    @Published private var process: Process?
    
     init(inputDevice: String?, outputDevice: String, faceSwapTarget: FaceSwapTarget) {
         self.inputDevice = inputDevice
@@ -178,7 +182,7 @@ class CameraFilter: ObservableObject {
     ]
     
     @Published var preferredInputDevice: String? = nil
-    private(set) var properties: CameraFilterProperties? = nil
+    @Published private(set) var properties: CameraFilterProperties? = nil
     private let devices: Devices
     
     init(availableOutputDevices devices: Devices) {

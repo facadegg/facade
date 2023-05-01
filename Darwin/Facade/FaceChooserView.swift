@@ -34,22 +34,26 @@ struct FaceDownloadOverlay: View {
     @ObservedObject var faceSwapTarget: FaceSwapTarget
     
     var body: some View {
-        ZStack {
-            Circle()
-               .fill(Color.black)
-               .frame(width: 30, height: 30)
-               .opacity(0.67)
-            
-            if faceSwapTarget.downloading {
-                FaceDownloadProgressArc(progress: faceSwapTarget.downloadProgress)
-                    .fill(Color.white)
+        if faceSwapTarget.downloaded {
+            EmptyView()
+        } else {
+            ZStack {
+                Circle()
+                    .fill(Color.black)
                     .frame(width: 30, height: 30)
                     .opacity(0.67)
+                
+                if faceSwapTarget.downloading {
+                    FaceDownloadProgressArc(progress: faceSwapTarget.downloadProgress)
+                        .fill(Color.white)
+                        .frame(width: 30, height: 30)
+                        .opacity(0.67)
+                }
+                
+                AnyView(Image(systemName: "arrow.down")
+                    .foregroundColor(faceSwapTarget.downloading ? .accentColor : .white)
+                    .padding())
             }
-
-            AnyView(Image(systemName: "arrow.down")
-                .foregroundColor(faceSwapTarget.downloading ? .accentColor : .white)
-                .padding())
         }
     }
 }
@@ -75,10 +79,8 @@ struct FaceChooserView: View {
                             Text(target.name)
                         }
                         .overlay(
-                            target.downloaded ?
-                                AnyView(EmptyView()) :
-                                AnyView(FaceDownloadOverlay(faceSwapTarget: target))
-                            )
+                            FaceDownloadOverlay(faceSwapTarget: target)
+                        )
                     }
                     .padding(EdgeInsets(top: 0, leading: 0, bottom: 29, trailing: 0))
                     .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity, alignment: .top)

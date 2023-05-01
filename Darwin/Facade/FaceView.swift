@@ -25,7 +25,7 @@ struct FaceView: View {
                 } else {
                     Text("No input device selected")
                     
-                    if let i = filter.inputDevice {
+                    if let i = filter.previewDevice {
                         Text(i)
                     }
                 }
@@ -35,29 +35,35 @@ struct FaceView: View {
             FaceChooserView()
         }
         .onAppear {
-            setupCapture()
-            capture?.startSession()
+            setupCapture()?.startSession()
         }
         .onDisappear {
             capture?.stopSession()
         }
-        .onChange(of: filter.inputDevice) { _ in
-            setupCapture()
+        .onChange(of: filter.previewDevice) { _ in
+            if let previewDevice = filter.previewDevice {
+                capture?.changeDevice(newUniqueID: previewDevice)
+            } else {
+                capture?.stopSession()
+            }
         }
     }
     
-    func setupCapture() {
-        if capture?.uniqueID != filter.inputDevice {
+    func setupCapture() -> CameraCapture? {
+        if capture?.uniqueID != filter.previewDevice {
             capture?.stopSession()
+            capture = nil
 
-            if let inputDevice = filter.inputDevice {
-                print("Creating capture on \(inputDevice)")
-                capture = CameraCapture(uniqueID: inputDevice)
+            if let previewDevice = filter.previewDevice {
+                print("Creating capture on \(previewDevice)")
+                capture = CameraCapture(uniqueID: filter.inputDevice!)
                 capture?.checkAuthorization()
             } else {
                 capture = nil
             }
         }
+        
+        return capture
     }
 }
 
