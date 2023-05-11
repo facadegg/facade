@@ -19,7 +19,7 @@ class FaceSwapTarget: ObservableObject {
     
     init(name: String) {
         let fileManager = FileManager.default
-        let containerURL = fileManager.containerURL(forSecurityApplicationGroupIdentifier: "dev.facade")!
+        let containerURL = fileManager.containerURL(forSecurityApplicationGroupIdentifier: "video.facade")!
         let documentsDirectory = containerURL.appendingPathComponent("Library/Models")
         let faceSwapModelURL = documentsDirectory.appendingPathComponent("\(name.replacingOccurrences(of: " ", with: "_")).mlmodel")
 
@@ -58,7 +58,7 @@ class FaceSwapTarget: ObservableObject {
             // Move downloaded file to the destination directory
             do {
                 let fileManager = FileManager.default
-                let containerURL = fileManager.containerURL(forSecurityApplicationGroupIdentifier: "dev.facade")!
+                let containerURL = fileManager.containerURL(forSecurityApplicationGroupIdentifier: "video.facade")!
                 let documentsDirectory = containerURL.appendingPathComponent("Library/Models")
                 let faceSwapModelURL = documentsDirectory.appendingPathComponent("\(self.name.replacingOccurrences(of: " ", with: "_")).mlmodel")
                 
@@ -103,7 +103,7 @@ class CameraFilterProperties: ObservableObject {
         if self.process != nil { return }
         
         let fileManager = FileManager.default
-        let containerURL = fileManager.containerURL(forSecurityApplicationGroupIdentifier: "dev.facade")!
+        let containerURL = fileManager.containerURL(forSecurityApplicationGroupIdentifier: "video.facade")!
         let documentsDirectory = containerURL.appendingPathComponent("Library/Models")
         let faceSwapModelURL = documentsDirectory.appendingPathComponent("\(self.faceSwapTarget.name.replacingOccurrences(of: " ", with: "_")).mlmodel")
 
@@ -115,11 +115,7 @@ class CameraFilterProperties: ObservableObject {
         let task = Process()
         let stdoutPipe = Pipe()
         let stderrPipe = Pipe()
-        
-        self.process = task
-        
-        task.launchPath = Bundle.main.bundlePath + "/Contents/MacOS/Lens.app/Contents/MacOS/Lens"
-        task.arguments = [
+        let arguments = [
             "--dst",
             outputDevice,
             "--frame-rate",
@@ -127,23 +123,35 @@ class CameraFilterProperties: ObservableObject {
             "--face-swap-model",
             faceSwapModelURL.path,
             "--root-dir",
-            Bundle.main.bundlePath + "/Contents/Resources"
+            Bundle.main.bundlePath + "/Contents/MacOS/Lens.app/Contents/Resources"
         ]
+        
+        self.process = task
+        
+        task.launchPath = Bundle.main.bundlePath + "/Contents/MacOS/Lens.app/Contents/MacOS/Lens"
+        task.arguments = arguments
         task.standardOutput = stdoutPipe
         task.standardError = stderrPipe
 
+        task.terminationHandler = { _ in
+            print("\(self.faceSwapTarget.name) terminated: \(task.terminationReason.rawValue) with exit status \(task.terminationStatus)")
+        }
+        
         task.launch()
+        
+        print(arguments.joined(separator: " "))
+        print("Launched filter for \(faceSwapTarget.name)")
         
         let stdoutFileHandle = stdoutPipe.fileHandleForReading
         let stderrFileHandle = stderrPipe.fileHandleForReading
-        let queue = DispatchQueue(label: "dev.facade.Facade.Lens")
+        let queue = DispatchQueue(label: "video.facade.Facade.Lens")
 
         stdoutFileHandle.readabilityHandler = { handle in
             let data = handle.availableData
             if let string = String(data: data, encoding: .utf8) {
                 if !string.isEmpty {
                     queue.async {
-                        print("\(self.faceSwapTarget.name): \(string)")
+                        print("\(self.faceSwapTarget.name): \(string.replacingOccurrences(of: "\n", with: ""))")
                     }
                 }
             }
@@ -154,7 +162,7 @@ class CameraFilterProperties: ObservableObject {
             if let string = String(data: data, encoding: .utf8) {
                 if !string.isEmpty {
                     queue.async {
-                        print("\(self.faceSwapTarget.name): \(string)")
+                        print("\(self.faceSwapTarget.name): \(string.replacingOccurrences(of: "\n", with: ""))")
                     }
                 }
             }
@@ -219,10 +227,13 @@ class CameraFilter: ObservableObject {
         }
 
         if let device = devices.devices.first {
+            print("Starting filter")
             self.properties = CameraFilterProperties(inputDevice: nil,
                                                      outputDevice: device.uid.uuidString,
                                                      faceSwapTarget: faceSwapTarget)
             self.properties?.start()
+        } else {
+            print("No device found")
         }
     }
     

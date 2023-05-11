@@ -9,6 +9,8 @@ namespace po = boost::program_options;
 
 int main(int argc, char **argv)
 {
+    std::cout << "Lens is starting..." << std::endl;
+
     po::options_description options("Options");
     options.add_options()
             ("dst", po::value<std::string>(), "The name of the video output device")
@@ -99,42 +101,48 @@ int main(int argc, char **argv)
         }
     }
 
-    lens::face_pipeline pipeline(device, root_dir, face_swap_model);
-    std::chrono::time_point last_read = std::chrono::high_resolution_clock::now();
+    std::cout << "Starting face pipeline" << std::endl;
 
-    for (int i = 0; i < 1000000; i++)
-    {
-        std::chrono::time_point next_read = last_read + std::chrono::milliseconds(frame_interval);
+    try {
+        lens::face_pipeline pipeline(device, root_dir, face_swap_model);
+        std::chrono::time_point last_read = std::chrono::high_resolution_clock::now();
 
-        cv::Mat cv_frame;
-        bool success = cap.read(cv_frame);
+        for (int i = 0; i < 1000000; i++) {
+            std::chrono::time_point next_read = last_read + std::chrono::milliseconds(frame_interval);
 
-        std::chrono::milliseconds wait_for = std::chrono::duration_cast<std::chrono::milliseconds>(next_read - std::chrono::high_resolution_clock::now());
-        if (wait_for.count() > 1) {
-            std::this_thread::sleep_for(wait_for);
+            cv::Mat cv_frame;
+            bool success = cap.read(cv_frame);
+
+            std::chrono::milliseconds wait_for = std::chrono::duration_cast<std::chrono::milliseconds>(
+                    next_read - std::chrono::high_resolution_clock::now());
+            if (wait_for.count() > 1) {
+                std::this_thread::sleep_for(wait_for);
+            }
+
+            last_read = next_read;
+
+            if (!success) { // if reading the frame fails, reset the VideoCapture object
+                cap.set(cv::CAP_PROP_POS_FRAMES, 0);
+                continue;
+            }
+
+            size_t width = cv_frame.cols;
+            size_t height = cv_frame.rows;
+            auto *frame_data = new uint8_t[cv_frame.channels() * width * height * 2];
+            memcpy(frame_data, cv_frame.data, cv_frame.channels() * width * height);
+
+            lens::frame next_frame = {
+                    .id = id++,
+                    .pixels = frame_data,
+                    .channels = static_cast<size_t>(cv_frame.channels()),
+                    .width = width,
+                    .height = height,
+            };
+
+            pipeline << next_frame;
         }
-
-        last_read = next_read;
-
-        if (!success) { // if reading the frame fails, reset the VideoCapture object
-            cap.set(cv::CAP_PROP_POS_FRAMES, 0);
-            continue;
-        }
-
-        size_t width = cv_frame.cols;
-        size_t height = cv_frame.rows;
-        auto *frame_data = new uint8_t[cv_frame.channels() * width * height * 2];
-        memcpy(frame_data, cv_frame.data, cv_frame.channels() * width * height);
-
-        lens::frame next_frame = {
-                .id = id++,
-                .pixels = frame_data,
-                .channels = static_cast<size_t>(cv_frame.channels()),
-                .width = width,
-                .height = height,
-        };
-
-        pipeline << next_frame;
+    } catch (std::exception& e) {
+        std::cout << e.what() << std::endl;
     }
 
     std::this_thread::sleep_for(std::chrono::hours::max());

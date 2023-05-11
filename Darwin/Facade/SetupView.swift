@@ -35,10 +35,12 @@ class SetupDelegate : NSObject, OSSystemExtensionRequestDelegate {
     func request(_ request: OSSystemExtensionRequest, didFinishWithResult result: OSSystemExtensionRequest.Result) {
         view.message = "Awesome, now you can create virtual devices in Facade!"
         view.error = false
+        view.devices.checkInstall()
     }
 }
 
 struct SetupView: View {
+    @EnvironmentObject var devices: Devices
     @State var delegate: SetupDelegate?
     @State var error = false
     @State var message = "Facade needs permission to create virtual devices"
@@ -59,7 +61,7 @@ struct SetupView: View {
     }
     
     func newRequest() -> OSSystemExtensionRequest {
-        let identifier = "dev.facade.Facade.Camera"
+        let identifier = "video.facade.Facade.Camera"
         let activationRequest = OSSystemExtensionRequest.activationRequest(forExtensionWithIdentifier: identifier, queue: .main)
         
         if delegate == nil {

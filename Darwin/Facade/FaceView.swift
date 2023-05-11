@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct FaceView: View {
+    @EnvironmentObject var devices: Devices
     @EnvironmentObject var filter: CameraFilter
     @State var capture: CameraCapture?
     
@@ -31,6 +32,10 @@ struct FaceView: View {
                 }
             }
             .padding(EdgeInsets(top: 8, leading: 204, bottom: 16, trailing: 204))
+            
+            if !devices.installed {
+                SetupView()
+            }
             
             FaceChooserView()
         }

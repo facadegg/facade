@@ -5,7 +5,7 @@
     <key>CFBundleExecutable</key>
     <string>Lens</string>
     <key>CFBundleIdentifier</key>
-    <string>dev.facade.Lens</string>
+    <string>video.facade.Lens</string>
     <key>CFBundleName</key>
     <string>Lens</string>
     <key>CFBundleVersion</key>

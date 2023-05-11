@@ -25,7 +25,7 @@
 		6063D3BD297E590C00DA3C1B /* FacadeUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6063D3BC297E590C00DA3C1B /* FacadeUITestsLaunchTests.swift */; };
 		6063D3D0297E596700DA3C1B /* CameraProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6063D3CF297E596700DA3C1B /* CameraProvider.swift */; };
 		6063D3D2297E596700DA3C1B /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6063D3D1297E596700DA3C1B /* main.swift */; };
-		6063D3D7297E596700DA3C1B /* dev.facade.Facade.Camera.systemextension in Embed System Extensions */ = {isa = PBXBuildFile; fileRef = 6063D3CD297E596700DA3C1B /* dev.facade.Facade.Camera.systemextension */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		6063D3D7297E596700DA3C1B /* video.facade.Facade.Camera.systemextension in Embed System Extensions */ = {isa = PBXBuildFile; fileRef = 6063D3CD297E596700DA3C1B /* video.facade.Facade.Camera.systemextension */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		6063D3DD297E631300DA3C1B /* GeneralSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6063D3DC297E631300DA3C1B /* GeneralSettingsView.swift */; };
 		6063D3DF297E647F00DA3C1B /* DevicesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6063D3DE297E647F00DA3C1B /* DevicesView.swift */; };
 		60AC78922984DFD000109B32 /* CameraDevice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60AC78912984DFD000109B32 /* CameraDevice.swift */; };
@@ -39,8 +39,6 @@
 		60EB33C729FD769E00BD47A7 /* CameraFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60EB33C629FD769E00BD47A7 /* CameraFilter.swift */; };
 		60EB33C929FD7D1100BD47A7 /* FaceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60EB33C829FD7D1100BD47A7 /* FaceView.swift */; };
 		60EB33CD29FF168500BD47A7 /* Lens.app in CopyFiles */ = {isa = PBXBuildFile; fileRef = 60EB33CC29FF168500BD47A7 /* Lens.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		60EB33D829FF1DDE00BD47A7 /* CenterFace.onnx in CopyFiles */ = {isa = PBXBuildFile; fileRef = 60EB33CE29FF1CC600BD47A7 /* CenterFace.onnx */; };
-		60EB33D929FF1DE000BD47A7 /* FaceMesh.onnx in CopyFiles */ = {isa = PBXBuildFile; fileRef = 60EB33D029FF1CE500BD47A7 /* FaceMesh.onnx */; };
 		60EDC23129BE4F4000C32467 /* libfacade.dylib.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6021CA6D2990232900334A6D /* libfacade.dylib.framework */; };
 		60EDC23229BE4F4000C32467 /* libfacade.dylib.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 6021CA6D2990232900334A6D /* libfacade.dylib.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
@@ -126,7 +124,7 @@
 			dstPath = "$(SYSTEM_EXTENSIONS_FOLDER_PATH)";
 			dstSubfolderSpec = 16;
 			files = (
-				6063D3D7297E596700DA3C1B /* dev.facade.Facade.Camera.systemextension in Embed System Extensions */,
+				6063D3D7297E596700DA3C1B /* video.facade.Facade.Camera.systemextension in Embed System Extensions */,
 			);
 			name = "Embed System Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -156,17 +154,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 7;
 			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		60EB33D729FF1DDA00BD47A7 /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 7;
-			files = (
-				60EB33D929FF1DE000BD47A7 /* FaceMesh.onnx in CopyFiles */,
-				60EB33D829FF1DDE00BD47A7 /* CenterFace.onnx in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -210,7 +197,7 @@
 		6063D3B6297E590C00DA3C1B /* FacadeUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FacadeUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		6063D3BA297E590C00DA3C1B /* FacadeUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FacadeUITests.swift; sourceTree = "<group>"; };
 		6063D3BC297E590C00DA3C1B /* FacadeUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FacadeUITestsLaunchTests.swift; sourceTree = "<group>"; };
-		6063D3CD297E596700DA3C1B /* dev.facade.Facade.Camera.systemextension */ = {isa = PBXFileReference; explicitFileType = "wrapper.system-extension"; includeInIndex = 0; path = dev.facade.Facade.Camera.systemextension; sourceTree = BUILT_PRODUCTS_DIR; };
+		6063D3CD297E596700DA3C1B /* video.facade.Facade.Camera.systemextension */ = {isa = PBXFileReference; explicitFileType = "wrapper.system-extension"; includeInIndex = 0; path = video.facade.Facade.Camera.systemextension; sourceTree = BUILT_PRODUCTS_DIR; };
 		6063D3CF297E596700DA3C1B /* CameraProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraProvider.swift; sourceTree = "<group>"; };
 		6063D3D1297E596700DA3C1B /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		6063D3D3297E596700DA3C1B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -233,8 +220,6 @@
 		60EB33C629FD769E00BD47A7 /* CameraFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraFilter.swift; sourceTree = "<group>"; };
 		60EB33C829FD7D1100BD47A7 /* FaceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FaceView.swift; sourceTree = "<group>"; };
 		60EB33CC29FF168500BD47A7 /* Lens.app */ = {isa = PBXFileReference; lastKnownFileType = wrapper.application; name = Lens.app; path = "../cmake-build-debug/Lens.app"; sourceTree = "<group>"; };
-		60EB33CE29FF1CC600BD47A7 /* CenterFace.onnx */ = {isa = PBXFileReference; lastKnownFileType = file; name = CenterFace.onnx; path = ../../../../../../opt/facade/CenterFace.onnx; sourceTree = "<group>"; };
-		60EB33D029FF1CE500BD47A7 /* FaceMesh.onnx */ = {isa = PBXFileReference; lastKnownFileType = file; name = FaceMesh.onnx; path = ../../../../../../opt/facade/FaceMesh.onnx; sourceTree = "<group>"; };
 		60EDC22829BE405700C32467 /* MLTest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = MLTest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -330,8 +315,6 @@
 		6063D392297E590B00DA3C1B = {
 			isa = PBXGroup;
 			children = (
-				60EB33D029FF1CE500BD47A7 /* FaceMesh.onnx */,
-				60EB33CE29FF1CC600BD47A7 /* CenterFace.onnx */,
 				60EB33CC29FF168500BD47A7 /* Lens.app */,
 				6063D39D297E590B00DA3C1B /* Facade */,
 				6063D3AF297E590C00DA3C1B /* FacadeTests */,
@@ -350,7 +333,7 @@
 				6063D39B297E590B00DA3C1B /* Facade.app */,
 				6063D3AC297E590C00DA3C1B /* FacadeTests.xctest */,
 				6063D3B6297E590C00DA3C1B /* FacadeUITests.xctest */,
-				6063D3CD297E596700DA3C1B /* dev.facade.Facade.Camera.systemextension */,
+				6063D3CD297E596700DA3C1B /* video.facade.Facade.Camera.systemextension */,
 				60AC78BC2987271F00109B32 /* FacadeCLI */,
 				6021CA6D2990232900334A6D /* libfacade.dylib.framework */,
 				6021CA762990232900334A6D /* libfacadeTests.xctest */,
@@ -493,7 +476,6 @@
 				6063D3DB297E596700DA3C1B /* Embed System Extensions */,
 				604263DC299016AE00D848A1 /* Embed Libraries */,
 				60EB33C129FD67D100BD47A7 /* CopyFiles */,
-				60EB33D729FF1DDA00BD47A7 /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -555,7 +537,7 @@
 			);
 			name = Camera;
 			productName = Camera;
-			productReference = 6063D3CD297E596700DA3C1B /* dev.facade.Facade.Camera.systemextension */;
+			productReference = 6063D3CD297E596700DA3C1B /* video.facade.Facade.Camera.systemextension */;
 			productType = "com.apple.product-type.system-extension";
 		};
 		60AC78BB2987271E00109B32 /* FacadeCLI */ = {
@@ -850,7 +832,7 @@
 					/Applications/Facade.app/Contents/Frameworks,
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = dev.facade.libfacade;
+				PRODUCT_BUNDLE_IDENTIFIER = video.facade.libfacade;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier).dylib";
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -882,7 +864,7 @@
 					/Applications/Facade.app/Contents/Frameworks,
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = dev.facade.libfacade;
+				PRODUCT_BUNDLE_IDENTIFIER = video.facade.libfacade;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier).dylib";
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -901,7 +883,7 @@
 				DEVELOPMENT_TEAM = 6577XL9LGN;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = dev.facade.libfacadeTests;
+				PRODUCT_BUNDLE_IDENTIFIER = video.facade.libfacadeTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
@@ -918,7 +900,7 @@
 				DEVELOPMENT_TEAM = 6577XL9LGN;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = dev.facade.libfacadeTests;
+				PRODUCT_BUNDLE_IDENTIFIER = video.facade.libfacadeTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
@@ -1066,7 +1048,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = "../cmake-build-debug";
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = dev.facade.Facade;
+				PRODUCT_BUNDLE_IDENTIFIER = video.facade.Facade;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = "Facade/Facade-Bridging-Header.h";
@@ -1100,7 +1082,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = "../cmake-build-debug";
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = dev.facade.Facade;
+				PRODUCT_BUNDLE_IDENTIFIER = video.facade.Facade;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = "Facade/Facade-Bridging-Header.h";
@@ -1119,7 +1101,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = dev.facade.FacadeTests;
+				PRODUCT_BUNDLE_IDENTIFIER = video.facade.FacadeTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
@@ -1138,7 +1120,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = dev.facade.FacadeTests;
+				PRODUCT_BUNDLE_IDENTIFIER = video.facade.FacadeTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
@@ -1155,7 +1137,7 @@
 				DEVELOPMENT_TEAM = 6577XL9LGN;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = dev.facade.FacadeUITests;
+				PRODUCT_BUNDLE_IDENTIFIER = video.facade.FacadeUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
@@ -1172,7 +1154,7 @@
 				DEVELOPMENT_TEAM = 6577XL9LGN;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = dev.facade.FacadeUITests;
+				PRODUCT_BUNDLE_IDENTIFIER = video.facade.FacadeUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
@@ -1201,7 +1183,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 12.3;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = dev.facade.Facade.Camera;
+				PRODUCT_BUNDLE_IDENTIFIER = video.facade.Facade.Camera;
 				PRODUCT_NAME = "$(inherited)";
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -1231,7 +1213,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 12.3;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = dev.facade.Facade.Camera;
+				PRODUCT_BUNDLE_IDENTIFIER = video.facade.Facade.Camera;
 				PRODUCT_NAME = "$(inherited)";
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;

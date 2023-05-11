@@ -85,5 +85,6 @@ if(APPLE)
 
     add_custom_command(TARGET lens POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E echo "Running bundle.py"
-            COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${CMAKE_CURRENT_SOURCE_DIR}/Buildscripts ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/Buildscripts/bundle.py ${LENS_BUNDLE} ${LENS})
+            COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${CMAKE_CURRENT_SOURCE_DIR}/Buildscripts ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/Buildscripts/bundle.py ${LENS_BUNDLE} ${LENS}
+            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 endif()

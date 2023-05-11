@@ -59,12 +59,22 @@ def find_and_copy_dependencies(library_path, dependencies = []):
         '--force',
         '--verify',
         '--verbose',
+        '--options',
+        'runtime',
         '--sign',
         "CDPZ9359Z6",
-        destination
-    ])
+    ] + ([
+        '--entitlements',
+        'Lens/Lens.entitlements'
+    ] if library_path == executable_path else [])
+      + [destination])
 
     return dependencies
+
+
+def find_and_copy_resources():
+    subprocess.check_output(['cp', '/opt/facade/CenterFace.onnx', resources_path])
+    subprocess.check_output(['cp', '/opt/facade/FaceMesh.onnx', resources_path])
 
 
 if __name__ == '__main__':
@@ -72,6 +82,25 @@ if __name__ == '__main__':
     executable_name = sys.argv[2]
     executable_path = os.path.join(bundle_path, 'Contents', 'MacOS', executable_name)
     frameworks_path = os.path.join(bundle_path, 'Contents', 'Frameworks')
+    library_path = os.path.join(bundle_path, 'Contents', 'Library')
+    resources_path = os.path.join(bundle_path, 'Contents', 'Resources')
     os.makedirs(frameworks_path, exist_ok=True)
+    os.makedirs(library_path, exist_ok=True)
+    os.makedirs(resources_path, exist_ok=True)
 
     find_and_copy_dependencies(executable_path)
+    subprocess.check_call([
+          'codesign',
+          '--force',
+          '--verify',
+          '--verbose',
+          '--options',
+          'runtime',
+          '--sign',
+          "CDPZ9359Z6",
+      ] + [
+               '--entitlements',
+               'Lens/Lens.entitlements'
+       ]
+      + [executable_path])
+    find_and_copy_resources()
