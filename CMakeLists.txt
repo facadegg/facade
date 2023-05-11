@@ -1,6 +1,15 @@
 cmake_minimum_required(VERSION 3.24)
 project(Facade CXX)
 
+if(APPLE)
+    set(BUNDLE_DEFAULT ON)
+else()
+    set(BUNDLE_DEFAULT OFF)
+endif()
+
+option(LENS_FEATURE_ONNX "Support ONNX models for inference" ON)
+option(LENS_FEATURE_BUNDLE "Bundle Lens into an application" ${BUNDLE_DEFAULT})
+
 set(CMAKE_C_STANDARD 20)
 set(CMAKE_CXX_STANDARD 20)
 set(TBB_DIR /usr/local/opt/onetbb/onetbb/lib/cmake/TBB)
@@ -75,16 +84,18 @@ if(APPLE)
     target_link_libraries(lens facade Boost::program_options tbb ${OpenCV_LIBS} onnxruntime ${CORE_GRAPHICS} ${CORE_IMAGE} ${CORE_ML} ${CORE_VIDEO} ${FOUNDATION} ${METAL} ${MPS})
     target_link_libraries(ttest tbb onnxruntime)
 
-    set_target_properties(lens PROPERTIES
-            MACOSX_BUNDLE TRUE
-            MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/Lens/Info.plist.in"
-            OUTPUT_NAME ${LENS}
-            INSTALL_RPATH "@executable_path/../Frameworks;/Applications/Facade.app/Contents/Frameworks"
-            BUILD_WITH_INSTALL_RPATH TRUE
-            INSTALL_RPATH_USE_LINK_PATH FALSE)
+    if(LENS_FEATURE_BUNDLE)
+        set_target_properties(lens PROPERTIES
+                MACOSX_BUNDLE TRUE
+                MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/Lens/Info.plist.in"
+                OUTPUT_NAME ${LENS}
+                INSTALL_RPATH "@executable_path/../Frameworks;/Applications/Facade.app/Contents/Frameworks"
+                BUILD_WITH_INSTALL_RPATH TRUE
+                INSTALL_RPATH_USE_LINK_PATH FALSE)
 
-    add_custom_command(TARGET lens POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E echo "Running bundle.py"
-            COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${CMAKE_CURRENT_SOURCE_DIR}/Buildscripts ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/Buildscripts/bundle.py ${LENS_BUNDLE} ${LENS}
-            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+        add_custom_command(TARGET lens POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E echo "Running bundle.py"
+                COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${CMAKE_CURRENT_SOURCE_DIR}/Buildscripts ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/Buildscripts/bundle.py ${LENS_BUNDLE} ${LENS}
+                WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+    endif()
 endif()

@@ -1,5 +1,6 @@
 dump.rdb
 cmake-build-debug
+cmake-build-dev
 .DS_Store
 xcode/
 __pycache__
