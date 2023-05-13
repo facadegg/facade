@@ -1,20 +1,27 @@
 import * as React from 'react'
 
 import Header from './Header'
+import styled from "styled-components";
 
-const contentStyle = {
-    height: '100%',
-    padding: 96,
-    width: '100%',
-}
+const Content = styled.div`
+  display: flex;
+  height: 100%;
+  justify-content: center;
+  padding: 96px;
+  width: 100%;
+  
+  @media (max-width: 1440px) {
+    padding: 32px;
+  }
+`
 
 const Page: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
     return (
         <>
             <Header />
-            <main style={contentStyle}>
+            <Content>
                 {children}
-            </main>
+            </Content>
         </>
     )
 }
