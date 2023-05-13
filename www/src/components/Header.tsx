@@ -1,18 +1,24 @@
 import * as React from "react"
-
-const headerStyle: React.CSSProperties = {
-    borderBottom: "0.5px solid rgba(255, 255, 255, 0.12)",
-    display: 'flex',
-    gap: 14,
-    margin: '0 21px 0 21px',
-    padding: '16px 0 16px 0',
-    position: 'fixed',
-    width: 'calc(100% - 42px)',
-}
+import styled from "styled-components";
 
 const headerGapStyle: React.CSSProperties = {
     height: "calc(42px + 5rem)",
 }
+
+const HeaderLayout = styled.div`
+  background: rgba(0, 0, 0, .5);
+  border-bottom: 0.5px solid rgba(255, 255, 255, 0.12); 
+  backdrop-filter: blur(48px);
+  display: flex;
+  gap: 14px;
+  margin: 0 21px 0 21px;
+  padding: 16px 0 16px 0;
+  position: fixed;
+  width: calc(100% - 42px);
+  z-index: 1;
+
+  -webkit-backdrop-filter: blur(48px);
+`;
 
 const SiteIcon: React.FC<{}> = React.memo(() => {
     return (
@@ -27,10 +33,10 @@ const SiteIcon: React.FC<{}> = React.memo(() => {
 const Header: React.FC<{}> = () => {
     return (
         <>
-            <header style={headerStyle}>
+            <HeaderLayout>
                 <SiteIcon />
                 <span>Facade</span>
-            </header>
+            </HeaderLayout>
             <div style={headerGapStyle} />
         </>
     )
