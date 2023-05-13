@@ -46,8 +46,10 @@ add_executable(lens
 add_executable(ttest Test/main.cpp)
 
 if(APPLE)
+    find_library(AV_FOUNDATION AVFoundation)
     find_library(CORE_GRAPHICS CoreGraphics)
     find_library(CORE_IMAGE CoreImage)
+    find_library(CORE_MEDIA CoreMedia)
     find_library(CORE_ML CoreML)
     find_library(CORE_VIDEO CoreVideo)
     find_library(METAL Metal)
@@ -82,7 +84,7 @@ if(APPLE)
             /usr/local/lib
             /opt/homebrew/lib)
 
-    target_link_libraries(lens facade Boost::program_options tbb ${OpenCV_LIBS} onnxruntime ${CORE_GRAPHICS} ${CORE_IMAGE} ${CORE_ML} ${CORE_VIDEO} ${FOUNDATION} ${METAL} ${MPS})
+    target_link_libraries(lens facade Boost::program_options tbb ${OpenCV_LIBS} onnxruntime ${AV_FOUNDATION} ${CORE_GRAPHICS} ${CORE_IMAGE} ${CORE_MEDIA} ${CORE_ML} ${CORE_VIDEO} ${FOUNDATION} ${METAL} ${MPS})
     target_link_libraries(ttest tbb onnxruntime)
 
     if(LENS_FEATURE_BUNDLE)
