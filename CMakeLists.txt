@@ -41,7 +41,8 @@ add_executable(lens
                 Lens/include/ml.h
                 Lens/ml/coreml.mm
                 Lens/include/filters.hpp
-                Lens/platform/darwin/filters.mm)
+                Lens/platform/darwin/filters.mm
+                Lens/platform/darwin/load.mm)
 add_executable(ttest Test/main.cpp)
 
 if(APPLE)

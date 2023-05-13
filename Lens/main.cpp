@@ -51,6 +51,7 @@ int main(int argc, char **argv)
         return -4;
     }
 
+    std::string src = vm.contains("src") ? vm["src"].as<std::string>() : "";
     std::string dst = vm["dst"].as<std::string>();
     std::string root_dir = vm["root-dir"].as<std::string>();
     std::string face_swap_model = vm["face-swap-model"].as<std::string>();
@@ -80,7 +81,7 @@ int main(int argc, char **argv)
     }
 
     int id = 0;
-    cv::VideoCapture cap(0, cv::VideoCaptureAPIs::CAP_AVFOUNDATION);
+    cv::VideoCapture cap(1, cv::VideoCaptureAPIs::CAP_AVFOUNDATION);
 
     if (!cap.isOpened())
     {
@@ -101,51 +102,56 @@ int main(int argc, char **argv)
         }
     }
 
-    std::cout << "Starting face pipeline" << std::endl;
+    std::cout << "Starting face pipeline!" << std::endl;
 
     try {
         lens::face_pipeline pipeline(device, root_dir, face_swap_model);
-        std::chrono::time_point last_read = std::chrono::high_resolution_clock::now();
 
-        for (int i = 0; i < 1000000; i++) {
-            std::chrono::time_point next_read = last_read + std::chrono::milliseconds(frame_interval);
+        if (!lens::load(src, frame_rate, pipeline)) {
+            std::chrono::time_point last_read = std::chrono::high_resolution_clock::now();
 
-            cv::Mat cv_frame;
-            bool success = cap.read(cv_frame);
+            for (int i = 0; i < 1000000; i++) {
+                std::chrono::time_point next_read = last_read + std::chrono::milliseconds(frame_interval);
 
-            std::chrono::milliseconds wait_for = std::chrono::duration_cast<std::chrono::milliseconds>(
-                    next_read - std::chrono::high_resolution_clock::now());
-            if (wait_for.count() > 1) {
-                std::this_thread::sleep_for(wait_for);
+                cv::Mat cv_frame;
+                bool success = cap.read(cv_frame);
+
+                std::chrono::milliseconds wait_for = std::chrono::duration_cast<std::chrono::milliseconds>(
+                        next_read - std::chrono::high_resolution_clock::now());
+                if (wait_for.count() > 1) {
+                    std::this_thread::sleep_for(wait_for);
+                }
+
+                last_read = next_read;
+
+                if (!success) { // if reading the frame fails, reset the VideoCapture object
+                    cap.set(cv::CAP_PROP_POS_FRAMES, 0);
+                    continue;
+                }
+
+                size_t width = cv_frame.cols;
+                size_t height = cv_frame.rows;
+                auto *frame_data = new uint8_t[cv_frame.channels() * width * height * 2];
+                memcpy(frame_data, cv_frame.data, cv_frame.channels() * width * height);
+
+                lens::frame next_frame = {
+                        .id = id++,
+                        .pixels = frame_data,
+                        .channels = static_cast<size_t>(cv_frame.channels()),
+                        .width = width,
+                        .height = height,
+                };
+
+                pipeline << next_frame;
             }
-
-            last_read = next_read;
-
-            if (!success) { // if reading the frame fails, reset the VideoCapture object
-                cap.set(cv::CAP_PROP_POS_FRAMES, 0);
-                continue;
-            }
-
-            size_t width = cv_frame.cols;
-            size_t height = cv_frame.rows;
-            auto *frame_data = new uint8_t[cv_frame.channels() * width * height * 2];
-            memcpy(frame_data, cv_frame.data, cv_frame.channels() * width * height);
-
-            lens::frame next_frame = {
-                    .id = id++,
-                    .pixels = frame_data,
-                    .channels = static_cast<size_t>(cv_frame.channels()),
-                    .width = width,
-                    .height = height,
-            };
-
-            pipeline << next_frame;
+        } else {
+            std::this_thread::sleep_for(std::chrono::hours::max());
         }
+
+        std::cout << "DONE" << std::endl;
     } catch (std::exception& e) {
         std::cout << e.what() << std::endl;
     }
-
-    std::this_thread::sleep_for(std::chrono::hours::max());
 
     return 0;
 }

@@ -573,12 +573,37 @@ void lens::face_pipeline::write_callback(lens::face_pipeline *pipeline)
     if (pipeline->output_queue.try_pop(frame))
     {
         cv::Mat frame_image(frame.height, frame.width, CV_8UC3, (void *) frame.pixels);
-        cv::Mat rgba_image(frame.height, frame.width, CV_8UC4);
-        cv::cvtColor(frame_image, rgba_image, cv::COLOR_BGR2BGRA);
+        cv::cvtColor(frame_image, frame_image, cv::COLOR_BGR2BGRA);
+
+        cv::Mat composited_image = cv::Mat::zeros(cv::Size(pipeline->output_device->width, pipeline->output_device->height), CV_8UC4);
+
+        if (pipeline->output_device->width == frame_image.cols && pipeline->output_device->height)
+        {
+            composited_image = std::move(frame_image);
+        }
+        else
+        {
+            cv::Rect placement;
+
+            float src_aspect_ratio = frame_image.cols / frame_image.rows;
+            float dst_aspect_ratio = composited_image.cols / composited_image.rows;
+            float scale = std::min(1.f, std::min(static_cast<float>(composited_image.rows) / static_cast<float>(frame_image.rows),
+                                                 static_cast<float>(composited_image.cols) / static_cast<float>(frame_image.cols)));
+
+            placement.width = frame_image.cols * scale;
+            placement.height = frame_image.rows * scale;
+            placement.x = (composited_image.cols - placement.width) * 0.5f;
+            placement.y = (composited_image.rows - placement.height) * 0.5f;
+
+            std::cout << "TO " << placement << "with scale " << scale << std::endl;
+
+            cv::resize(frame_image, frame_image, placement.size());
+            frame_image.copyTo(composited_image(placement));
+        }
 
         facade_write_frame(pipeline->output_device,
-                           (void *) rgba_image.data,
-                           4 * frame.width * frame.height);
+                           (void *) composited_image.data,
+                           4 * composited_image.cols * composited_image.rows);
         delete[] const_cast<uint8_t*>(frame.pixels);
 
         auto end_time = std::chrono::high_resolution_clock::now();

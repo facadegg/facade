@@ -115,6 +115,8 @@ private:
     static void write_callback(lens::face_pipeline *);
 };
 
+bool load(const std::string& media, int frame_rate, face_pipeline&);
+
 }
 
 #endif /* MIRAGE_HPP */
