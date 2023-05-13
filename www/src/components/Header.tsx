@@ -1,7 +1,14 @@
 import * as React from "react"
 
-const headerStyle = {
-    padding: '21px'
+const headerStyle: React.CSSProperties = {
+    display: 'flex',
+    gap: 14,
+    padding: '21px',
+    position: 'fixed',
+}
+
+const headerGapStyle: React.CSSProperties = {
+    height: 42,
 }
 
 const SiteIcon: React.FC<{}> = React.memo(() => {
@@ -16,9 +23,13 @@ const SiteIcon: React.FC<{}> = React.memo(() => {
 
 const Header: React.FC<{}> = () => {
     return (
-        <header style={headerStyle}>
-            <SiteIcon />
-        </header>
+        <>
+            <header style={headerStyle}>
+                <SiteIcon />
+                <span>Facade</span>
+            </header>
+            <div style={headerGapStyle} />
+        </>
     )
 }
 

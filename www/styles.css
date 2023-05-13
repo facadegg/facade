@@ -8,9 +8,13 @@ body {
 }
 
 body {
-    background-color: #171718;
+    background-color: #2d3436;
+    background-image: linear-gradient(-22.5deg, #2d3436 0%, #000000 74%);
     color: white;
-    font-family: Inter, Roboto, sans-serif, serif;
+}
+
+* {
+    font-family: -apple-system, system-ui, BlinkMacSystemFont, sans-serif, serif;
 }
 
 img  {

@@ -4,9 +4,10 @@ import Header from './Header'
 import styled from "styled-components";
 
 const Content = styled.div`
+  align-items: center;
   display: flex;
+  flex-direction: column;
   height: 100%;
-  justify-content: center;
   padding: 96px;
   width: 100%;
   

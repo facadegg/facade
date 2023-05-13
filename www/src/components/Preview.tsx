@@ -7,7 +7,8 @@ import styled from "styled-components";
 const chromeStyle: React.CSSProperties = {
     aspectRatio: '902 / 728',
     backgroundColor: 'rgba(39, 41, 43, .87)',
-    borderRadius: 12,
+    borderRadius: '1.76%',
+    boxShadow: '0 2px 12px 1px rgba(0, 0, 0, .33)',
     display: 'flex',
     flexDirection: 'column',
     maxHeight: '80%',
