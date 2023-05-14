@@ -63,6 +63,6 @@ img  {
 
 .spinner-1 {
     --border-angle: 0turn;
-    animation: spinner-load 1s linear 0.5s, spinner-1 1s linear, spinner-1 2s linear 1s, spinner-1 3s linear 3s infinite;
+    animation: spinner-load 1s ease-in 0.5s normal forwards, spinner-1 1s linear, spinner-1 2s linear 1s, spinner-1 3s linear 3s infinite;
     opacity: 0;
 }

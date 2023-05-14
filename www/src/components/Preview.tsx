@@ -133,6 +133,7 @@ const PreviewApplication: React.FC<{
         <div style={cameraPanelStyle}>
             <img
                 alt="Zack Gemmell"
+                loading="lazy"
                 onError={onImageLoad}
                 onLoad={onImageLoad}
                 src={zackAsTimChrys}
@@ -142,7 +143,7 @@ const PreviewApplication: React.FC<{
         <div style={faceChooserPanelStyle}>
             {Object.entries(CHOICES).map(([name, image]) => (
                 <FaceChoice key={name} tabIndex={0}>
-                    <img alt={name} onError={onImageLoad} onLoad={onImageLoad} src={image} />
+                    <img alt={name} onError={onImageLoad} onLoad={onImageLoad} loading="lazy" src={image} />
                     <p>{name.replace('_', ' ')}</p>
                 </FaceChoice>
             ))}
@@ -151,17 +152,24 @@ const PreviewApplication: React.FC<{
 ))
 
 const Preview: React.FC<{}> = React.memo(() => {
+    const [client, setClient] = React.useState(false);
     const [loadCount, setLoadCount] = React.useState(0)
-    const loaded = React.useMemo(() => loadCount >= 1 + Object.keys(CHOICES).length, [loadCount])
+    const loaded = React.useMemo(() => loadCount >= 1 + new Set(Object.values(CHOICES)).size, [loadCount])
 
     const onImageLoad = React.useCallback(() => {
+        console.log('hERE')
         setLoadCount(n => n + 1)
-    }, [])
+    }, []);
+
+    React.useEffect(() => {
+        if (typeof window !== 'undefined')
+            setClient(true)
+    }, []);
 
     return (
         <PreviewLayout>
             {!loaded && <PreviewIcon />}
-            <PreviewApplication hide={!loaded} onImageLoad={onImageLoad} />
+            {client && <PreviewApplication hide={!loaded} onImageLoad={onImageLoad} />}
         </PreviewLayout>
     )
 })
