@@ -515,37 +515,24 @@ lens::vp_face_mesh lens::face_pipeline::run_face_swap(vp_face_mesh args)
         cv::multiply(out_celeb_face, cv::Scalar(255, 255, 255), out_celeb_face);
         cv::multiply(out_celeb_face, out_celeb_face_mask, out_celeb_face);
 
-        cv::multiply(out_celeb_face_mask, cv::Scalar(-1, -1, -1), out_celeb_face_mask);
-        cv::add(out_celeb_face_mask, cv::Scalar(1, 1, 1), out_celeb_face_mask);
-
-//#define DEBUG_FEATURE_FACE_SWAP_WITH_NO_COMPOSITE
 #ifndef DEBUG_FEATURE_FACE_SWAP_WITH_NO_COMPOSITE
-        cv::multiply(swap_image, out_celeb_face_mask, swap_image);
-        cv::add(swap_image, out_celeb_face, swap_image);
-#endif
+        out_celeb_face_mask = cv::Scalar(1, 1, 1) - out_celeb_face_mask;
 
-        cv::Mat out_celeb_face_ui(swap_height, swap_width, CV_8UC3);
-        swap_image.convertTo(out_celeb_face_ui, CV_8UC3);
+        const cv::Mat backwards_transform = extraction.transform.inv()(cv::Rect(0, 0, 3, 2));
 
-#ifndef DEBUG_FEATURE_FACE_SWAP_WITH_NO_COMPOSITE
-        cv::Mat new_layer;
-        cv::warpAffine(out_celeb_face_ui, new_layer,
-                       extraction.transform.inv()(cv::Rect(0, 0, 3, 2)),
+        cv::Mat alpha_mask;
+        cv::warpAffine(out_celeb_face_mask, alpha_mask,
+                       backwards_transform,
+                       cv::Size(frame_image.cols, frame_image.rows),
+                       cv::INTER_LINEAR,
+                       cv::BORDER_CONSTANT,
+                       cv::Scalar(1, 1, 1));
+        cv::multiply(frame_image, alpha_mask, frame_image, 1, CV_8UC3);
+
+        cv::warpAffine(out_celeb_face, alpha_mask,
+                       backwards_transform,
                        cv::Size(frame_image.cols, frame_image.rows));
-        cv::Mat new_layer_mask = new_layer.clone();
-
-        cv::threshold(new_layer_mask,
-                      new_layer_mask,
-                      1.0,
-                      1.0,
-                      cv::THRESH_BINARY);
-        new_layer_mask = cv::Scalar(1, 1, 1) - new_layer_mask;
-
-        frame_image = frame_image.mul(new_layer_mask);
-
-        cv::add(frame_image, new_layer, frame_image);
-#else
-        cv::resize(out_celeb_face_ui, frame_image(roi), cv::Size(roi.width, roi.height));
+        frame_image += alpha_mask;
 #endif
     }
 
