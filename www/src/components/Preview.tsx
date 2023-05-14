@@ -1,20 +1,8 @@
 import * as React from 'react'
-import bryanGreynolds from '../images/preview/Bryan_Greynolds.png'
-import zackReal from '../images/zack/real.jpg'
-import zackAsTimChrys from '../images/zack/Zack-As-Tim-Chrys.png'
 import styled from "styled-components";
 
-const chromeStyle: React.CSSProperties = {
-    aspectRatio: '902 / 728',
-    backgroundColor: 'rgba(39, 41, 43, .87)',
-    borderRadius: '1.76%',
-    boxShadow: '0 2px 12px 1px rgba(0, 0, 0, .33)',
-    display: 'flex',
-    flexDirection: 'column',
-    maxHeight: '80%',
-    maxWidth: 'min(80%, 902px)',
-    height: '80%',
-}
+import bryanGreynolds from '../images/preview/Bryan_Greynolds.png'
+import zackAsTimChrys from '../images/zack/Zack-As-Tim-Chrys.png'
 
 const appBarStyle: React.CSSProperties = {
     display: 'flex',
@@ -47,6 +35,19 @@ const faceChooserPanelStyle: React.CSSProperties = {
     padding: 32,
 }
 
+const Chrome = styled.div`
+  aspect-ratio: 902 / 728;
+  background-color: rgba(39, 41, 43, .87);
+  border-radius: 1.76%;
+  box-shadow: 0 2px 12px 1px rgba(0, 0, 0, .33);
+  display: flex;
+  flex-direction: column;
+  max-height: 80%;
+  max-width: min(80%, 902px);
+  height: 80%;
+  transition: opacity 0.5s linear;
+`
+
 const FaceChoice = styled.div`
   font-size: 12px;
   margin-bottom: 4%;
@@ -74,6 +75,32 @@ const FaceChoice = styled.div`
   }
 `
 
+const Tile = styled.div`
+  display: grid;
+  grid-template-rows: 48px 48px;
+  grid-template-columns: 48px 48px;
+  
+  left: calc(50% - 48px);
+  position: absolute;
+  top: 0;
+  
+  height: 96px;
+  width: 96px;
+
+  &> .spinner {
+    height: 48px;
+    width: 48px;
+  }
+`
+
+const PreviewLayout = styled.div`
+  display: flex;
+  height: 100%;
+  justify-content: center;
+  position: relative;
+  width: 100%;
+`
+
 const CHOICES = {
     'Bryan_Greynolds': bryanGreynolds,
     'David_Kovalniy': bryanGreynolds,
@@ -84,26 +111,58 @@ const CHOICES = {
     'Zahar_Lupin': bryanGreynolds,
 } as const
 
-const Preview: React.FC<{}> = React.memo(() => {
-    return (
-        <div style={chromeStyle}>
-            <div style={appBarStyle}>
-                <div style={{ backgroundColor: '#DA4453', ...appBarButtonStyle }} />
-                <div style={{ backgroundColor: '#F9BF3B', ...appBarButtonStyle }} />
-                <div style={{ backgroundColor: '#66BB6A', ...appBarButtonStyle }} />
-            </div>
-            <div style={cameraPanelStyle}>
-                <img alt="Zack Gemmell" src={zackAsTimChrys} style={cameraFeedStyle} />
-            </div>
-            <div style={faceChooserPanelStyle}>
-                {Object.entries(CHOICES).map(([name, image]) => (
-                    <FaceChoice id={name} tabIndex={0}>
-                        <img alt={name} src={image} />
-                        <p>{name.replace('_', ' ')}</p>
-                    </FaceChoice>
-                ))}
-            </div>
+const PreviewIcon: React.FC<{}> = React.memo(() => (
+    <Tile>
+        <div className="spinner spinner-1" style={{ gridRow: 1, gridColumn: 1 }} />
+        <div className="spinner spinner-1" style={{ gridRow: 1, gridColumn: 2 }}  />
+        <div className="spinner spinner-1" style={{ gridRow: 2, gridColumn: 1 }} />
+        <div className="spinner spinner-1" style={{ gridRow: 2, gridColumn: 2 }} />
+    </Tile>
+))
+
+const PreviewApplication: React.FC<{
+    hide: boolean
+    onImageLoad: () => void
+}> = React.memo(({ hide, onImageLoad }) => (
+    <Chrome style={hide ? {opacity: 0} : {opacity: 1}}>
+        <div style={appBarStyle}>
+            <div style={{ backgroundColor: '#DA4453', ...appBarButtonStyle }} />
+            <div style={{ backgroundColor: '#F9BF3B', ...appBarButtonStyle }} />
+            <div style={{ backgroundColor: '#66BB6A', ...appBarButtonStyle }} />
         </div>
+        <div style={cameraPanelStyle}>
+            <img
+                alt="Zack Gemmell"
+                onError={onImageLoad}
+                onLoad={onImageLoad}
+                src={zackAsTimChrys}
+                style={cameraFeedStyle}
+            />
+        </div>
+        <div style={faceChooserPanelStyle}>
+            {Object.entries(CHOICES).map(([name, image]) => (
+                <FaceChoice key={name} tabIndex={0}>
+                    <img alt={name} onError={onImageLoad} onLoad={onImageLoad} src={image} />
+                    <p>{name.replace('_', ' ')}</p>
+                </FaceChoice>
+            ))}
+        </div>
+    </Chrome>
+))
+
+const Preview: React.FC<{}> = React.memo(() => {
+    const [loadCount, setLoadCount] = React.useState(0)
+    const loaded = React.useMemo(() => loadCount >= 1 + Object.keys(CHOICES).length, [loadCount])
+
+    const onImageLoad = React.useCallback(() => {
+        setLoadCount(n => n + 1)
+    }, [])
+
+    return (
+        <PreviewLayout>
+            {!loaded && <PreviewIcon />}
+            <PreviewApplication hide={!loaded} onImageLoad={onImageLoad} />
+        </PreviewLayout>
     )
 })
 
