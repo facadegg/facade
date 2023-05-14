@@ -27,6 +27,7 @@ img  {
     -ms-user-select: none;
 }
 
+/* noinspection CssInvalidAtRule */
 @property --border-angle {
     syntax: '<angle>';
     inherits: false;
