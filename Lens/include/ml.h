@@ -5,18 +5,18 @@
 namespace lens
 {
 
-class center_face
+class center_face_model
 {
 public:
     virtual void run(cv::Mat& in_image, cv::Mat& heatmaps, cv::Mat& scales_x, cv::Mat& scales_y) = 0;
-    static std::unique_ptr<center_face> build();
+    static std::unique_ptr<center_face_model> build();
 };
 
-class face_mesh
+class face_mesh_model
 {
 public:
     virtual void run(cv::Mat& in_face, cv::Mat& out_landmarks) = 0;
-    static std::unique_ptr<face_mesh> build();
+    static std::unique_ptr<face_mesh_model> build();
 };
 
 class face_swap_model
