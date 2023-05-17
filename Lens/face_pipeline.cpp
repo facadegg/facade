@@ -106,17 +106,10 @@ lens::vp_face_extracted lens::face_pipeline::run_face_extraction(vp_input input)
 
     cv::resize(image, ml_image, ml_size);
     ml_image.convertTo(ml_image, CV_32FC3);
-    std::vector<cv::Mat> channels(3);
-    cv::split(ml_image, channels);
-
-    std::unique_ptr<float[]> ml_buffer(new float[640 * 480 * 3]);
-    memcpy(ml_buffer.get(), channels[0].data, 640 * 480 * sizeof(float));
-    memcpy(&ml_buffer.get()[640 * 480], channels[1].data, 640 * 480 * sizeof(float));
-    memcpy(&ml_buffer.get()[640 * 480 * 2], channels[2].data, 640 * 480 * sizeof(float));
 
     Ort::MemoryInfo memory_info("Cpu", OrtDeviceAllocator, 0, OrtMemTypeDefault);
-    const int64_t input_tensor_shape[4] = { 1, 3, 480, 640 };
-    Ort::Value input_tensor = Ort::Value::CreateTensor<float>(memory_info, ml_buffer.get(), 640 * 480 * 3, input_tensor_shape, 4);
+    const int64_t input_tensor_shape[4] = { 1, 480, 640, 3 };
+    Ort::Value input_tensor = Ort::Value::CreateTensor<float>(memory_info, reinterpret_cast<float *>(ml_image.data), 640 * 480 * 3, input_tensor_shape, 4);
 
     static const char *input_name = "input.1";
     static const char *output_names[4] = {
@@ -126,7 +119,6 @@ lens::vp_face_extracted lens::face_pipeline::run_face_extraction(vp_input input)
             "540"
     };
     Ort::RunOptions run_options{nullptr};
-
 
     auto start_time = std::chrono::high_resolution_clock::now();
     std::vector<Ort::Value> output_tensors = pipeline->center_face->Run(run_options, &input_name, &input_tensor, 1, output_names, 4);
