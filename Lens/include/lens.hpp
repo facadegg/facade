@@ -57,19 +57,6 @@ struct frame
     size_t height;
 };
 
-struct face_extraction
-{
-    lens::bounds bounds;
-    lens::point landmarks[5];
-};
-
-struct face
-{
-    cv::Rect2i bounds;
-    cv::Mat landmarks;
-    cv::Mat transform;
-};
-
 struct face_swap
 {
     lens::bounds bounds;
@@ -87,15 +74,17 @@ typedef int vp_output;
 class face_pipeline
 {
 public:
-    face_pipeline(facade_device *sink, const std::filesystem::path& root_dir, const std::string& face_swap_model);
+    face_pipeline(facade_device *sink, const std::filesystem::path& root_dir, const std::filesystem::path& face_swap_model);
     ~face_pipeline();
     void operator<<(lens::frame frame);
 private:
     facade_device *output_device;
-    Ort::Session *center_face;
+//    Ort::Session *center_face;
     Ort::Session *face_swap;
-    Ort::Session *face_mesh;
+//    Ort::Session *face_mesh;
 
+    std::unique_ptr<center_face> center_face;
+    std::unique_ptr<face_mesh> face_mesh;
     std::unique_ptr<face_swap_model> ml_face_swap;
     std::unique_ptr<gaussian_blur> gaussian_blur;
 

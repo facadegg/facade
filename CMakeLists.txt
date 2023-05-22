@@ -39,13 +39,14 @@ add_executable(lens
                 Lens/face_pipeline.cpp
                 Lens/data.cpp
                 Lens/include/ml.h
-                Lens/ml/coreml.mm
+        Lens/ml/face_swap.mm
                 Lens/include/filters.hpp
                 Lens/platform/darwin/filters.mm
-                Lens/platform/darwin/load.mm)
+                Lens/platform/darwin/load.mm Lens/ml/center_face.mm Lens/ml/model_loader.h Lens/ml/model_loader.mm Lens/ml/center_face.cpp Lens/ml/face_mesh.mm Lens/ml/face_swap.cpp Lens/ml/face_compositor.metal)
 add_executable(ttest Test/main.cpp)
 
 if(APPLE)
+    find_library(ACCELERATE Accelerate)
     find_library(AV_FOUNDATION AVFoundation)
     find_library(CORE_GRAPHICS CoreGraphics)
     find_library(CORE_IMAGE CoreImage)
@@ -53,10 +54,10 @@ if(APPLE)
     find_library(CORE_ML CoreML)
     find_library(CORE_VIDEO CoreVideo)
     find_library(METAL Metal)
+    find_library(METAL_KIT MetalKit)
     find_library(MPS MetalPerformanceShaders)
     find_library(FOUNDATION Foundation)
-
-    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall")
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -g")
     set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wall")
 
     include_directories(/usr/local/include ~/PaalMaxima/onnxruntime/include ~/Workspace/PaalMaxima/onnxruntime/include /opt/homebrew/include SYSTEM)
@@ -84,8 +85,19 @@ if(APPLE)
             /usr/local/lib
             /opt/homebrew/lib)
 
-    target_link_libraries(lens facade Boost::program_options tbb ${OpenCV_LIBS} onnxruntime ${AV_FOUNDATION} ${CORE_GRAPHICS} ${CORE_IMAGE} ${CORE_MEDIA} ${CORE_ML} ${CORE_VIDEO} ${FOUNDATION} ${METAL} ${MPS})
+    target_link_libraries(lens facade Boost::program_options tbb ${OpenCV_LIBS} onnxruntime ${ACCELERATE} ${AV_FOUNDATION} ${CORE_GRAPHICS} ${CORE_IMAGE} ${CORE_MEDIA} ${CORE_ML} ${CORE_VIDEO} ${FOUNDATION} ${METAL} ${METAL_KIT} ${MPS})
     target_link_libraries(ttest tbb onnxruntime)
+
+    set(FACE_COMPOSITOR_LIB ${CMAKE_CURRENT_BINARY_DIR}/face_compositor.metallib)
+
+    add_custom_command(OUTPUT FACE_COMPOSITOR_LIB
+            COMMAND xcrun -sdk macosx metal -c Lens/ml/face_compositor.metal -o ${CMAKE_CURRENT_BINARY_DIR}/face_compositor.air &&
+                    xcrun -sdk macosx metallib ${CMAKE_CURRENT_BINARY_DIR}/face_compositor.air -o ${FACE_COMPOSITOR_LIB}
+            WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+            COMMENT "Creating ${FACE_COMPOSITOR_LIB}"
+            VERBATIM)
+
+    add_custom_target(face_compositor ALL DEPENDS FACE_COMPOSITOR_LIB)
 
     if(LENS_FEATURE_BUNDLE)
         set_target_properties(lens PROPERTIES

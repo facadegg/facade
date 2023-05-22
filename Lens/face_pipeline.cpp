@@ -23,14 +23,16 @@ auto last_push_time = std::chrono::high_resolution_clock::now();
 
 namespace fs = std::filesystem;
 
-const fs::path center_face_filename = "CenterFace.onnx";
-const fs::path face_mesh_filename = "FaceMesh.onnx";
+const fs::path center_face_filename = "CenterFace.mlmodel";
+const fs::path face_mesh_filename = "FaceMesh.mlmodel";
 
-lens::face_pipeline::face_pipeline(facade_device *sink_device, const fs::path& root_dir, const std::string& face_swap_model) :
+lens::face_pipeline::face_pipeline(facade_device *sink_device, const fs::path& root_dir, const std::filesystem::path& face_swap_model) :
     output_device(sink_device),
     input_queue(),
     output_queue(),
     output_ready(true),
+    center_face(center_face::build((root_dir / center_face_filename).string())),
+    face_mesh(face_mesh::build((root_dir / face_mesh_filename).string())),
     ml_face_swap(face_swap_model::build(face_swap_model)),
     gaussian_blur(gaussian_blur::build())
 {
@@ -41,11 +43,16 @@ lens::face_pipeline::face_pipeline(facade_device *sink_device, const fs::path& r
 
     std::cout << " root_dir " << root_dir << " center " << center_face_path << std::endl;
 
-    center_face = new Ort::Session(env, center_face_path.c_str(), session_options);
-    face_swap = face_swap_model.ends_with(".onnx") ? new Ort::Session(env, face_swap_model.c_str(), session_options) : nullptr;
-    face_mesh = new Ort::Session(env, face_mesh_path.c_str(), session_options);
+    if (!center_face)
+    {
+        throw std::runtime_error("Failed to initialize center_face");
+    }
 
-    const int pool_capacity = 2;
+//    center_face = new Ort::Session(env, center_face_path.c_str(), session_options);
+    face_swap = face_swap_model.string().ends_with(".onnx") ? new Ort::Session(env, face_swap_model.c_str(), session_options) : nullptr;
+//    face_mesh = new Ort::Session(env, face_mesh_path.c_str(), session_options);
+
+    const int pool_capacity = 3;
     input_queue.set_capacity(pool_capacity);
     output_queue.set_capacity(pool_capacity);
     for (int i = 0; i < pool_capacity; i++)
@@ -61,9 +68,7 @@ lens::face_pipeline::~face_pipeline()
     facade_write_close(output_device);
     facade_dispose_device(&output_device);
 
-    delete center_face;
     delete face_swap;
-    delete face_mesh;
 }
 
 void lens::face_pipeline::operator<<(lens::frame frame)
@@ -100,117 +105,129 @@ lens::vp_face_extracted lens::face_pipeline::run_face_extraction(vp_input input)
 {
     auto [pipeline, frame] = std::move(input);
 
-    cv::Mat image(frame.height, frame.width, CV_8UC3, (void *) frame.pixels);
-    cv::Size ml_size(640, 480);
-    cv::Mat ml_image;
-
-    cv::resize(image, ml_image, ml_size);
-    ml_image.convertTo(ml_image, CV_32FC3);
-
-    Ort::MemoryInfo memory_info("Cpu", OrtDeviceAllocator, 0, OrtMemTypeDefault);
-    const int64_t input_tensor_shape[4] = { 1, 480, 640, 3 };
-    Ort::Value input_tensor = Ort::Value::CreateTensor<float>(memory_info, reinterpret_cast<float *>(ml_image.data), 640 * 480 * 3, input_tensor_shape, 4);
-
-    static const char *input_name = "input.1";
-    static const char *output_names[4] = {
-            "537",
-            "538",
-            "539",
-            "540"
-    };
-    Ort::RunOptions run_options{nullptr};
-
-    auto start_time = std::chrono::high_resolution_clock::now();
-    std::vector<Ort::Value> output_tensors = pipeline->center_face->Run(run_options, &input_name, &input_tensor, 1, output_names, 4);
-    auto end_time = std::chrono::high_resolution_clock::now();
-    std::cout << " CENTER_FACE took " <<  std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count() << std::endl;
-    Ort::Value& heatmaps_tensor = output_tensors[0];
-    Ort::Value& scales_tensor = output_tensors[1];
-    Ort::Value& offsets_tensor = output_tensors[2];
-    Ort::Value& landmarks_tensor = output_tensors[3];
-    std::vector<int64_t> heatmaps_shape = heatmaps_tensor.GetTensorTypeAndShapeInfo().GetShape();
-    size_t rows = heatmaps_shape[2];
-    size_t columns = heatmaps_shape[3];
-
-    const float* heatmaps = heatmaps_tensor.GetTensorMutableData<float>();
-    const float* scales_y = scales_tensor.GetTensorMutableData<float>();
-    const float* scales_x = scales_y + (rows * columns);
-    const float* offsets_y = offsets_tensor.GetTensorMutableData<float>();
-    const float* offsets_x = offsets_y + (rows * columns);
-    const float* landmarks = landmarks_tensor.GetTensorMutableData<float>();
-
-    bool p_found = false;
-    float p_max = 0.35;
-    size_t p_index = -1;
-
-    for (size_t y = 0; y < rows; y++)
-    {
-        for (size_t x = 0; x < columns; x++)
-        {
-            size_t index = y * columns + x;
-            float probability = heatmaps[index];
-
-            if (probability > p_max)
-            {
-                p_found = true;
-                p_max = probability;
-                p_index = index;
-            }
-        }
-    }
-
+    cv::Mat image(frame.height, frame.width, CV_8UC4, (void *) frame.pixels);
     std::vector<face_extraction> extractions;
 
-    if (p_found)
-    {
-        float p_x = static_cast<float>(p_index % columns);
-        float p_y = static_cast<float>(p_index / columns);
-        float global_scale_x = 4.0f * (float) frame.width / ml_size.width;
-        float global_scale_y = 4.0f * (float) frame.height / ml_size.height;
-
-        float center_x = std::clamp((p_x + 0.5f + offsets_x[p_index]) * global_scale_x, 0.f, (float) frame.width);
-        float center_y = std::clamp((p_y + 0.5f + offsets_y[p_index]) * global_scale_y, 0.f, (float) frame.height);
-        float scale_x = std::exp(scales_x[p_index]) * global_scale_x;
-        float scale_y = std::exp(scales_y[p_index]) * global_scale_y;
-
-        lens::face_extraction extraction = {
-                .bounds = {
-                        .left = std::max(center_x - scale_x * 0.5f, 0.f),
-                        .top = std::max(center_y - scale_y * 0.5f, 0.f),
-                        .right = std::min(center_x + scale_x * 0.5f, (float) frame.width),
-                        .bottom = std::min(center_y + scale_y * 0.5f, (float) frame.height),
-                },
-        };
-
-//#define DEBUG_FEATURE_CENTER_FACE
-#ifdef DEBUG_FEATURE_CENTER_FACE
-        cv::rectangle(image,
-                      cv::Point(extraction.bounds.left, extraction.bounds.top),
-                      cv::Point(extraction.bounds.right, extraction.bounds.bottom),
-                      cv::Scalar(255, 255, 0),
-                      4);
-#endif
-
-        for (int i = 0; i < 5; i++) {
-            const float *landmarks_y = landmarks + 2 * i * rows * columns;
-            const float *landmarks_x = landmarks + (2 * i + 1) * rows * columns;
-
-            extraction.landmarks[i].x = center_x + (landmarks_x[p_index] - 0.5f) * scale_x;
-            extraction.landmarks[i].y = center_y + (landmarks_y[p_index] - 0.5f) * scale_y;
-
-#ifdef DEBUG_FEATURE_CENTER_FACE
-            cv::circle(image,
-                       cv::Point(extraction.landmarks[i].x, extraction.landmarks[i].y),
-                       4,
-                       cv::Scalar(0, 255, 255),
-                       4);
-#endif
-        }
-
-        extractions.push_back(extraction);
-    }
+    auto start_time = std::chrono::high_resolution_clock::now();
+    pipeline->center_face->run(image, extractions);
+    auto end_time = std::chrono::high_resolution_clock::now();
+    std::cout << " CENTER_FACE took " <<  std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count() << std::endl;
 
     return { pipeline, frame, extractions };
+
+//    auto [pipeline, frame] = std::move(input);
+//
+//    cv::Mat image(frame.height, frame.width, CV_8UC3, (void *) frame.pixels);
+//    cv::Size ml_size(640, 480);
+//    cv::Mat ml_image;
+//
+//    cv::resize(image, ml_image, ml_size);
+//    ml_image.convertTo(ml_image, CV_32FC3);
+//
+//    Ort::MemoryInfo memory_info("Cpu", OrtDeviceAllocator, 0, OrtMemTypeDefault);
+//    const int64_t input_tensor_shape[4] = { 1, 480, 640, 3 };
+//    Ort::Value input_tensor = Ort::Value::CreateTensor<float>(memory_info, reinterpret_cast<float *>(ml_image.data), 640 * 480 * 3, input_tensor_shape, 4);
+//
+//    static const char *input_name = "input.1";
+//    static const char *output_names[4] = {
+//            "537",
+//            "538",
+//            "539",
+//            "540"
+//    };
+//    Ort::RunOptions run_options{nullptr};
+//
+//    auto start_time = std::chrono::high_resolution_clock::now();
+//    std::vector<Ort::Value> output_tensors = pipeline->center_face->Run(run_options, &input_name, &input_tensor, 1, output_names, 4);
+//    auto end_time = std::chrono::high_resolution_clock::now();
+//    std::cout << " CENTER_FACE took " <<  std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count() << std::endl;
+//    Ort::Value& heatmaps_tensor = output_tensors[0];
+//    Ort::Value& scales_tensor = output_tensors[1];
+//    Ort::Value& offsets_tensor = output_tensors[2];
+//    Ort::Value& landmarks_tensor = output_tensors[3];
+//    std::vector<int64_t> heatmaps_shape = heatmaps_tensor.GetTensorTypeAndShapeInfo().GetShape();
+//    size_t rows = heatmaps_shape[2];
+//    size_t columns = heatmaps_shape[3];
+//
+//    const float* heatmaps = heatmaps_tensor.GetTensorMutableData<float>();
+//    const float* scales_y = scales_tensor.GetTensorMutableData<float>();
+//    const float* scales_x = scales_y + (rows * columns);
+//    const float* offsets_y = offsets_tensor.GetTensorMutableData<float>();
+//    const float* offsets_x = offsets_y + (rows * columns);
+//    const float* landmarks = landmarks_tensor.GetTensorMutableData<float>();
+//
+//    bool p_found = false;
+//    float p_max = 0.35;
+//    size_t p_index = -1;
+//
+//    for (size_t y = 0; y < rows; y++)
+//    {
+//        for (size_t x = 0; x < columns; x++)
+//        {
+//            size_t index = y * columns + x;
+//            float probability = heatmaps[index];
+//
+//            if (probability > p_max)
+//            {
+//                p_found = true;
+//                p_max = probability;
+//                p_index = index;
+//            }
+//        }
+//    }
+//
+//    std::vector<face_extraction> extractions;
+//
+//    if (p_found)
+//    {
+//        float p_x = static_cast<float>(p_index % columns);
+//        float p_y = static_cast<float>(p_index / columns);
+//        float global_scale_x = 4.0f * (float) frame.width / ml_size.width;
+//        float global_scale_y = 4.0f * (float) frame.height / ml_size.height;
+//
+//        float center_x = std::clamp((p_x + 0.5f + offsets_x[p_index]) * global_scale_x, 0.f, (float) frame.width);
+//        float center_y = std::clamp((p_y + 0.5f + offsets_y[p_index]) * global_scale_y, 0.f, (float) frame.height);
+//        float scale_x = std::exp(scales_x[p_index]) * global_scale_x;
+//        float scale_y = std::exp(scales_y[p_index]) * global_scale_y;
+//
+//        lens::face_extraction extraction = {
+//                .bounds = {
+//                        .left = std::max(center_x - scale_x * 0.5f, 0.f),
+//                        .top = std::max(center_y - scale_y * 0.5f, 0.f),
+//                        .right = std::min(center_x + scale_x * 0.5f, (float) frame.width),
+//                        .bottom = std::min(center_y + scale_y * 0.5f, (float) frame.height),
+//                },
+//        };
+//
+////#define DEBUG_FEATURE_CENTER_FACE
+//#ifdef DEBUG_FEATURE_CENTER_FACE
+//        cv::rectangle(image,
+//                      cv::Point(extraction.bounds.left, extraction.bounds.top),
+//                      cv::Point(extraction.bounds.right, extraction.bounds.bottom),
+//                      cv::Scalar(255, 255, 0),
+//                      4);
+//#endif
+//
+//        for (int i = 0; i < 5; i++) {
+//            const float *landmarks_y = landmarks + 2 * i * rows * columns;
+//            const float *landmarks_x = landmarks + (2 * i + 1) * rows * columns;
+//
+//            extraction.landmarks[i].x = center_x + (landmarks_x[p_index] - 0.5f) * scale_x;
+//            extraction.landmarks[i].y = center_y + (landmarks_y[p_index] - 0.5f) * scale_y;
+//
+//#ifdef DEBUG_FEATURE_CENTER_FACE
+//            cv::circle(image,
+//                       cv::Point(extraction.landmarks[i].x, extraction.landmarks[i].y),
+//                       4,
+//                       cv::Scalar(0, 255, 255),
+//                       4);
+//#endif
+//        }
+//
+//        extractions.push_back(extraction);
+//    }
+//
+//    return { pipeline, frame, extractions };
 }
 
 // Shinji Umeyama, PAMI 1991, DOI: 10.1109/34.88573
@@ -293,30 +310,31 @@ lens::vp_face_mesh lens::face_pipeline::run_face_mesh(vp_face_extracted args)
     auto [pipeline, frame, extractions] = args;
     std::vector<lens::face> faces;
 
-    cv::Mat texture(frame.height, frame.width, CV_8UC3, (void *) frame.pixels);
-    cv::Mat image(frame.height, frame.width, CV_8UC3, (void *) frame.pixels);
-    image = image.clone();
-    image.convertTo(image, CV_32FC3);
-    image *= 1.0f / 255.0f;
+    cv::Mat image(frame.height, frame.width, CV_8UC4, (void *) frame.pixels);
+//    image = image.clone();
+//    image.convertTo(image, CV_32FC3);
+//    image *= 1.0f / 255.0f;
 
     for (auto face : extractions)
     {
-        cv::Rect roi = cv::Rect(face.bounds.left, face.bounds.top,
-                                face.bounds.width(), face.bounds.height());
+        auto roi = cv::Rect(face.bounds);
         std::cout << roi << std::endl;
         cv::Mat face_image = image(roi);
-        cv::resize(face_image, face_image, cv::Size(192, 192));
+//        cv::resize(face_image, face_image, cv::Size(192, 192));
+//
+//        Ort::Value input = Ort::Value::CreateTensor<float>(MEMORY_INFO,
+//                                                           reinterpret_cast<float *>(face_image.data),
+//                                                           face_image.total() * face_image.channels(),
+//                                                           INPUT_SHAPES[0],
+//                                                           4);
+//        std::vector<Ort::Value> outputs = pipeline->face_mesh->Run(RUN_OPTIONS,
+//                                                                   INPUTS, &input, 1,
+//                                                                   OUTPUTS, 1);
+//        Ort::Value& output = outputs[0];
+//        cv::Mat landmarks(3, 468, CV_32F, output.GetTensorMutableData<float>());
 
-        Ort::Value input = Ort::Value::CreateTensor<float>(MEMORY_INFO,
-                                                           reinterpret_cast<float *>(face_image.data),
-                                                           face_image.total() * face_image.channels(),
-                                                           INPUT_SHAPES[0],
-                                                           4);
-        std::vector<Ort::Value> outputs = pipeline->face_mesh->Run(RUN_OPTIONS,
-                                                                   INPUTS, &input, 1,
-                                                                   OUTPUTS, 1);
-        Ort::Value& output = outputs[0];
-        cv::Mat landmarks(3, 468, CV_32F, output.GetTensorMutableData<float>());
+        cv::Mat landmarks;
+        pipeline->face_mesh->run(face_image, landmarks);
 
         landmarks = landmarks
                 .clone()
@@ -444,19 +462,16 @@ lens::vp_face_mesh lens::face_pipeline::run_face_swap(vp_face_mesh args)
         const int64_t swap_height = 224;
         const int64_t swap_width = 224;
 
-        cv::Mat frame_image(frame.height, frame.width, CV_8UC3, (void *) frame.pixels);
+        cv::Mat frame_image(frame.height, frame.width, CV_8UC4, (void *) frame.pixels);
         cv::Rect roi = extraction.bounds;
         cv::Mat face_image = std::move(frame_image(roi));
         cv::Mat swap_image;
         cv::warpAffine(frame_image, swap_image, extraction.transform(cv::Rect(0, 0, 3, 2)), cv::Size(swap_width, swap_height));
-//        cv::resize(face_image, swap_image, cv::Size(swap_width, swap_height));
+        cv::cvtColor(swap_image, swap_image, cv::COLOR_BGRA2BGR);
         swap_image.convertTo(swap_image, CV_32FC3);
 
         cv::Mat si_clone = swap_image.clone();
         cv::multiply(si_clone, cv::Scalar(1.f/255.f, 1.f/255.f, 1.f/255.f), si_clone);
-
-        Ort::MemoryInfo memory_info("Cpu", OrtDeviceAllocator, 0, OrtMemTypeDefault);
-        const int64_t input_tensor_shape[4] = { 1, swap_height, swap_width, 3 };
 
         cv::Mat out_celeb_face, out_celeb_face_mask;
 
@@ -466,6 +481,8 @@ lens::vp_face_mesh lens::face_pipeline::run_face_swap(vp_face_mesh args)
         }
         else if (pipeline->face_swap)
         {
+            Ort::MemoryInfo memory_info("Cpu", OrtDeviceAllocator, 0, OrtMemTypeDefault);
+            const int64_t input_tensor_shape[4] = { 1, swap_height, swap_width, 3 };
             static const char *input_names[1] = {"in_face:0"};
             Ort::Value input_tensors[1] = {
                     Ort::Value::CreateTensor<float>(memory_info,
@@ -499,33 +516,11 @@ lens::vp_face_mesh lens::face_pipeline::run_face_swap(vp_face_mesh args)
             throw std::runtime_error("No model executor available");
         }
 
-        out_celeb_face_mask = erode_blur(out_celeb_face_mask, 5, 25, *pipeline->gaussian_blur);
-        cv::cvtColor(out_celeb_face_mask, out_celeb_face_mask, cv::COLOR_GRAY2RGB);
-
-        out_celeb_face = rct(out_celeb_face, si_clone);
-
-        cv::multiply(out_celeb_face, cv::Scalar(255, 255, 255), out_celeb_face);
-        cv::multiply(out_celeb_face, out_celeb_face_mask, out_celeb_face);
-
-#ifndef DEBUG_FEATURE_FACE_SWAP_WITH_NO_COMPOSITE
-        out_celeb_face_mask = cv::Scalar(1, 1, 1) - out_celeb_face_mask;
-
-        const cv::Mat backwards_transform = extraction.transform.inv()(cv::Rect(0, 0, 3, 2));
-
-        cv::Mat alpha_mask;
-        cv::warpAffine(out_celeb_face_mask, alpha_mask,
-                       backwards_transform,
-                       cv::Size(frame_image.cols, frame_image.rows),
-                       cv::INTER_LINEAR,
-                       cv::BORDER_CONSTANT,
-                       cv::Scalar(1, 1, 1));
-        cv::multiply(frame_image, alpha_mask, frame_image, 1, CV_8UC3);
-
-        cv::warpAffine(out_celeb_face, alpha_mask,
-                       backwards_transform,
-                       cv::Size(frame_image.cols, frame_image.rows));
-        frame_image += alpha_mask;
-#endif
+        pipeline->ml_face_swap->composite(frame_image,
+                                          extraction,
+                                          si_clone,
+                                          out_celeb_face,
+                                          out_celeb_face_mask);
     }
 
     return args;
@@ -551,10 +546,8 @@ void lens::face_pipeline::write_callback(lens::face_pipeline *pipeline)
 
     if (pipeline->output_queue.try_pop(frame))
     {
-        cv::Mat frame_image(frame.height, frame.width, CV_8UC3, (void *) frame.pixels);
-        cv::cvtColor(frame_image, frame_image, cv::COLOR_BGR2BGRA);
-
-        cv::Mat composited_image = cv::Mat::zeros(cv::Size(pipeline->output_device->width, pipeline->output_device->height), CV_8UC4);
+        cv::Mat frame_image(frame.height, frame.width, CV_8UC4, (void *) frame.pixels);
+        cv::Mat composited_image;
 
         if (pipeline->output_device->width == frame_image.cols && pipeline->output_device->height)
         {
@@ -562,6 +555,7 @@ void lens::face_pipeline::write_callback(lens::face_pipeline *pipeline)
         }
         else
         {
+            composited_image = cv::Mat::zeros(cv::Size(pipeline->output_device->width, pipeline->output_device->height), CV_8UC4);
             cv::Rect placement;
 
             float src_aspect_ratio = frame_image.cols / frame_image.rows;

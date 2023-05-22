@@ -105,7 +105,7 @@ int main(int argc, char **argv)
     std::cout << "Starting face pipeline!" << std::endl;
 
     try {
-        lens::face_pipeline pipeline(device, root_dir, face_swap_model);
+        lens::face_pipeline pipeline(device, root_dir, std::filesystem::path(face_swap_model));
 
         if (lens::load(src, frame_rate, pipeline)) {
             std::this_thread::sleep_for(std::chrono::hours::max());

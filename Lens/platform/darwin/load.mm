@@ -3,6 +3,7 @@
 
 #include <string>
 
+#import <Accelerate/Accelerate.h>
 #import <AVFoundation/AVFoundation.h>
 #import <CoreImage/CoreImage.h>
 #import <CoreVideo/CoreVideo.h>
@@ -17,35 +18,28 @@ void load_frame(CVPixelBufferRef pixel_buffer, lens::face_pipeline& pipeline)
     size_t height = CVPixelBufferGetHeight(pixel_buffer);
 
     size_t pixels_count = width * height;
-    auto *image_buffer = new uint8_t[pixels_count * 3];
-    for (int i = 0, j = 0; i < pixels_count * 4; i++)
-    {
-        if (i % 4 < 3)
-        {
-            image_buffer[j] = reinterpret_cast<const uint8_t *>(base_address)[i];
-            ++j;
-        }
-    }
-    const uint8_t *src = reinterpret_cast<const uint8_t *>(base_address);
-    uint8_t *dst = image_buffer;
-    for (size_t row = 0; row < height; ++row)
-    {
-        for (size_t col = 0; col < width; ++col)
-        {
-            *(dst++) = src[col * 4];
-            *(dst++) = src[col * 4 + 1];
-            *(dst++) = src[col * 4 + 2];
-        }
+    auto *image_buffer = new uint8_t[pixels_count * 4];
 
-        src += bytes_per_row;
-    }
+    const vImage_Buffer src {
+        .data = base_address,
+        .height = height,
+        .width = width,
+        .rowBytes = bytes_per_row,
+    };
+    const vImage_Buffer dst {
+        .data = image_buffer,
+        .height = height,
+        .width = width,
+        .rowBytes = 4 * width,
+    };
+    vImageCopyBuffer(&src, &dst, 4, kvImageNoAllocate);
 
     CVPixelBufferUnlockBaseAddress(pixel_buffer, kCVPixelBufferLock_ReadOnly);
 
     lens::frame frame = {
             .id = 0,
             .pixels = image_buffer,
-            .channels = 3,
+            .channels = 4,
             .width = width,
             .height = height,
     };

@@ -40,7 +40,7 @@ def find_and_copy_dependencies(library_path, dependencies = []):
                     dependency_path = dependency_path.replace('@rpath', '/opt/homebrew/lib')
                     if dependency_path.endswith('libquadmath.0.dylib') or\
                         dependency_path.endswith('libgcc_s.1.1.dylib'):
-                        dependency_path = f'/opt/homebrew/Cellar/gcc/12.2.0/lib/gcc/current/{os.path.basename(dependency_path)}'
+                        dependency_path = f'/opt/homebrew/Cellar/gcc/13.1.0/lib/gcc/current/{os.path.basename(dependency_path)}'
                     if dependency_path.endswith('libonnxruntime.1.15.0.dylib'):
                         dependency_path = os.path.expanduser(f'~/Workspace/PaalMaxima/onnxruntime/build/MacOS/RelWithDebInfo/{os.path.basename(dependency_path)}')
 
@@ -75,11 +75,18 @@ def find_and_copy_dependencies(library_path, dependencies = []):
 def find_and_copy_resources():
     subprocess.check_output(['cp', '/opt/facade/CenterFace.onnx', resources_path])
     subprocess.check_output(['cp', '/opt/facade/FaceMesh.onnx', resources_path])
+    subprocess.check_output(['cp',
+                             os.path.join(executable_original_directory, 'face_compositor.metallib'),
+                             resources_path])
+    subprocess.check_output(['cp',
+                             os.path.join(executable_original_directory, 'face_compositor.metallib'),
+                             os.path.join('/opt/facade/', 'face_compositor.metallib')])
 
 
 if __name__ == '__main__':
     bundle_path = os.path.abspath(sys.argv[1])
     executable_name = sys.argv[2]
+    executable_original_directory = os.path.dirname(bundle_path)
     executable_path = os.path.join(bundle_path, 'Contents', 'MacOS', executable_name)
     frameworks_path = os.path.join(bundle_path, 'Contents', 'Frameworks')
     library_path = os.path.join(bundle_path, 'Contents', 'Library')
