@@ -56,7 +56,6 @@ int main(int argc, char **argv)
     std::string root_dir = vm["root-dir"].as<std::string>();
     std::string face_swap_model = vm["face-swap-model"].as<std::string>();
     int frame_rate = vm.contains("frame-rate") ? vm["frame-rate"].as<int>() : 30;
-    int frame_interval = 1000 / frame_rate;
 
     if (frame_rate < 1 || frame_rate > 60)
     {

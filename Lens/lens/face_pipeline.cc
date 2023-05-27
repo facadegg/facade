@@ -11,8 +11,6 @@
 #include "internal.h"
 #include "lens.h"
 
-auto last_push_time = std::chrono::high_resolution_clock::now();
-
 namespace fs = std::filesystem;
 
 namespace lens
@@ -28,6 +26,7 @@ face_pipeline::face_pipeline(facade_device *sink_device,
         frame_interval_mean(1000.0 / sink_device->frame_rate),
         frame_counter_read(0),
         frame_counter_write(0),
+        frame_write_timestamp(std::chrono::high_resolution_clock::now()),
         center_face(center_face::build((root_dir / center_face_filename).string())),
         face_mesh(face_mesh::build((root_dir / face_mesh_filename).string())),
         face_swap(face_swap::build(face_swap_model, root_dir)),
@@ -197,8 +196,6 @@ void face_pipeline::write()
             composited_image = cv::Mat::zeros(cv::Size(output_device->width, output_device->height), CV_8UC4);
             cv::Rect placement;
 
-            float src_aspect_ratio = frame_image.cols / frame_image.rows;
-            float dst_aspect_ratio = composited_image.cols / composited_image.rows;
             float scale = std::min(1.f, std::min(static_cast<float>(composited_image.rows) / static_cast<float>(frame_image.rows),
                                                  static_cast<float>(composited_image.cols) / static_cast<float>(frame_image.cols)));
 
@@ -218,8 +215,9 @@ void face_pipeline::write()
                            4 * composited_image.cols * composited_image.rows);
         delete[] const_cast<uint8_t*>(frame_image.data);
 
-        auto end_time = std::chrono::high_resolution_clock::now();
-        size_t frame_interval_sample =  std::chrono::duration_cast<std::chrono::milliseconds>(end_time - last_push_time).count();
+        auto now = std::chrono::high_resolution_clock::now();
+        size_t frame_interval_sample =  std::chrono::duration_cast<std::chrono::milliseconds>(
+                now - frame_write_timestamp).count();
         frame_interval_mean = .9 * frame_interval_mean + .1 * static_cast<double>(frame_interval_sample);
         ++frame_counter_write;
 
@@ -227,7 +225,7 @@ void face_pipeline::write()
                   << "throughput=" << static_cast<float>(frame_counter_write) /
                                       static_cast<float>(frame_counter_read) * 100 << "%"
                   << std::endl;
-        last_push_time = end_time;
+        frame_write_timestamp = now;
 
         output_ready = false; // Wait for next write
     }

@@ -192,7 +192,7 @@ namespace lens
 bool load(const std::string& cxx_path, int frame_rate, face_pipeline& pipeline)
 {
     NSFileManager *fileManager = [NSFileManager defaultManager];
-    NSString *path = [NSString stringWithCString:cxx_path.c_str()];
+    NSString *path = [NSString stringWithCString:cxx_path.c_str() encoding:NSASCIIStringEncoding];
 
     if ([fileManager fileExistsAtPath:path])
     {
