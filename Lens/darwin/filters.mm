@@ -2,7 +2,7 @@
 // Created by Shukant Pal on 4/15/23.
 //
 
-#include "filters.hpp"
+#include "internal.h"
 
 #import <CoreImage/CoreImage.h>
 #import <Metal/Metal.h>

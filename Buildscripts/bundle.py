@@ -73,8 +73,8 @@ def find_and_copy_dependencies(library_path, dependencies = []):
 
 
 def find_and_copy_resources():
-    subprocess.check_output(['cp', '/opt/facade/CenterFace.onnx', resources_path])
-    subprocess.check_output(['cp', '/opt/facade/FaceMesh.onnx', resources_path])
+    subprocess.check_output(['cp', '/opt/facade/CenterFace.mlmodel', resources_path])
+    subprocess.check_output(['cp', '/opt/facade/FaceMesh.mlmodel', resources_path])
     subprocess.check_output(['cp',
                              os.path.join(executable_original_directory, 'face_compositor.metallib'),
                              resources_path])

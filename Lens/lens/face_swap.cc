@@ -2,23 +2,23 @@
 // Created by Shukant Pal on 5/21/23.
 //
 
-#include "filters.hpp"
-#include "ml.h"
+#include "internal.h"
 
 namespace lens
 {
 
-face_swap_model::face_swap_model() :
-    gaussian_blur(gaussian_blur::build())
+face_swap::face_swap() :
+    gaussian_blur(gaussian_blur::build()),
+    face2face_pool()
 { }
 
-void face_swap_model::composite(cv::Mat& dst,
-                                const face& extraction,
-                                cv::Mat& face,
-                                cv::Mat& out_celeb_face,
-                                cv::Mat& out_celeb_face_mask)
+void face_swap::composite(cv::Mat& dst, const face& extraction, face2face **job, const std::function<void(cv::Mat&)> callback)
 {
 #ifndef DEBUG_FEATURE_FACE_SWAP_WITH_NO_COMPOSITE
+    cv::Mat& face = (*job)->src_face;
+    cv::Mat& out_celeb_face = (*job)->dst_face;
+    cv::Mat& out_celeb_face_mask = (*job)->mask;
+
     out_celeb_face_mask = erode_and_blur(out_celeb_face_mask, 5, 25);
     cv::cvtColor(out_celeb_face_mask, out_celeb_face_mask, cv::COLOR_GRAY2RGB);
 
@@ -49,9 +49,14 @@ void face_swap_model::composite(cv::Mat& dst,
     cv::cvtColor(alpha_mask, alpha_mask, cv::COLOR_BGR2BGRA);
     dst += alpha_mask;
 #endif
+
+    face2face_pool.push(*job);
+    *job = nullptr;
+
+    callback(dst);
 }
 
-cv::Mat face_swap_model::erode_and_blur(cv::Mat& img, int erode, int blur)
+cv::Mat face_swap::erode_and_blur(cv::Mat& img, int erode, int blur)
 {
     cv::Mat out;
     cv::copyMakeBorder(img, out, img.rows, img.rows, img.cols, img.cols, cv::BORDER_CONSTANT);
@@ -87,7 +92,7 @@ cv::Mat face_swap_model::erode_and_blur(cv::Mat& img, int erode, int blur)
     return out;
 }
 
-cv::Mat face_swap_model::color_transfer(cv::Mat &src, cv::Mat &like) {
+cv::Mat face_swap::color_transfer(cv::Mat &src, cv::Mat &like) {
     cv::Mat src_lab, like_lab;
     cv::cvtColor(src, src_lab, cv::COLOR_BGR2Lab);
     cv::cvtColor(like, like_lab, cv::COLOR_BGR2Lab);

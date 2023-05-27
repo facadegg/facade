@@ -1,6 +1,6 @@
 #include <boost/program_options.hpp>
 #include "facade.h"
-#include "lens.hpp"
+#include "lens.h"
 #include <iostream>
 #include <opencv2/opencv.hpp>
 #include <thread>
@@ -78,28 +78,6 @@ int main(int argc, char **argv)
     {
         std::cout << "Failed to locate '" << dst << "' device." << std::endl;
         return -1;
-    }
-
-    int id = 0;
-    cv::VideoCapture cap(1, cv::VideoCaptureAPIs::CAP_AVFOUNDATION);
-
-    if (!cap.isOpened())
-    {
-        std::cout << "Failed to open default camera" << std::endl;
-        return -1;
-    }
-    else
-    {
-        int width = static_cast<int>(cap.get(cv::CAP_PROP_FRAME_WIDTH));
-        int height = static_cast<int>(cap.get(cv::CAP_PROP_FRAME_HEIGHT));
-
-        std::cout << width  << "x" << height << std::endl;
-
-        if (width != device->width || height != device->height)
-        {
-            std::cout << "Dimensions mismatch, device output should be " << device->width << "x" << device->height << std::endl;
-            return -2;
-        }
     }
 
     std::cout << "Starting face pipeline!" << std::endl;

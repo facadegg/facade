@@ -2,14 +2,13 @@
 // Created by Shukant Pal on 5/20/23.
 //
 
-#include "ml.h"
+#include "internal.h"
 #include "model_loader.h"
 
 #import <CoreML/CoreML.h>
 
 namespace lens
 {
-
 
 const size_t EXPECTED_ROWS = 480;
 const size_t EXPECTED_COLS = 640;
@@ -122,7 +121,7 @@ void center_face_impl::run(const cv::Mat &image,
 
 std::unique_ptr<center_face> center_face::build(const std::string& path)
 {
-    MLModel* model = load_model(path);
+    MLModel* model = load_model(path, true);
 
     if (!model)
         return nullptr;

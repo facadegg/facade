@@ -1,5 +1,5 @@
 
-#include "lens.hpp"
+#include "lens.h"
 
 #include <string>
 

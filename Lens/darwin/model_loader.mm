@@ -17,7 +17,9 @@ MLModel *load_model(const std::string& path, bool gpu)
     MLModelConfiguration *configuration = [[MLModelConfiguration alloc] init];
     NSError* error = nil;
 
-    configuration.computeUnits = gpu ? MLComputeUnitsAll : MLComputeUnitsCPUAndGPU;
+    configuration.computeUnits = gpu ? MLComputeUnitsCPUAndGPU : MLComputeUnitsAll;
+    configuration.allowLowPrecisionAccumulationOnGPU = true;
+
     NSURL* const compiled_model_url = [MLModel compileModelAtURL:model_url error:&error];
 
     if (error)
@@ -26,7 +28,7 @@ MLModel *load_model(const std::string& path, bool gpu)
         @throw error;
     }
 
-    MLModel* const model = [MLModel modelWithContentsOfURL:compiled_model_url error:&error];
+    MLModel* const model = [MLModel modelWithContentsOfURL:compiled_model_url configuration:configuration error:&error];
 
     if (error)
     {

@@ -1,25 +1,18 @@
-#ifndef MIRAGE_HPP
-#define MIRAGE_HPP
+#ifndef LENS_H_B817AF35
+#define LENS_H_B817AF35
 
 #include "facade.h"
-#include "filters.hpp"
-#include "ml.h"
+#include "internal.h"
 #include <oneapi/tbb.h>
-#include <onnxruntime/core/session/onnxruntime_cxx_api.h>
 #include <opencv2/opencv.hpp>
 #include <filesystem>
 #include <tuple>
 
-extern cv::Mat NORMALIZED_FACIAL_LANDMARKS;
+#ifdef LENS_FEATURE_ONNX
+#include <onnxruntime/core/session/onnxruntime_cxx_api.h>
+#endif
 
-enum FacialLandmark {
-    LEFT_EYE = 0,
-    RIGHT_EYE = 1,
-    NOSE = 2,
-    LEFT_MOUTH_CORNER = 3,
-    RIGHT_MOUTH_CORNER = 4,
-    MAX = RIGHT_MOUTH_CORNER,
-};
+extern cv::Mat NORMALIZED_FACIAL_LANDMARKS;
 
 namespace lens
 {
@@ -42,12 +35,6 @@ struct bounds
     }
 };
 
-struct point
-{
-    float x;
-    float y;
-};
-
 struct frame
 {
     int id;
@@ -57,19 +44,10 @@ struct frame
     size_t height;
 };
 
-struct face_swap
-{
-    lens::bounds bounds;
-    lens::point landmarks[5];
-    cv::Mat &source;
-    cv::Mat &destination;
-};
-
 class face_pipeline;
 typedef std::tuple<face_pipeline *, frame> vp_input;
 typedef std::tuple<face_pipeline *, frame, std::vector<face_extraction>> vp_face_extracted;
 typedef std::tuple<face_pipeline *, frame, std::vector<face>> vp_face_mesh;
-typedef int vp_output;
 
 class face_pipeline
 {
@@ -79,33 +57,34 @@ public:
     void operator<<(lens::frame frame);
 private:
     facade_device *output_device;
-//    Ort::Session *center_face;
-    Ort::Session *face_swap;
-//    Ort::Session *face_mesh;
+    double frame_interval_mean;
+    size_t frame_counter_read;
+    size_t frame_counter_write;
 
     std::unique_ptr<center_face> center_face;
     std::unique_ptr<face_mesh> face_mesh;
-    std::unique_ptr<face_swap_model> ml_face_swap;
-    std::unique_ptr<gaussian_blur> gaussian_blur;
+    std::unique_ptr<face_swap> face_swap;
 
     oneapi::tbb::concurrent_bounded_queue<lens::frame> input_queue;
-    oneapi::tbb::concurrent_bounded_queue<lens::frame> output_queue;
+    oneapi::tbb::concurrent_bounded_queue<cv::Mat> output_queue;
     std::vector<std::thread> thread_pool;
     bool output_ready;
-
     std::mutex write_mutex;
 
     void run(int id);
+    void submit(cv::Mat&);
+
+    void write();
 
     static vp_face_extracted run_face_extraction(vp_input);
     static vp_face_mesh run_face_mesh(vp_face_extracted);
     static vp_face_mesh run_face_swap(vp_face_mesh);
-    static vp_output run_output(vp_face_extracted);
-    static void write_callback(lens::face_pipeline *);
+
+    static void write_stub(face_pipeline *);
 };
 
 bool load(const std::string& media, int frame_rate, face_pipeline&);
 
 }
 
-#endif /* MIRAGE_HPP */
+#endif // LENS_H_B817AF35

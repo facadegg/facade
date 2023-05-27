@@ -2,7 +2,7 @@
 // Created by Shukant Pal on 5/20/23.
 //
 
-#include "ml.h"
+#include "internal.h"
 #include "model_loader.h"
 
 #import <CoreML/CoreML.h>
@@ -94,7 +94,7 @@ void face_mesh_impl::run(const cv::Mat& face, cv::Mat& landmarks)
 
 std::unique_ptr<face_mesh> face_mesh::build(const std::string& path)
 {
-    MLModel* model = load_model(path);
+    MLModel* model = load_model(path, true);
 
     if (!model)
         return nullptr;
