@@ -14,4 +14,4 @@ namespace lens
 
 MLModel *load_model(const std::string& path, bool gpu = false);
 
-}
+} // namespace lens

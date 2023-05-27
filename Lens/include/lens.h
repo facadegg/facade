@@ -54,7 +54,7 @@ class face_pipeline
 public:
     face_pipeline(facade_device *sink, const std::filesystem::path& root_dir, const std::filesystem::path& face_swap_model);
     ~face_pipeline();
-    void operator<<(lens::frame frame);
+    void operator<<(cv::Mat& image);
 private:
     facade_device *output_device;
     double frame_interval_mean;
@@ -65,21 +65,20 @@ private:
     std::unique_ptr<face_mesh> face_mesh;
     std::unique_ptr<face_swap> face_swap;
 
-    oneapi::tbb::concurrent_bounded_queue<lens::frame> input_queue;
+    oneapi::tbb::concurrent_bounded_queue<cv::Mat> input_queue;
     oneapi::tbb::concurrent_bounded_queue<cv::Mat> output_queue;
     std::vector<std::thread> thread_pool;
     bool output_ready;
     std::mutex write_mutex;
 
-    void run(int id);
+    [[noreturn]] void run();
+    void run_face_alignment(cv::Mat&, const std::vector<face_extraction>&, std::vector<face>&);
+    void run_face_swap(cv::Mat&, const std::vector<face>&, std::function<void(cv::Mat&)>);
     void submit(cv::Mat&);
 
     void write();
 
-    static vp_face_extracted run_face_extraction(vp_input);
-    static vp_face_mesh run_face_mesh(vp_face_extracted);
-    static vp_face_mesh run_face_swap(vp_face_mesh);
-
+    static cv::Mat umeyama2(const cv::Mat& src, const cv::Mat& dst);
     static void write_stub(face_pipeline *);
 };
 

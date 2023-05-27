@@ -10,7 +10,7 @@ namespace lens
 MLModel *load_model(const std::string& path, bool gpu)
 {
     if (!path.ends_with(".mlmodel"))
-        return nullptr;
+        throw std::runtime_error(path + " is not a CoreML model");
 
     NSString* const model_path = [NSString stringWithCString:path.c_str() encoding:NSASCIIStringEncoding];
     NSURL* const model_url = [NSURL fileURLWithPath:model_path];
@@ -24,7 +24,7 @@ MLModel *load_model(const std::string& path, bool gpu)
 
     if (error)
     {
-        NSLog(@"Failed to compile model: %@", error);
+        NSLog(@"Failed to compile model: %@", [error localizedDescription]);
         @throw error;
     }
 
@@ -32,7 +32,7 @@ MLModel *load_model(const std::string& path, bool gpu)
 
     if (error)
     {
-        NSLog(@"%@", error);
+        NSLog(@"%@", [error localizedDescription]);
         @throw error;
     }
 
@@ -41,4 +41,4 @@ MLModel *load_model(const std::string& path, bool gpu)
     return model;
 }
 
-}
+} // namespace lens

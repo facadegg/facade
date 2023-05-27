@@ -10,6 +10,8 @@
 #import <MetalPerformanceShaders/MetalPerformanceShaders.h>
 #import <simd/simd.h>
 
+namespace fs = std::filesystem;
+
 struct compositor_face2face
 {
     cv::Mat dst;
@@ -163,20 +165,20 @@ void face_swap_impl::composite(cv::Mat& dst,
     }
 }
 
-std::unique_ptr<face_swap> face_swap::build(const std::filesystem::path& path)
+std::unique_ptr<face_swap> face_swap::build(const fs::path& model_path, const fs::path& root_dir)
 {
     std::vector<MLModel const *> model_pool = {
-      load_model(path),
-      load_model(path),
+      load_model(model_path),
+      load_model(model_path),
     };
 
     if (std::any_of(model_pool.begin(), model_pool.end(),
                     [](MLModel const* model){ return model == nil; }))
-        return nullptr;
+        throw std::runtime_error("Failed to load all face-swap model instances");
 
     NSError *error = nil;
     id<MTLDevice> device = MTLCreateSystemDefaultDevice();
-    std::string compositor_path = (path.parent_path() / std::filesystem::path("face_compositor.metallib")).string();
+    std::string compositor_path = (root_dir / fs::path("face_compositor.metallib")).string();
     NSString* const compositor_pathstr = [NSString stringWithCString:compositor_path.c_str() encoding:NSASCIIStringEncoding];
     NSURL* const compositor_url = [NSURL fileURLWithPath:compositor_pathstr];
     id<MTLLibrary> compositor = [device newLibraryWithURL:compositor_url error:&error];
@@ -213,14 +215,14 @@ std::unique_ptr<face_swap> face_swap::build(const std::filesystem::path& path)
 - (void)main {
     compositor_face2face wrapper;
 
-    std::cout << "start" << std::endl;
+    std::cout << "The compositor has started." << std::endl;
 
     while (![self isCancelled]) {
         _queue->pop(wrapper);
         [self composite:&wrapper];
     }
 
-    std::cout << "CANCELLED" << std::endl;
+    std::cout << "The compositor has unexpectedly terminated." << std::endl;
 }
 
 - (void)composite:(compositor_face2face *)wrapper {

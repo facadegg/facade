@@ -89,7 +89,8 @@ public:
                            face2face **,
                            const std::function<void(cv::Mat&)> callback);
 
-    static std::unique_ptr<face_swap> build(const std::filesystem::path& path);
+    static std::unique_ptr<face_swap> build(const std::filesystem::path& model_path,
+                                            const std::filesystem::path& root_dir);
     static cv::Mat color_transfer(cv::Mat& src, cv::Mat& like);
 protected:
     std::unique_ptr<gaussian_blur> gaussian_blur;

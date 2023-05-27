@@ -8,6 +8,8 @@
 
 #include "internal.h"
 
+namespace fs = std::filesystem;
+
 namespace lens
 {
 
@@ -74,7 +76,7 @@ face2face* face_swap_impl::run(cv::Mat &in_face)
     return result;
 }
 
-std::unique_ptr<face_swap> face_swap::build(const std::filesystem::path& path)
+std::unique_ptr<face_swap> face_swap::build(const fs::path& path, const fs::path& _)
 {
     Ort::Env env(ORT_LOGGING_LEVEL_INFO, "FaceSwap");
     Ort::SessionOptions session_options;

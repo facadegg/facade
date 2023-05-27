@@ -8,6 +8,9 @@
 #import <CoreImage/CoreImage.h>
 #import <CoreVideo/CoreVideo.h>
 
+namespace
+{
+
 void load_frame(CVPixelBufferRef pixel_buffer, lens::face_pipeline& pipeline)
 {
     CVPixelBufferLockBaseAddress(pixel_buffer, kCVPixelBufferLock_ReadOnly);
@@ -36,16 +39,14 @@ void load_frame(CVPixelBufferRef pixel_buffer, lens::face_pipeline& pipeline)
 
     CVPixelBufferUnlockBaseAddress(pixel_buffer, kCVPixelBufferLock_ReadOnly);
 
-    lens::frame frame = {
-            .id = 0,
-            .pixels = image_buffer,
-            .channels = 4,
-            .width = width,
-            .height = height,
-    };
-
-    pipeline << frame;
+    cv::Mat image(static_cast<int>(height),
+                  static_cast<int>(width),
+                  CV_8UC4,
+                  image_buffer);
+    pipeline << image;
 }
+
+} // namespace
 
 @interface CaptureDelegate : NSObject <AVCaptureVideoDataOutputSampleBufferDelegate>
 
@@ -75,8 +76,8 @@ void load_frame(CVPixelBufferRef pixel_buffer, lens::face_pipeline& pipeline)
 namespace
 {
 
-static std::vector<std::string> image_formats = {"jpg", "jpeg", "png", "gif", "bmp"};
-static std::vector<std::string> video_formats = {"mp4", "mov", "avi", "mkv", "wmv"};
+std::vector<std::string> image_formats = {"jpg", "jpeg", "png", "gif", "bmp"};
+std::vector<std::string> video_formats = {"mp4", "mov", "avi", "mkv", "wmv"};
 
 bool match(const std::vector<std::string>& formats, const std::string& path)
 {
