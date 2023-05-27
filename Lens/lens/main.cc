@@ -1,6 +1,6 @@
-#include <boost/program_options.hpp>
 #include "facade.h"
 #include "lens.h"
+#include <boost/program_options.hpp>
 #include <iostream>
 #include <opencv2/opencv.hpp>
 #include <thread>
@@ -12,24 +12,21 @@ int main(int argc, char **argv)
     std::cout << "Lens is starting..." << std::endl;
 
     po::options_description options("Options");
-    options.add_options()
-            ("dst", po::value<std::string>(), "The name of the video output device")
-            ("src", po::value<std::string>(), "The name of the video input device")
-            ("frame-rate", po::value<int>(), "The frame rate at which the src should be processed.")
-            ("face-swap-model", po::value<std::string>(), "The face swap model to use.")
-            ("root-dir", po::value<std::string>(), "The directory in which ML models are stored");
+    options.add_options()("dst", po::value<std::string>(), "The name of the video output device")(
+        "src", po::value<std::string>(), "The name of the video input device")(
+        "frame-rate", po::value<int>(), "The frame rate at which the src should be processed.")(
+        "face-swap-model", po::value<std::string>(), "The face swap model to use.")(
+        "root-dir", po::value<std::string>(), "The directory in which ML models are stored");
 
     po::variables_map vm;
 
     try
     {
-        po::parsed_options parsed = po::command_line_parser(argc, argv)
-                .options(options)
-                .run();
+        po::parsed_options parsed = po::command_line_parser(argc, argv).options(options).run();
         po::store(parsed, vm);
         po::notify(vm);
     }
-    catch (po::error& e)
+    catch (po::error &e)
     {
         std::cerr << "Invalid command: " << e.what() << std::endl;
         return -1;
@@ -81,15 +78,21 @@ int main(int argc, char **argv)
 
     std::cout << "Starting face pipeline!" << std::endl;
 
-    try {
+    try
+    {
         lens::face_pipeline pipeline(device, root_dir, std::filesystem::path(face_swap_model));
 
-        if (lens::load(src, frame_rate, pipeline)) {
+        if (lens::load(src, frame_rate, pipeline))
+        {
             std::this_thread::sleep_for(std::chrono::hours::max());
-        } else {
+        }
+        else
+        {
             std::cout << "Failed to locate source file or device" << std::endl;
         }
-    } catch (std::exception& e) {
+    }
+    catch (std::exception &e)
+    {
         std::cout << e.what() << std::endl;
     }
 

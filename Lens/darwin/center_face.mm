@@ -20,16 +20,17 @@ const int OUT_LANDMARKS = 5;
 
 class center_face_impl : public center_face
 {
-public:
+  public:
     explicit center_face_impl(MLModel const *);
     ~center_face_impl() noexcept override;
-    void run(const cv::Mat& image,
-             cv::Mat& heatmap,
-             std::tuple<cv::Mat, cv::Mat>& scales,
-             std::tuple<cv::Mat, cv::Mat>& offsets,
-             std::vector<cv::Mat>& landmarks) override;
-private:
-    MLModel const* model;
+    void run(const cv::Mat &image,
+             cv::Mat &heatmap,
+             std::tuple<cv::Mat, cv::Mat> &scales,
+             std::tuple<cv::Mat, cv::Mat> &offsets,
+             std::vector<cv::Mat> &landmarks) override;
+
+  private:
+    MLModel const *model;
 };
 
 center_face_impl::center_face_impl(const MLModel *model) :
@@ -43,10 +44,10 @@ center_face_impl::~center_face_impl() noexcept
 }
 
 void center_face_impl::run(const cv::Mat &image,
-                           cv::Mat& heatmap,
-                           std::tuple<cv::Mat, cv::Mat>& scales,
-                           std::tuple<cv::Mat, cv::Mat>& offsets,
-                           std::vector<cv::Mat>& landmarks)
+                           cv::Mat &heatmap,
+                           std::tuple<cv::Mat, cv::Mat> &scales,
+                           std::tuple<cv::Mat, cv::Mat> &offsets,
+                           std::vector<cv::Mat> &landmarks)
 {
     assert(image.cols == EXPECTED_COLS);
     assert(image.rows == EXPECTED_ROWS);
@@ -57,24 +58,21 @@ void center_face_impl::run(const cv::Mat &image,
 
     NSError *error = nil;
     MLMultiArray *image_data = [[MLMultiArray alloc]
-                                initWithDataPointer: reinterpret_cast<void *>(image.data)
-                                              shape:@[@1, @(image.rows), @(image.cols), @(image.channels())]
-                                           dataType:MLMultiArrayDataTypeFloat
-                                            strides:@[@(elems), @(image.cols * image.channels()), @(image.channels()), @1]
-                                        deallocator:nil
-                                              error: &error];
+        initWithDataPointer:reinterpret_cast<void *>(image.data)
+                      shape:@[ @1, @(image.rows), @(image.cols), @(image.channels()) ]
+                   dataType:MLMultiArrayDataTypeFloat
+                    strides:@[ @(elems), @(image.cols * image.channels()), @(image.channels()), @1 ]
+                deallocator:nil
+                      error:&error];
     if (error)
     {
         NSLog(@"Failed to prepare image input: %@", error);
         @throw error;
     }
 
-    auto options = @{
-            @"input.1": [MLFeatureValue featureValueWithMultiArray:image_data]
-    };
-    MLDictionaryFeatureProvider* input_provider = [[MLDictionaryFeatureProvider alloc]
-                                                   initWithDictionary:options
-                                                                error:&error];
+    auto options = @{@"input.1" : [MLFeatureValue featureValueWithMultiArray:image_data]};
+    MLDictionaryFeatureProvider *input_provider =
+        [[MLDictionaryFeatureProvider alloc] initWithDictionary:options error:&error];
     id<MLFeatureProvider> input = input_provider;
 
     @autoreleasepool
@@ -87,31 +85,28 @@ void center_face_impl::run(const cv::Mat &image,
             @throw error;
         }
 
-        MLMultiArray* heatmap_data = [[output featureValueForName:@"537"] multiArrayValue];
-        MLMultiArray* scales_data = [[output featureValueForName:@"538"] multiArrayValue];
-        MLMultiArray* offsets_data = [[output featureValueForName:@"539"] multiArrayValue];
-        MLMultiArray* landmarks_data = [[output featureValueForName:@"540"] multiArrayValue];
+        MLMultiArray *heatmap_data = [[output featureValueForName:@"537"] multiArrayValue];
+        MLMultiArray *scales_data = [[output featureValueForName:@"538"] multiArrayValue];
+        MLMultiArray *offsets_data = [[output featureValueForName:@"539"] multiArrayValue];
+        MLMultiArray *landmarks_data = [[output featureValueForName:@"540"] multiArrayValue];
 
-        auto* heatmap_ptr = reinterpret_cast<float*>([heatmap_data dataPointer]);
-        auto* scales_ptr = reinterpret_cast<float*>([scales_data dataPointer]);
-        auto* offsets_ptr = reinterpret_cast<float*>([offsets_data dataPointer]);
-        auto* landmarks_ptr = reinterpret_cast<float*>([landmarks_data dataPointer]);
+        auto *heatmap_ptr = reinterpret_cast<float *>([heatmap_data dataPointer]);
+        auto *scales_ptr = reinterpret_cast<float *>([scales_data dataPointer]);
+        auto *offsets_ptr = reinterpret_cast<float *>([offsets_data dataPointer]);
+        auto *landmarks_ptr = reinterpret_cast<float *>([landmarks_data dataPointer]);
 
-        cv::Mat(OUT_ROWS, OUT_COLS, CV_32FC1, heatmap_ptr)
-                .copyTo(heatmap);
-        cv::Mat(OUT_ROWS, OUT_COLS, CV_32FC1, scales_ptr)
-                .copyTo(std::get<0>(scales));
-        cv::Mat(OUT_ROWS, OUT_COLS, CV_32FC1, scales_ptr + OUT_ROWS*OUT_COLS)
-                .copyTo(std::get<1>(scales));
-        cv::Mat(OUT_ROWS, OUT_COLS, CV_32FC1, offsets_ptr)
-                .copyTo(std::get<0>(offsets));
-        cv::Mat(OUT_ROWS, OUT_COLS, CV_32FC1, offsets_ptr + OUT_ROWS*OUT_COLS)
-                .copyTo(std::get<1>(offsets));
+        cv::Mat(OUT_ROWS, OUT_COLS, CV_32FC1, heatmap_ptr).copyTo(heatmap);
+        cv::Mat(OUT_ROWS, OUT_COLS, CV_32FC1, scales_ptr).copyTo(std::get<0>(scales));
+        cv::Mat(OUT_ROWS, OUT_COLS, CV_32FC1, scales_ptr + OUT_ROWS * OUT_COLS)
+            .copyTo(std::get<1>(scales));
+        cv::Mat(OUT_ROWS, OUT_COLS, CV_32FC1, offsets_ptr).copyTo(std::get<0>(offsets));
+        cv::Mat(OUT_ROWS, OUT_COLS, CV_32FC1, offsets_ptr + OUT_ROWS * OUT_COLS)
+            .copyTo(std::get<1>(offsets));
 
         for (int i = 0; i < OUT_LANDMARKS * 2; i++)
         {
-            cv::Mat(OUT_ROWS, OUT_COLS, CV_32FC1, landmarks_ptr + OUT_ROWS*OUT_COLS*i)
-                    .copyTo(landmarks[i]);
+            cv::Mat(OUT_ROWS, OUT_COLS, CV_32FC1, landmarks_ptr + OUT_ROWS * OUT_COLS * i)
+                .copyTo(landmarks[i]);
         }
     }
 
@@ -119,9 +114,9 @@ void center_face_impl::run(const cv::Mat &image,
     [image_data release];
 }
 
-std::unique_ptr<center_face> center_face::build(const std::string& path)
+std::unique_ptr<center_face> center_face::build(const std::string &path)
 {
-    MLModel* model = load_model(path, true);
+    MLModel *model = load_model(path, true);
 
     if (!model)
         return nullptr;
@@ -129,4 +124,4 @@ std::unique_ptr<center_face> center_face::build(const std::string& path)
     return std::unique_ptr<center_face>(new center_face_impl(model));
 }
 
-}
+} // namespace lens

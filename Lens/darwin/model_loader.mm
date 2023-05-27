@@ -7,20 +7,21 @@
 namespace lens
 {
 
-MLModel *load_model(const std::string& path, bool gpu)
+MLModel *load_model(const std::string &path, bool gpu)
 {
     if (!path.ends_with(".mlmodel"))
         throw std::runtime_error(path + " is not a CoreML model");
 
-    NSString* const model_path = [NSString stringWithCString:path.c_str() encoding:NSASCIIStringEncoding];
-    NSURL* const model_url = [NSURL fileURLWithPath:model_path];
+    NSString *const model_path = [NSString stringWithCString:path.c_str()
+                                                    encoding:NSASCIIStringEncoding];
+    NSURL *const model_url = [NSURL fileURLWithPath:model_path];
     MLModelConfiguration *configuration = [[MLModelConfiguration alloc] init];
-    NSError* error = nil;
+    NSError *error = nil;
 
     configuration.computeUnits = gpu ? MLComputeUnitsCPUAndGPU : MLComputeUnitsAll;
     configuration.allowLowPrecisionAccumulationOnGPU = true;
 
-    NSURL* const compiled_model_url = [MLModel compileModelAtURL:model_url error:&error];
+    NSURL *const compiled_model_url = [MLModel compileModelAtURL:model_url error:&error];
 
     if (error)
     {
@@ -28,7 +29,9 @@ MLModel *load_model(const std::string& path, bool gpu)
         @throw error;
     }
 
-    MLModel* const model = [MLModel modelWithContentsOfURL:compiled_model_url configuration:configuration error:&error];
+    MLModel *const model = [MLModel modelWithContentsOfURL:compiled_model_url
+                                             configuration:configuration
+                                                     error:&error];
 
     if (error)
     {

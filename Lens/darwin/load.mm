@@ -3,15 +3,15 @@
 
 #include <string>
 
-#import <Accelerate/Accelerate.h>
 #import <AVFoundation/AVFoundation.h>
+#import <Accelerate/Accelerate.h>
 #import <CoreImage/CoreImage.h>
 #import <CoreVideo/CoreVideo.h>
 
 namespace
 {
 
-void load_frame(CVPixelBufferRef pixel_buffer, lens::face_pipeline& pipeline)
+void load_frame(CVPixelBufferRef pixel_buffer, lens::face_pipeline &pipeline)
 {
     CVPixelBufferLockBaseAddress(pixel_buffer, kCVPixelBufferLock_ReadOnly);
 
@@ -23,13 +23,13 @@ void load_frame(CVPixelBufferRef pixel_buffer, lens::face_pipeline& pipeline)
     size_t pixels_count = width * height;
     auto *image_buffer = new uint8_t[pixels_count * 4];
 
-    const vImage_Buffer src {
+    const vImage_Buffer src{
         .data = base_address,
         .height = height,
         .width = width,
         .rowBytes = bytes_per_row,
     };
-    const vImage_Buffer dst {
+    const vImage_Buffer dst{
         .data = image_buffer,
         .height = height,
         .width = width,
@@ -39,10 +39,7 @@ void load_frame(CVPixelBufferRef pixel_buffer, lens::face_pipeline& pipeline)
 
     CVPixelBufferUnlockBaseAddress(pixel_buffer, kCVPixelBufferLock_ReadOnly);
 
-    cv::Mat image(static_cast<int>(height),
-                  static_cast<int>(width),
-                  CV_8UC4,
-                  image_buffer);
+    cv::Mat image(static_cast<int>(height), static_cast<int>(width), CV_8UC4, image_buffer);
     pipeline << image;
 }
 
@@ -50,7 +47,7 @@ void load_frame(CVPixelBufferRef pixel_buffer, lens::face_pipeline& pipeline)
 
 @interface CaptureDelegate : NSObject <AVCaptureVideoDataOutputSampleBufferDelegate>
 
-@property (nonatomic) lens::face_pipeline* pipeline;
+@property(nonatomic) lens::face_pipeline *pipeline;
 
 - (instancetype)init:(lens::face_pipeline *)pipeline;
 
@@ -58,15 +55,20 @@ void load_frame(CVPixelBufferRef pixel_buffer, lens::face_pipeline& pipeline)
 
 @implementation CaptureDelegate
 
-- (instancetype)init:(lens::face_pipeline *)pipeline {
+- (instancetype)init:(lens::face_pipeline *)pipeline
+{
     self = [super init];
-    if (self) {
+    if (self)
+    {
         _pipeline = pipeline;
     }
     return self;
 }
 
-- (void)captureOutput:(AVCaptureOutput *)output didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection {
+- (void)captureOutput:(AVCaptureOutput *)output
+    didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
+           fromConnection:(AVCaptureConnection *)connection
+{
     CVPixelBufferRef pixel_buffer = CMSampleBufferGetImageBuffer(sampleBuffer);
     load_frame(pixel_buffer, *_pipeline);
 }
@@ -79,7 +81,7 @@ namespace
 std::vector<std::string> image_formats = {"jpg", "jpeg", "png", "gif", "bmp"};
 std::vector<std::string> video_formats = {"mp4", "mov", "avi", "mkv", "wmv"};
 
-bool match(const std::vector<std::string>& formats, const std::string& path)
+bool match(const std::vector<std::string> &formats, const std::string &path)
 {
     for (auto it = formats.begin(); it != formats.end(); ++it)
         if (path.ends_with(*it))
@@ -88,51 +90,55 @@ bool match(const std::vector<std::string>& formats, const std::string& path)
     return false;
 }
 
-bool load_camera(NSString* src, lens::face_pipeline& pipeline)
+bool load_camera(NSString *src, lens::face_pipeline &pipeline)
 {
-    auto* discovery_session = [AVCaptureDeviceDiscoverySession
-            discoverySessionWithDeviceTypes:src != nil ?
-                                            @[AVCaptureDeviceTypeBuiltInWideAngleCamera,
-                                              AVCaptureDeviceTypeExternalUnknown] :
-                                            @[AVCaptureDeviceTypeBuiltInWideAngleCamera]
-                                  mediaType:AVMediaTypeVideo
-                                   position:AVCaptureDevicePositionUnspecified];
-    auto* devices = discovery_session.devices;
+    auto *discovery_session = [AVCaptureDeviceDiscoverySession
+        discoverySessionWithDeviceTypes:
+            src != nil
+                ? @[ AVCaptureDeviceTypeBuiltInWideAngleCamera, AVCaptureDeviceTypeExternalUnknown ]
+                : @[ AVCaptureDeviceTypeBuiltInWideAngleCamera ]
+                              mediaType:AVMediaTypeVideo
+                               position:AVCaptureDevicePositionUnspecified];
+    auto *devices = discovery_session.devices;
     AVCaptureDevice *src_device = nil;
 
-    for (AVCaptureDevice* device in devices) {
-        if (src == nil || [device.uniqueID isEqualToString:src]) {
+    for (AVCaptureDevice *device in devices)
+    {
+        if (src == nil || [device.uniqueID isEqualToString:src])
+        {
             src_device = device;
             break;
         }
     }
 
-    if (src_device == nil) {
+    if (src_device == nil)
+    {
         return false;
     }
 
     NSError *input_error = nil;
     auto *input = [AVCaptureDeviceInput deviceInputWithDevice:src_device error:&input_error];
 
-    if (input_error != nil) {
+    if (input_error != nil)
+    {
         NSLog(@"There was a problem capturing the source device (code %ld): %@.",
               static_cast<long>(input_error.code),
               input_error.localizedDescription);
         return false;
     }
 
-    AVCaptureVideoDataOutput* output = [[AVCaptureVideoDataOutput alloc] init];
-    NSDictionary* output_settings = @{
-            (NSString *)kCVPixelBufferPixelFormatTypeKey: @(kCVPixelFormatType_32BGRA)
-    };
+    AVCaptureVideoDataOutput *output = [[AVCaptureVideoDataOutput alloc] init];
+    NSDictionary *output_settings =
+        @{(NSString *)kCVPixelBufferPixelFormatTypeKey : @(kCVPixelFormatType_32BGRA)};
     dispatch_queue_t output_queue = dispatch_queue_create("FrameTaker", DISPATCH_QUEUE_SERIAL);
-    auto* output_delegate = [[CaptureDelegate alloc] init:&pipeline];
+    auto *output_delegate = [[CaptureDelegate alloc] init:&pipeline];
     [output setVideoSettings:output_settings];
     [output setSampleBufferDelegate:output_delegate queue:output_queue];
 
-    auto* session = [[AVCaptureSession alloc] init];
+    auto *session = [[AVCaptureSession alloc] init];
     session.sessionPreset = AVCaptureSessionPresetHigh;
-    if (![session canAddInput:input] || ![session canAddOutput:output]) {
+    if (![session canAddInput:input] || ![session canAddOutput:output])
+    {
         [output_delegate release];
         [output release];
         [session release];
@@ -154,7 +160,7 @@ bool load_camera(NSString* src, lens::face_pipeline& pipeline)
     return true;
 }
 
-bool load_image(NSString *path, lens::face_pipeline& pipeline)
+bool load_image(NSString *path, lens::face_pipeline &pipeline)
 {
     NSURL *url = [NSURL fileURLWithPath:path];
     CIImage *image = [CIImage imageWithContentsOfURL:url];
@@ -170,7 +176,7 @@ bool load_image(NSString *path, lens::face_pipeline& pipeline)
 
     if (result != kCVReturnSuccess)
     {
-        std::cout << "There was an error opening the buffer " <<  result << std::endl;
+        std::cout << "There was an error opening the buffer " << result << std::endl;
     }
 
     [context render:image toCVPixelBuffer:pixel_buffer];
@@ -189,7 +195,7 @@ bool load_image(NSString *path, lens::face_pipeline& pipeline)
 namespace lens
 {
 
-bool load(const std::string& cxx_path, int frame_rate, face_pipeline& pipeline)
+bool load(const std::string &cxx_path, int frame_rate, face_pipeline &pipeline)
 {
     NSFileManager *fileManager = [NSFileManager defaultManager];
     NSString *path = [NSString stringWithCString:cxx_path.c_str() encoding:NSASCIIStringEncoding];
@@ -203,7 +209,8 @@ bool load(const std::string& cxx_path, int frame_rate, face_pipeline& pipeline)
         return false;
     }
 
-    return load_camera(cxx_path.empty() ? nil : path, pipeline);;
+    return load_camera(cxx_path.empty() ? nil : path, pipeline);
+    ;
 }
 
 } // namespace lens
