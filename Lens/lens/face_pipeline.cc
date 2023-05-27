@@ -58,12 +58,12 @@ face_pipeline::~face_pipeline()
 
 void face_pipeline::operator<<(cv::Mat& image)
 {
-    bool success = this->input_queue.try_push(image);
     ++frame_counter_read;
+    auto *data = reinterpret_cast<uint8_t*>(image.data);
 
-    if (!success)
+    if (!this->input_queue.try_push(std::move(image)))
     {
-        delete[] image.data;
+        delete[] data;
     }
 }
 
@@ -164,12 +164,17 @@ void face_pipeline::run_face_swap(cv::Mat& image, const std::vector<face>& faces
                              &result,
                              std::move(callback));
     }
+    else
+    {
+        callback(image);
+    }
 }
 
 void face_pipeline::submit(cv::Mat& image)
 {
-    output_queue.try_push(image);
-    if (output_ready)
+    if (!output_queue.try_push(image))
+        delete[] reinterpret_cast<uint8_t*>(image.data);
+    else if (output_ready)
         write();
 }
 
@@ -214,12 +219,13 @@ void face_pipeline::write()
         delete[] const_cast<uint8_t*>(frame_image.data);
 
         auto end_time = std::chrono::high_resolution_clock::now();
-        double frame_interval_sample =  std::chrono::duration_cast<std::chrono::milliseconds>(end_time - last_push_time).count();
-        frame_interval_mean = .9 * frame_interval_mean + .1 * frame_interval_sample;
+        size_t frame_interval_sample =  std::chrono::duration_cast<std::chrono::milliseconds>(end_time - last_push_time).count();
+        frame_interval_mean = .9 * frame_interval_mean + .1 * static_cast<double>(frame_interval_sample);
         ++frame_counter_write;
 
         std::cout << "frame_rate=" << std::floor(1000 / frame_interval_mean) << " | "
-                  << "throughput=" << static_cast<float>(frame_counter_write) / static_cast<float>(frame_counter_read) * 100 << "%"
+                  << "throughput=" << static_cast<float>(frame_counter_write) /
+                                      static_cast<float>(frame_counter_read) * 100 << "%"
                   << std::endl;
         last_push_time = end_time;
 

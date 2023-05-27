@@ -145,7 +145,7 @@ bool load_camera(NSString* src, lens::face_pipeline& pipeline)
     [session startRunning];
 
     std::this_thread::sleep_for(std::chrono::hours::max());
-    std::cout << "SHOULD NOT BE HERE" << std::endl;
+    std::cout << "The video capture thread has unexpectedly ended" << std::endl;
 
     [output_delegate release];
     [output release];
@@ -168,7 +168,8 @@ bool load_image(NSString *path, lens::face_pipeline& pipeline)
                                           nil,
                                           &pixel_buffer);
 
-    if (result != kCVReturnSuccess) {
+    if (result != kCVReturnSuccess)
+    {
         std::cout << "There was an error opening the buffer " <<  result << std::endl;
     }
 

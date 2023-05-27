@@ -5,6 +5,8 @@
 #include "internal.h"
 #include "model_loader.h"
 
+#include <opencv2/opencv.hpp>
+
 #import <CoreML/CoreML.h>
 #import <Metal/Metal.h>
 #import <MetalPerformanceShaders/MetalPerformanceShaders.h>
@@ -60,7 +62,10 @@ public:
                             id<MTLLibrary> compositor);
     ~face_swap_impl() noexcept override;
     face2face* run(cv::Mat&) override;
-    void composite(cv::Mat& dst, const face& extraction, face2face **, const std::function<void(cv::Mat&)>) override;
+    void composite(cv::Mat& dst,
+                   const face& extraction,
+                   face2face **,
+                   std::function<void(cv::Mat&)>) override;
 private:
     std::atomic<size_t> model_choice;
     std::vector<MLModel const *> model_pool;
@@ -159,9 +164,10 @@ void face_swap_impl::composite(cv::Mat& dst,
         .callback = callback,
     };
 
-    if (!compositor_queue.try_push(face2face)) {
-        delete face2face.dst.data;
-        std::cout << "Failed" << std::endl;
+    if (!compositor_queue.try_push(face2face))
+    {
+        delete[] reinterpret_cast<uint8_t*>(dst.data);
+        std::cout << "Failed to push image to compositor" << std::endl;
     }
 }
 
@@ -419,7 +425,7 @@ std::unique_ptr<face_swap> face_swap::build(const fs::path& model_path, const fs
         [vertex_buffer release];
     }
 
-    memset(dst.data, 0, dst.total()*dst.elemSize());
+    // memset(dst.data, 0, dst.total()*dst.elemSize());
 
     [out_texture getBytes:dst.data
               bytesPerRow:dst.step[0]
@@ -430,6 +436,7 @@ std::unique_ptr<face_swap> face_swap::build(const fs::path& model_path, const fs
     [blur release];
     [out_texture release];
     [in_texture release];
+    [face_texture release];
     [plane1_texture release];
     [plane0_texture release];
     [mask_texture release];

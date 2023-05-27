@@ -87,7 +87,7 @@ public:
     virtual void composite(cv::Mat& dst,
                            const face& extraction,
                            face2face **,
-                           const std::function<void(cv::Mat&)> callback);
+                           std::function<void(cv::Mat&)> callback);
 
     static std::unique_ptr<face_swap> build(const std::filesystem::path& model_path,
                                             const std::filesystem::path& root_dir);
