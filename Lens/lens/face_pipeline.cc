@@ -115,9 +115,9 @@ void face_pipeline::run_face_alignment(cv::Mat &image,
         {
             auto landmark = landmarks.at<cv::Vec2f>(i);
 
-            if (i == 249)
+            if (i == 6)
             {
-                cv::circle(texture,
+                cv::circle(image,
                            cv::Point(cvRound(landmark[0]), cvRound(landmark[1])),
                            8,
                            cv::Scalar(0, 255, 0),
@@ -125,7 +125,7 @@ void face_pipeline::run_face_alignment(cv::Mat &image,
             }
             else
             {
-                cv::circle(texture,
+                cv::circle(image,
                            cv::Point(cvRound(landmark[0]), cvRound(landmark[1])),
                            1,
                            cv::Scalar(255, 255, 0),

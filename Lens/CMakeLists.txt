@@ -7,6 +7,7 @@ endif()
 option(LENS_FEATURE_ONNX "Support ONNX models for inference" OFF)
 option(LENS_FEATURE_BUNDLE "Bundle Lens into an application" ${BUNDLE_DEFAULT})
 option(LENS_FEATURE_DEBUG_CENTER_FACE "Debug CenterFace output" OFF)
+option(LENS_FEATURE_DEBUG_FACE_MESH "Debug FaceMesh landmarks" OFF)
 
 add_executable(lens
         Lens/include/internal.h
@@ -112,6 +113,10 @@ endif()
 
 if(LENS_FEATURE_DEBUG_CENTER_FACE)
     add_compile_definitions(LENS_FEATURE_DEBUG_CENTER_FACE=ON)
+endif()
+
+if(LENS_FEATURE_DEBUG_FACE_MESH)
+    add_compile_definitions(LENS_FEATURE_DEBUG_FACE_MESH=ON)
 endif()
 
 if(LENS_FEATURE_DEBUG_NO_COMPOSITE)
