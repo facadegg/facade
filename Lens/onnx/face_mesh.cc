@@ -31,8 +31,6 @@ class face_mesh_impl : public face_mesh
     std::unique_ptr<Ort::Session> session;
 };
 
-face_mesh::~face_mesh() noexcept = default;
-
 face_mesh_impl::face_mesh_impl(Ort::Session *session) :
     session(session)
 { }
@@ -41,20 +39,16 @@ face_mesh_impl::~face_mesh_impl() noexcept { }
 
 void face_mesh_impl::run(const cv::Mat &face, cv::Mat &landmarks)
 {
-    assert(face.channels() == 4);
-
-    cv::Mat resized_face;
-    cv::resize(face, resized_face, cv::Size(NORM_FACE_DIM, NORM_FACE_DIM));
-    cv::cvtColor(resized_face, resized_face, cv::COLOR_BGRA2BGR);
-    resized_face.convertTo(resized_face, CV_32FC3, 1.0 / 255.0);
+    assert(face.channels() == 3);
+    assert(face.rows == NORM_FACE_DIM);
+    assert(face.cols == NORM_FACE_DIM);
 
     Ort::MemoryInfo memory_info("Cpu", OrtDeviceAllocator, 0, OrtMemTypeDefault);
-    Ort::Value input_tensor =
-        Ort::Value::CreateTensor<float>(memory_info,
-                                        reinterpret_cast<float *>(resized_face.data),
-                                        resized_face.total() * resized_face.channels(),
-                                        INPUT_TENSOR_SHAPE,
-                                        INPUT_TENSOR_RANK);
+    Ort::Value input_tensor = Ort::Value::CreateTensor<float>(memory_info,
+                                                              reinterpret_cast<float *>(face.data),
+                                                              face.total() * face.channels(),
+                                                              INPUT_TENSOR_SHAPE,
+                                                              INPUT_TENSOR_RANK);
     Ort::RunOptions run_options{nullptr};
     std::vector<Ort::Value> output_tensors =
         session->Run(run_options, &INPUT_TENSOR_NAME, &input_tensor, 1, &OUTPUT_TENSOR_NAME, 1);

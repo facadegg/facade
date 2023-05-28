@@ -57,6 +57,16 @@ struct face2face
     { }
 };
 
+enum face_landmark
+{
+    LEFT_EYE = 0,
+    RIGHT_EYE = 1,
+    NOSE = 2,
+    LEFT_MOUTH_CORNER = 3,
+    RIGHT_MOUTH_CORNER = 4,
+    MAX = RIGHT_MOUTH_CORNER,
+};
+
 class center_face
 {
   public:
@@ -75,7 +85,12 @@ class face_mesh
   public:
     virtual ~face_mesh() noexcept;
     virtual void run(const cv::Mat &face, cv::Mat &landmarks) = 0;
+    void run(const cv::Mat& image, const face_extraction& face, cv::Mat& landmarks_2d);
     static std::unique_ptr<face_mesh> build(const std::string &path);
+  protected:
+    static constexpr int NORM_FACE_DIM = 192;
+    static constexpr int LDM_DIMS = 3;
+    static constexpr int LDM_COUNT = 468;
 };
 
 class face_swap

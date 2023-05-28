@@ -92,19 +92,11 @@ void face_pipeline::run_face_alignment(cv::Mat &image,
 {
     for (auto face : extractions)
     {
-        auto roi = cv::Rect(face.bounds);
-        cv::Mat face_image = image(roi);
-
         cv::Mat landmarks;
-        face_mesh->run(face_image, landmarks);
+        face_mesh->run(image, face, landmarks);
 
-        landmarks = landmarks.clone().reshape(3, 468).mul(
-                        cv::Scalar(roi.width / 192., roi.height / 192.f, 1.f)) +
-                    cv::Scalar(roi.x, roi.y);
-        std::vector<cv::Mat> channels;
-        cv::split(landmarks, channels);
-        channels.pop_back();
-        cv::merge(channels, landmarks);
+        assert(landmarks.channels() == 2);
+        assert(landmarks.rows == NORMALIZED_FACIAL_LANDMARKS.rows);
 
         cv::Mat aligned_landmarks = NORMALIZED_FACIAL_LANDMARKS.clone();
         aligned_landmarks = aligned_landmarks.mul(cv::Scalar(224, 224));
@@ -134,7 +126,7 @@ void face_pipeline::run_face_alignment(cv::Mat &image,
         }
 #endif
 
-        faces.push_back({.bounds = roi, .landmarks = landmarks, .transform = transform});
+        faces.push_back({.bounds = face.bounds, .landmarks = landmarks, .transform = transform});
     }
 }
 

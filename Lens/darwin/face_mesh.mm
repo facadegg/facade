@@ -10,10 +10,6 @@
 namespace lens
 {
 
-static const int NORM_FACE_DIM = 192;
-static const int LDM_DIMS = 3;
-static const int LDM_COUNT = 468;
-
 class face_mesh_impl : public face_mesh
 {
   public:
@@ -24,8 +20,6 @@ class face_mesh_impl : public face_mesh
   private:
     MLModel const *model;
 };
-
-face_mesh::~face_mesh() noexcept = default;
 
 face_mesh_impl::face_mesh_impl(const MLModel *model) :
     model(model)
@@ -39,31 +33,23 @@ face_mesh_impl::~face_mesh_impl() noexcept
 
 void face_mesh_impl::run(const cv::Mat &face, cv::Mat &landmarks)
 {
-    assert(face.channels() == 4);
-
-    cv::Mat resized_face;
-    cv::resize(face, resized_face, cv::Size(NORM_FACE_DIM, NORM_FACE_DIM));
-    cv::cvtColor(resized_face, resized_face, cv::COLOR_BGRA2BGR);
-    resized_face.convertTo(resized_face, CV_32FC3, 1.0 / 255.0);
+    assert(face.channels() == 3);
+    assert(face.rows == NORM_FACE_DIM);
+    assert(face.cols == NORM_FACE_DIM);
 
     NSError *error = nil;
-    MLMultiArray *face_data =
-        [[MLMultiArray alloc] initWithDataPointer:reinterpret_cast<void *>(resized_face.data)
-                                            shape:@[
-                                                @1,
-                                                @(resized_face.rows),
-                                                @(resized_face.cols),
-                                                @(resized_face.channels())
-                                            ]
-                                         dataType:MLMultiArrayDataTypeFloat
-                                          strides:@[
-                                              @(resized_face.total() * resized_face.channels()),
-                                              @(resized_face.cols * resized_face.channels()),
-                                              @(resized_face.channels()),
-                                              @1
-                                          ]
-                                      deallocator:nil
-                                            error:&error];
+    MLMultiArray *face_data = [[MLMultiArray alloc]
+        initWithDataPointer:reinterpret_cast<void *>(face.data)
+                      shape:@[ @1, @(face.rows), @(face.cols), @(face.channels()) ]
+                   dataType:MLMultiArrayDataTypeFloat
+                    strides:@[
+                        @(face.total() * face.channels()),
+                        @(face.cols * face.channels()),
+                        @(face.channels()),
+                        @1
+                    ]
+                deallocator:nil
+                      error:&error];
 
     if (error)
     {

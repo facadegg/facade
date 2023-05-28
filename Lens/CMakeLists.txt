@@ -14,6 +14,7 @@ add_executable(lens
         Lens/include/lens.h
         Lens/lens/center_face.cc
         Lens/lens/data.cc
+        Lens/lens/face_mesh.cc
         Lens/lens/face_pipeline.cc
         Lens/lens/face_swap.cc
         Lens/lens/main.cc)
