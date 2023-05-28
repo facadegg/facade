@@ -258,6 +258,7 @@ std::unique_ptr<face_swap> face_swap::build(const fs::path &model_path, const fs
     oneapi::tbb::concurrent_queue<lens::face2face *> &face2face_pool = *wrapper->face2face_pool;
     std::function<void(cv::Mat &)> &callback = wrapper->callback;
 
+#ifndef LENS_FEATURE_DEBUG_NO_COMPOSITE
     cv::Mat &face = job->src_face;
     cv::Mat &out_celeb_face = job->dst_face;
     cv::Mat &out_celeb_face_mask = job->mask;
@@ -491,6 +492,7 @@ std::unique_ptr<face_swap> face_swap::build(const fs::path &model_path, const fs
     [plane_descriptor release];
     [mask_descriptor release];
     [command_queue release];
+#endif
 
     face2face_pool.push(job);
     callback(dst);

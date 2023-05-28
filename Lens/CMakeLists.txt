@@ -113,3 +113,7 @@ endif()
 if(LENS_FEATURE_DEBUG_CENTER_FACE)
     add_compile_definitions(LENS_FEATURE_DEBUG_CENTER_FACE=ON)
 endif()
+
+if(LENS_FEATURE_DEBUG_NO_COMPOSITE)
+    add_compile_definitions(LENS_FEATURE_DEBUG_NO_COMPOSITE=ON)
+endif()
