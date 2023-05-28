@@ -135,12 +135,6 @@ void face_pipeline::run_face_alignment(cv::Mat &image,
         assert(landmarks.channels() == 2);
         assert(landmarks.rows == NORMALIZED_FACIAL_LANDMARKS.rows);
 
-        const auto left = landmarks.at<cv::Vec2f>(232);
-        const auto top = landmarks.at<cv::Vec2f>(6);
-        const auto right = landmarks.at<cv::Vec2f>(454);
-        const auto bottom = landmarks.at<cv::Vec2f>(152);
-        const auto x_axis = cv::norm(right - left);
-        const auto y_axis = cv::norm(bottom - top);
         const double coverage = 2;
 
         cv::Mat aligned_landmarks = NORMALIZED_FACIAL_LANDMARKS.clone();
@@ -169,6 +163,28 @@ void face_pipeline::run_face_alignment(cv::Mat &image,
                            cv::Scalar(255, 255, 0),
                            2);
             }
+        }
+#endif
+
+#ifdef LENS_FEATURE_DEBUG_CENTER_FACE
+        const cv::Mat inv = transform.inv()(cv::Rect(0, 0, 3, 2));
+        const auto a = inv.at<double>(0, 0);
+        const auto b = inv.at<double>(0, 1);
+        const auto tx = inv.at<double>(0, 2);
+        const auto c = inv.at<double>(1, 0);
+        const auto d = inv.at<double>(1, 1);
+        const auto ty = inv.at<double>(1, 2);
+        const cv::Point2f rect[4] = {
+            cv::Point2f(a * 0 + b * 0 + tx, c * 0 + b * 0 + ty),
+            cv::Point2f(a * 224 + b * 0 + tx, c * 224 + d * 0 + ty),
+            cv::Point2f(a * 224 + b * 224 + tx, c * 224 + d * 224 + ty),
+            cv::Point2f(a * 0 + b * 224 + tx, c * 0 + d * 224 + ty),
+        };
+
+        for (int i = 0; i < 4; i++)
+        {
+            std::cout << rect[i] << std::endl;
+            cv::line(image, rect[i], rect[(i + 1) % 4], cv::Scalar(0, 255, 0), 4);
         }
 #endif
 
