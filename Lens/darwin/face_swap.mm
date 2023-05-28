@@ -51,7 +51,7 @@ typedef struct
 
 } // namespace
 
-const float NINE_ZEROS[9] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
+const float NINE_ZEROS[9] = {0, .2, 0, .2, .2, .2, 0, 0, .2};
 
 namespace lens
 {
@@ -353,9 +353,18 @@ std::unique_ptr<face_swap> face_swap::build(const fs::path &model_path, const fs
         plane0_clear_descriptor.colorAttachments[0].loadAction = MTLLoadActionClear;
         plane0_clear_descriptor.colorAttachments[0].clearColor =
             MTLClearColorMake(0.0, 0.0, 0.0, 0.0);
+        MTLRenderPassDescriptor *plane1_clear_descriptor =
+                [MTLRenderPassDescriptor renderPassDescriptor];
+        plane1_clear_descriptor.colorAttachments[0].texture = plane1_texture;
+        plane1_clear_descriptor.colorAttachments[0].loadAction = MTLLoadActionClear;
+        plane1_clear_descriptor.colorAttachments[0].clearColor =
+                MTLClearColorMake(0.0, 0.0, 0.0, 0.0);
         id<MTLRenderCommandEncoder> plane0_clear =
             [command_buffer renderCommandEncoderWithDescriptor:plane0_clear_descriptor];
         [plane0_clear endEncoding];
+        id<MTLRenderCommandEncoder> plane1_init_clear =
+                [command_buffer renderCommandEncoderWithDescriptor:plane1_clear_descriptor];
+        [plane1_init_clear endEncoding];
 
         auto *blit = [command_buffer blitCommandEncoder];
         [blit copyFromTexture:mask_texture
@@ -376,12 +385,6 @@ std::unique_ptr<face_swap> face_swap::build(const fs::path &model_path, const fs
                        sourceTexture:plane1_texture
                   destinationTexture:plane0_texture];
 
-        MTLRenderPassDescriptor *plane1_clear_descriptor =
-            [MTLRenderPassDescriptor renderPassDescriptor];
-        plane1_clear_descriptor.colorAttachments[0].texture = plane1_texture;
-        plane1_clear_descriptor.colorAttachments[0].loadAction = MTLLoadActionClear;
-        plane1_clear_descriptor.colorAttachments[0].clearColor =
-            MTLClearColorMake(0.0, 0.0, 0.0, 0.0);
         id<MTLRenderCommandEncoder> plane1_clear =
             [command_buffer renderCommandEncoderWithDescriptor:plane1_clear_descriptor];
         [plane1_clear endEncoding];
@@ -445,8 +448,8 @@ std::unique_ptr<face_swap> face_swap::build(const fs::path &model_path, const fs
         MTLSamplerDescriptor *sampler_descriptor = [[MTLSamplerDescriptor alloc] init];
         sampler_descriptor.minFilter = MTLSamplerMinMagFilterLinear;
         sampler_descriptor.magFilter = MTLSamplerMinMagFilterLinear;
-        sampler_descriptor.sAddressMode = MTLSamplerAddressModeClampToEdge;
-        sampler_descriptor.tAddressMode = MTLSamplerAddressModeClampToEdge;
+        sampler_descriptor.sAddressMode = MTLSamplerAddressModeClampToZero;
+        sampler_descriptor.tAddressMode = MTLSamplerAddressModeClampToZero;
         id<MTLSamplerState> sampler_state =
             [_device newSamplerStateWithDescriptor:sampler_descriptor];
 
