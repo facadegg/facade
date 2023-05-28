@@ -41,6 +41,10 @@ class face_pipeline
     std::mutex write_mutex;
 
     [[noreturn]] void run();
+    template <typename T>
+    void run_temporal_smoothing(std::vector<T> &observed_faces,
+                                const std::vector<face> &remembered_faces,
+                                const std::function<void(T &, const face &)> &callback);
     void run_face_alignment(cv::Mat &, const std::vector<face_extraction> &, std::vector<face> &);
     void run_face_swap(cv::Mat &, const std::vector<face> &, std::function<void(cv::Mat &)>);
     void submit(cv::Mat &);
@@ -48,6 +52,7 @@ class face_pipeline
     void write();
 
     static cv::Mat umeyama2(const cv::Mat &src, const cv::Mat &dst);
+    static void smooth_face_bounds(face_extraction &observed_face, const face &remembered_face);
     static void write_stub(face_pipeline *);
 };
 

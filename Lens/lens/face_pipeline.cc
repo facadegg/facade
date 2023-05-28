@@ -72,6 +72,7 @@ void face_pipeline::operator<<(cv::Mat &image)
     cv::Mat image;
     std::vector<face_extraction> extractions;
     std::vector<face> faces;
+    std::vector<face> face_memory;
 
     while (true)
     {
@@ -81,8 +82,44 @@ void face_pipeline::operator<<(cv::Mat &image)
         faces.clear();
 
         center_face->run(image, extractions);
+        run_temporal_smoothing<face_extraction>(
+            extractions, face_memory, face_pipeline::smooth_face_bounds);
         run_face_alignment(image, extractions, faces);
+
+        face_memory = faces;
+
         run_face_swap(image, faces, [this](cv::Mat &image) { this->submit(image); });
+    }
+}
+
+template <typename T>
+void face_pipeline::run_temporal_smoothing(std::vector<T> &observed_faces,
+                                           const std::vector<face> &remembered_faces,
+                                           const std::function<void(T &, const face &)> &callback)
+{
+    for (int i = 0; i < std::min(observed_faces.size(), remembered_faces.size()); i++)
+    {
+        T &observed_face = observed_faces[i];
+        const face &remembered_face = remembered_faces[i];
+        const int overlap_left =
+            std::max<int>(observed_face.bounds.tl().x, remembered_face.bounds.tl().x);
+        const int overlap_top =
+            std::max<int>(observed_face.bounds.tl().y, remembered_face.bounds.tl().y);
+        const int overlap_right =
+            std::min<int>(observed_face.bounds.br().x, remembered_face.bounds.br().x);
+        const int overlap_bottom =
+            std::min<int>(observed_face.bounds.br().y, remembered_face.bounds.br().y);
+
+        if (overlap_right <= overlap_left || overlap_bottom <= overlap_top)
+            continue;
+
+        const int overlap_area = (overlap_right - overlap_left) * (overlap_bottom - overlap_top);
+        const double overlap = static_cast<double>(overlap_area) / observed_face.bounds.area();
+
+        if (overlap > .98)
+        {
+            callback(observed_face, remembered_face);
+        }
     }
 }
 
@@ -104,8 +141,7 @@ void face_pipeline::run_face_alignment(cv::Mat &image,
         const auto bottom = landmarks.at<cv::Vec2f>(152);
         const auto x_axis = cv::norm(right - left);
         const auto y_axis = cv::norm(bottom - top);
-        const double coverage =
-            std::round(4 * std::max(face.bounds.height / y_axis, face.bounds.width / x_axis)) / 4;
+        const double coverage = 2;
 
         cv::Mat aligned_landmarks = NORMALIZED_FACIAL_LANDMARKS.clone();
         aligned_landmarks = aligned_landmarks.mul(cv::Scalar(224 / coverage, 224 / coverage)) +
@@ -325,6 +361,19 @@ cv::Mat face_pipeline::umeyama2(const cv::Mat &src, const cv::Mat &dst)
     t.copyTo(T(cv::Rect(dim, 0, 1, dim)));
 
     return T;
+}
+
+void face_pipeline::smooth_face_bounds(face_extraction &observed_face, const face &remembered_face)
+{
+    constexpr double lerp = .33;
+    observed_face.bounds.x =
+        static_cast<float>(observed_face.bounds.x * (1 - lerp) + remembered_face.bounds.x * lerp);
+    observed_face.bounds.y =
+        static_cast<float>(observed_face.bounds.y * (1 - lerp) + remembered_face.bounds.y * lerp);
+    observed_face.bounds.width = static_cast<float>(observed_face.bounds.width * (1 - lerp) +
+                                                    remembered_face.bounds.width * lerp);
+    observed_face.bounds.height = static_cast<float>(observed_face.bounds.height * (1 - lerp) +
+                                                     remembered_face.bounds.height * lerp);
 }
 
 void face_pipeline::write_stub(face_pipeline *pipeline) { pipeline->write(); }
