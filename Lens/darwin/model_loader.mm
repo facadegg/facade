@@ -19,7 +19,6 @@ MLModel *load_model(const std::string &path, bool gpu)
     NSError *error = nil;
 
     configuration.computeUnits = gpu ? MLComputeUnitsCPUAndGPU : MLComputeUnitsAll;
-    configuration.allowLowPrecisionAccumulationOnGPU = true;
 
     NSURL *const compiled_model_url = [MLModel compileModelAtURL:model_url error:&error];
 
