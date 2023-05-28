@@ -332,7 +332,7 @@ std::unique_ptr<face_swap> face_swap::build(const fs::path &model_path, const fs
                      withBytes:dst.data
                    bytesPerRow:dst.step[0]];
 
-    const int radius = 6;
+    const int radius = 12;
     MPSImageErode *erode = [[MPSImageErode alloc] initWithDevice:_device
                                                      kernelWidth:static_cast<NSUInteger>(3)
                                                     kernelHeight:static_cast<NSUInteger>(3)
