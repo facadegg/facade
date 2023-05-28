@@ -98,8 +98,11 @@ void face_pipeline::run_face_alignment(cv::Mat &image,
         assert(landmarks.channels() == 2);
         assert(landmarks.rows == NORMALIZED_FACIAL_LANDMARKS.rows);
 
+        constexpr float coverage = 1.5;
+
         cv::Mat aligned_landmarks = NORMALIZED_FACIAL_LANDMARKS.clone();
-        aligned_landmarks = aligned_landmarks.mul(cv::Scalar(224, 224));
+        aligned_landmarks = aligned_landmarks.mul(cv::Scalar(224 / coverage, 224 / coverage)) +
+                            cv::Scalar(112 * (1 - 1 / coverage), 112 * (1 - 1 / coverage));
         cv::Mat transform = umeyama2(landmarks, aligned_landmarks);
 
 #ifdef LENS_FEATURE_DEBUG_FACE_MESH
