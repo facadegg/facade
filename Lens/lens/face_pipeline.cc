@@ -148,8 +148,6 @@ void face_pipeline::run_face_swap(cv::Mat &image,
         const int64_t swap_height = 224;
         const int64_t swap_width = 224;
 
-        cv::Rect roi = face.bounds;
-        cv::Mat face_image = image(roi);
         cv::Mat swap_image;
         cv::warpAffine(image,
                        swap_image,
