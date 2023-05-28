@@ -98,7 +98,14 @@ void face_pipeline::run_face_alignment(cv::Mat &image,
         assert(landmarks.channels() == 2);
         assert(landmarks.rows == NORMALIZED_FACIAL_LANDMARKS.rows);
 
-        constexpr float coverage = 1.5;
+        const auto left = landmarks.at<cv::Vec2f>(232);
+        const auto top = landmarks.at<cv::Vec2f>(6);
+        const auto right = landmarks.at<cv::Vec2f>(454);
+        const auto bottom = landmarks.at<cv::Vec2f>(152);
+        const auto x_axis = cv::norm(right - left);
+        const auto y_axis = cv::norm(bottom - top);
+        const double coverage =
+            std::round(4 * std::max(face.bounds.height / y_axis, face.bounds.width / x_axis)) / 4;
 
         cv::Mat aligned_landmarks = NORMALIZED_FACIAL_LANDMARKS.clone();
         aligned_landmarks = aligned_landmarks.mul(cv::Scalar(224 / coverage, 224 / coverage)) +
@@ -310,7 +317,7 @@ cv::Mat face_pipeline::umeyama2(const cv::Mat &src, const cv::Mat &dst)
 
     // Eq. (41) and (42).
     double scale = S.dot(d) / (cv::mean(src_demean.mul(src_demean))[0] * dim);
-    scale *= 0.6;
+    //    scale *= 0.6;
     T(cv::Rect(0, 0, dim, dim)) *= scale; // extra coverage by setting 0.5
 
     cv::Mat t = cv::Mat(cv::Vec2d(dst_mean[0], dst_mean[1])) -
