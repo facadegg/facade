@@ -45,6 +45,7 @@ namespace
 typedef struct
 {
     vector_float2 dst_position;
+    vector_float2 mask_position;
     vector_float2 src_position;
 } Vertex;
 
@@ -350,7 +351,7 @@ std::unique_ptr<face_swap> face_swap::build(const fs::path &model_path, const fs
         plane0_clear_descriptor.colorAttachments[0].texture = plane0_texture;
         plane0_clear_descriptor.colorAttachments[0].loadAction = MTLLoadActionClear;
         plane0_clear_descriptor.colorAttachments[0].clearColor =
-            MTLClearColorMake(0.0, 0.0, 0.0, 1.0);
+            MTLClearColorMake(0.0, 0.0, 0.0, 0.0);
         id<MTLRenderCommandEncoder> plane0_clear =
             [command_buffer renderCommandEncoderWithDescriptor:plane0_clear_descriptor];
         [plane0_clear endEncoding];
@@ -379,7 +380,7 @@ std::unique_ptr<face_swap> face_swap::build(const fs::path &model_path, const fs
         plane1_clear_descriptor.colorAttachments[0].texture = plane1_texture;
         plane1_clear_descriptor.colorAttachments[0].loadAction = MTLLoadActionClear;
         plane1_clear_descriptor.colorAttachments[0].clearColor =
-            MTLClearColorMake(0.0, 0.0, 0.0, 1.0);
+            MTLClearColorMake(0.0, 0.0, 0.0, 0.0);
         id<MTLRenderCommandEncoder> plane1_clear =
             [command_buffer renderCommandEncoderWithDescriptor:plane1_clear_descriptor];
         [plane1_clear endEncoding];
@@ -414,15 +415,19 @@ std::unique_ptr<face_swap> face_swap::build(const fs::path &model_path, const fs
         double d = backwards_transform.at<double>(1, 1);
         double ty = backwards_transform.at<double>(1, 2);
         Vertex tl = {.dst_position = simd_make_float2(tx / dst.cols, ty / dst.rows),
+                     .mask_position = simd_make_float2(.33, .33),
                      .src_position = simd_make_float2(0, 0)};
         Vertex tr = {.dst_position =
                          simd_make_float2((a * width + tx) / dst.cols, (c * width + ty) / dst.rows),
+                     .mask_position = simd_make_float2(.67, .33),
                      .src_position = simd_make_float2(1, 0)};
         Vertex br = {.dst_position = simd_make_float2((a * width + b * height + tx) / dst.cols,
                                                       (c * width + d * height + ty) / dst.rows),
+                     .mask_position = simd_make_float2(.67, .67),
                      .src_position = simd_make_float2(1, 1)};
         Vertex bl = {.dst_position = simd_make_float2((b * height + tx) / dst.cols,
                                                       (d * height + ty) / dst.rows),
+                     .mask_position = simd_make_float2(.33, .67),
                      .src_position = simd_make_float2(0, 1)};
 
         Vertex vertices[6] = {tl, tr, br, br, bl, tl};
@@ -452,7 +457,7 @@ std::unique_ptr<face_swap> face_swap::build(const fs::path &model_path, const fs
         [render_encoder setFragmentSamplerState:sampler_state atIndex:0];
         [render_encoder setFragmentTexture:face_texture atIndex:1];
         [render_encoder setFragmentSamplerState:sampler_state atIndex:1];
-        [render_encoder setFragmentTexture:mask_texture atIndex:2];
+        [render_encoder setFragmentTexture:plane0_texture atIndex:2];
         [render_encoder setFragmentSamplerState:sampler_state atIndex:2];
         [render_encoder drawPrimitives:MTLPrimitiveTypeTriangle vertexStart:0 vertexCount:6];
         [render_encoder endEncoding];
