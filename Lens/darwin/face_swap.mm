@@ -354,16 +354,16 @@ std::unique_ptr<face_swap> face_swap::build(const fs::path &model_path, const fs
         plane0_clear_descriptor.colorAttachments[0].clearColor =
             MTLClearColorMake(0.0, 0.0, 0.0, 0.0);
         MTLRenderPassDescriptor *plane1_clear_descriptor =
-                [MTLRenderPassDescriptor renderPassDescriptor];
+            [MTLRenderPassDescriptor renderPassDescriptor];
         plane1_clear_descriptor.colorAttachments[0].texture = plane1_texture;
         plane1_clear_descriptor.colorAttachments[0].loadAction = MTLLoadActionClear;
         plane1_clear_descriptor.colorAttachments[0].clearColor =
-                MTLClearColorMake(0.0, 0.0, 0.0, 0.0);
+            MTLClearColorMake(0.0, 0.0, 0.0, 0.0);
         id<MTLRenderCommandEncoder> plane0_clear =
             [command_buffer renderCommandEncoderWithDescriptor:plane0_clear_descriptor];
         [plane0_clear endEncoding];
         id<MTLRenderCommandEncoder> plane1_init_clear =
-                [command_buffer renderCommandEncoderWithDescriptor:plane1_clear_descriptor];
+            [command_buffer renderCommandEncoderWithDescriptor:plane1_clear_descriptor];
         [plane1_init_clear endEncoding];
 
         auto *blit = [command_buffer blitCommandEncoder];
