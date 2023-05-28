@@ -6,6 +6,7 @@ endif()
 
 option(LENS_FEATURE_ONNX "Support ONNX models for inference" OFF)
 option(LENS_FEATURE_BUNDLE "Bundle Lens into an application" ${BUNDLE_DEFAULT})
+option(LENS_FEATURE_DEBUG_CENTER_FACE "Debug CenterFace output" OFF)
 
 add_executable(lens
         Lens/include/internal.h
@@ -104,7 +105,11 @@ if(APPLE)
     endif()
 endif()
 
-if (LENS_FEATURE_ONNX)
+if(LENS_FEATURE_ONNX)
     add_compile_definitions(LENS_FEATURE_ONNX=ON)
     target_link_libraries(lens onnxruntime)
+endif()
+
+if(LENS_FEATURE_DEBUG_CENTER_FACE)
+    add_compile_definitions(LENS_FEATURE_DEBUG_CENTER_FACE=ON)
 endif()

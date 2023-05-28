@@ -8,11 +8,11 @@ Lens implements various virtual camera effects and integrates with the host syst
 
 ## Build
 
-| Option              | Description                                               |
-|---------------------|-----------------------------------------------------------|
-| LENS_FEATURE_ONNX   | Use cross-platform ONNX models                            |
-| LENS_FEATURE_BUNDLE | Bundle the executable into a macOS or Windows application |
-
+| Option                         | Description                                               |
+|--------------------------------|-----------------------------------------------------------|
+| LENS_FEATURE_ONNX              | Use cross-platform ONNX models                            |
+| LENS_FEATURE_BUNDLE            | Bundle the executable into a macOS or Windows application |
+| LENS_FEATURE_DEBUG_CENTER_FACE | Debug face bounds extracted by CenterFace                 |
 ## Usage
 
 Lens is bundled into the Facade app, through which end-users will use it. For testing, you might want to run it directly:
