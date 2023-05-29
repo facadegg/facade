@@ -73,7 +73,7 @@ void face_mesh_impl::run(const cv::Mat &face, cv::Mat &landmarks)
             @throw error;
         }
 
-        MLMultiArray *landmarks_data = [[output featureValueForName:@"conv2d_21"] multiArrayValue];
+        MLMultiArray *landmarks_data = [[output featureValueForName:@"conv2d_20"] multiArrayValue];
         auto *landmarks_ptr = reinterpret_cast<float *>([landmarks_data dataPointer]);
 
         cv::Mat(LDM_DIMS, LDM_COUNT, CV_32FC1, landmarks_ptr).copyTo(landmarks);
