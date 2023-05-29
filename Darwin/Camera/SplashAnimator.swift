@@ -12,14 +12,6 @@ import Foundation
 class SplashAnimator {
     private let context: CGContext
 
-    private let cellDiameter: Int
-    private let cellRows: Int
-    private let cellColumns: Int
-    private let paddingX: Int
-    private let paddingY: Int
-
-    private var t: Double  // from 0 to 2
-
     init(width: Int, height: Int) {
         context = CGContext(
             data: nil,
@@ -29,50 +21,116 @@ class SplashAnimator {
             bytesPerRow: width * 4,
             space: CGColorSpace(name: CGColorSpace.sRGB)!,
             bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!
-
-        cellDiameter = max(width, height) > 720 ? 96 : 48
-        cellRows = height / cellDiameter
-        cellColumns = width / cellDiameter
-        paddingX = (width - cellColumns * cellDiameter) / 2
-        paddingY = (height - cellRows * cellDiameter) / 2
-
-        t = 0
     }
 
     func nextFrame() -> UnsafeMutableRawPointer? {
-        t = (t + 0.005).truncatingRemainder(dividingBy: 2)
-
         context.clear(CGRect(x: 0, y: 0, width: context.width, height: context.height))
         context.setFillColor(red: 1, green: 1, blue: 1, alpha: 1)
 
-        let lerp = abs(t - 1.0)
-        let cubicLerp = lerp * lerp * (3.0 - 2.0 * lerp)
-        let gravityX = Double(context.width) * cubicLerp
-        let gravityY = Double(context.height) / 2.0
-        let gravityRange = Double(min(context.width, context.height)) / 2.0
+        let maxWidth = CGFloat(context.width) / 2
+        let maxHeight = CGFloat(context.height) / 2
+        let maxAspectRatio = maxWidth / maxHeight
+        let iconAspectRatio = CGFloat(844) / CGFloat(693)
+        let width = maxAspectRatio > iconAspectRatio ? maxHeight * iconAspectRatio : maxWidth
+        let height = maxAspectRatio > iconAspectRatio ? maxHeight : maxWidth / iconAspectRatio
 
-        for row in 0..<cellRows {
-            for column in 0..<cellColumns {
-                let x = Double(paddingX + column * cellDiameter)
-                let y = Double(paddingY + row * cellDiameter)
-                let distanceSquared = pow(gravityX - CGFloat(x), 2) + pow(gravityY - CGFloat(y), 2)
-                let dotDiameterLerp = Double(distanceSquared) / pow(gravityRange, 2)
-                let dotDiameterLerpClamped = max(min(dotDiameterLerp, 1), 0)
-                let dotDiameter =
-                    3.0 * Double(cellDiameter) / 4.0 - 1.0 * dotDiameterLerpClamped
-                    * Double(cellDiameter)
-                    / 4.0  // b/w 1/2 and 3/4th of cell diameter
-                let dotPadding = (Double(cellDiameter) - dotDiameter) / Double(2)
-
-                context.fillEllipse(
-                    in: CGRect(
-                        x: x + dotPadding,
-                        y: y + dotPadding,
-                        width: dotDiameter,
-                        height: dotDiameter))
-            }
-        }
+        drawIcon(
+            into: CGRect(
+                x: (CGFloat(context.width) - width) / 2, y: (CGFloat(context.height) - height) / 2,
+                width: width, height: height))
 
         return context.data
+    }
+
+    func drawIcon(into rect: CGRect) {
+        let w = rect.size.width
+        let h = rect.size.height
+
+        context.saveGState()
+        context.scaleBy(x: 1.0, y: -1.0)
+        context.translateBy(x: rect.minX, y: rect.minY + CGFloat(-context.height))
+
+        context.beginPath()
+        context.move(to: CGPoint(x: 0.85977 * w, y: 0.3394 * h))
+        context.addCurve(
+            to: CGPoint(x: 0.61583 * w, y: 0.32148 * h),
+            control1: CGPoint(x: 0.84869 * w, y: 0.32229 * h),
+            control2: CGPoint(x: 0.78788 * w, y: 0.24601 * h))
+        context.addCurve(
+            to: CGPoint(x: 0.49932 * w, y: 0.37221 * h),
+            control1: CGPoint(x: 0.58228 * w, y: 0.34262 * h),
+            control2: CGPoint(x: 0.52527 * w, y: 0.37523 * h))
+        context.addCurve(
+            to: CGPoint(x: 0.38297 * w, y: 0.32148 * h),
+            control1: CGPoint(x: 0.47304 * w, y: 0.37502 * h),
+            control2: CGPoint(x: 0.41636 * w, y: 0.34262 * h))
+        context.addCurve(
+            to: CGPoint(x: 0.13887 * w, y: 0.3394 * h),
+            control1: CGPoint(x: 0.2111 * w, y: 0.24621 * h),
+            control2: CGPoint(x: 0.15028 * w, y: 0.32189 * h))
+        context.addCurve(
+            to: CGPoint(x: 0.3253 * w, y: 0.68761 * h),
+            control1: CGPoint(x: 0.12307 * w, y: 0.52922 * h),
+            control2: CGPoint(x: 0.19711 * w, y: 0.79181 * h))
+        context.addCurve(
+            to: CGPoint(x: 0.41817 * w, y: 0.62098 * h),
+            control1: CGPoint(x: 0.35521 * w, y: 0.66345 * h),
+            control2: CGPoint(x: 0.38628 * w, y: 0.64091 * h))
+        context.addCurve(
+            to: CGPoint(x: 0.5803 * w, y: 0.62098 * h),
+            control1: CGPoint(x: 0.46974 * w, y: 0.58858 * h),
+            control2: CGPoint(x: 0.52874 * w, y: 0.58858 * h))
+        context.addCurve(
+            to: CGPoint(x: 0.67335 * w, y: 0.68761 * h),
+            control1: CGPoint(x: 0.6122 * w, y: 0.64091 * h),
+            control2: CGPoint(x: 0.64343 * w, y: 0.66325 * h))
+        context.addCurve(
+            to: CGPoint(x: 0.85977 * w, y: 0.3394 * h),
+            control1: CGPoint(x: 0.79912 * w, y: 0.78986 * h),
+            control2: CGPoint(x: 0.87658 * w, y: 0.53945 * h))
+        context.closePath()
+
+        context.move(to: CGPoint(x: 0.33686 * w, y: 0.561 * h))
+        context.addCurve(
+            to: CGPoint(x: 0.24018 * w, y: 0.48653 * h),
+            control1: CGPoint(x: 0.28332 * w, y: 0.561 * h),
+            control2: CGPoint(x: 0.24018 * w, y: 0.48653 * h))
+        context.addCurve(
+            to: CGPoint(x: 0.33686 * w, y: 0.41186 * h),
+            control1: CGPoint(x: 0.24018 * w, y: 0.48653 * h),
+            control2: CGPoint(x: 0.28332 * w, y: 0.41186 * h))
+        context.addCurve(
+            to: CGPoint(x: 0.43354 * w, y: 0.48653 * h),
+            control1: CGPoint(x: 0.39025 * w, y: 0.41186 * h),
+            control2: CGPoint(x: 0.43354 * w, y: 0.48653 * h))
+        context.addCurve(
+            to: CGPoint(x: 0.33686 * w, y: 0.561 * h),
+            control1: CGPoint(x: 0.43354 * w, y: 0.48653 * h),
+            control2: CGPoint(x: 0.39025 * w, y: 0.561 * h))
+        context.closePath()
+
+        context.move(to: CGPoint(x: 0.66194 * w, y: 0.561 * h))
+        context.addCurve(
+            to: CGPoint(x: 0.56526 * w, y: 0.48653 * h),
+            control1: CGPoint(x: 0.6084 * w, y: 0.561 * h),
+            control2: CGPoint(x: 0.56526 * w, y: 0.48653 * h))
+        context.addCurve(
+            to: CGPoint(x: 0.66194 * w, y: 0.41186 * h),
+            control1: CGPoint(x: 0.56526 * w, y: 0.48653 * h),
+            control2: CGPoint(x: 0.6084 * w, y: 0.41186 * h))
+        context.addCurve(
+            to: CGPoint(x: 0.75862 * w, y: 0.48653 * h),
+            control1: CGPoint(x: 0.71532 * w, y: 0.41186 * h),
+            control2: CGPoint(x: 0.75862 * w, y: 0.48653 * h))
+        context.addCurve(
+            to: CGPoint(x: 0.66194 * w, y: 0.561 * h),
+            control1: CGPoint(x: 0.75862 * w, y: 0.48653 * h),
+            control2: CGPoint(x: 0.71532 * w, y: 0.561 * h))
+        context.closePath()
+
+        context.setFillColor(.white)
+        context.fillPath(using: .evenOdd)
+
+        context.restoreGState()
     }
 }
