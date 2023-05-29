@@ -17,7 +17,8 @@ void face_mesh::run(const cv::Mat &image, const face_extraction &face, cv::Mat &
     const cv::Point2f &right_eye = face.landmarks[RIGHT_EYE];
     const cv::Point2f &nose = face.landmarks[NOSE];
 
-    const float scale = NORM_FACE_DIM / std::max(face.bounds.width, face.bounds.height);
+    constexpr float coverage = 1.4;
+    const float scale = NORM_FACE_DIM / (coverage * std::max(face.bounds.width, face.bounds.height));
     const cv::Point2f x_axis = scale * (right_eye - left_eye) / cv::norm((right_eye - left_eye));
     const cv::Point2f y_axis{-x_axis.y, x_axis.x};
 
