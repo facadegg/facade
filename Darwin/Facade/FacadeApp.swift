@@ -23,11 +23,12 @@ struct FacadeApp: App {
         .windowResizability(WindowResizability.contentSize)
         .windowStyle(HiddenTitleBarWindowStyle())
     }
-    
+
     init() {
         let devices = Devices()
-        
+
         self._devices = StateObject(wrappedValue: devices)
-        self._cameraFilter = StateObject(wrappedValue: CameraFilter(availableOutputDevices: devices))
+        self._cameraFilter = StateObject(
+            wrappedValue: CameraFilter(availableOutputDevices: devices))
     }
 }

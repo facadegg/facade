@@ -11,7 +11,7 @@ struct FaceView: View {
     @EnvironmentObject var devices: Devices
     @EnvironmentObject var filter: CameraFilter
     @State var capture: CameraCapture?
-    
+
     var body: some View {
         VStack {
             HStack {
@@ -25,18 +25,18 @@ struct FaceView: View {
                     }
                 } else {
                     Text("No input device selected")
-                    
+
                     if let i = filter.previewDevice {
                         Text(i)
                     }
                 }
             }
             .padding(EdgeInsets(top: 8, leading: 204, bottom: 16, trailing: 204))
-            
+
             if !devices.installed {
                 SetupView()
             }
-            
+
             FaceChooserView()
         }
         .onAppear {
@@ -53,7 +53,7 @@ struct FaceView: View {
             }
         }
     }
-    
+
     func setupCapture() -> CameraCapture? {
         if capture?.uniqueID != filter.previewDevice {
             capture?.stopSession()
@@ -67,7 +67,7 @@ struct FaceView: View {
                 capture = nil
             }
         }
-        
+
         return capture
     }
 }

@@ -22,22 +22,22 @@ class CameraCapture: ObservableObject {
         captureSession = AVCaptureSession()
         setupBindings()
     }
-    
+
     deinit {
         cancellables.forEach { cancellable in
             cancellable.cancel()
         }
         captureSession.stopRunning()
     }
-    
+
     func changeDevice(newUniqueID: String) {
         cancellables.forEach { cancellable in
             cancellable.cancel()
         }
         captureSession.stopRunning()
-        
+
         uniqueID = newUniqueID
-        
+
         captureSession.inputs.forEach { input in
             captureSession.removeInput(input)
         }
@@ -59,25 +59,25 @@ class CameraCapture: ObservableObject {
 
     func checkAuthorization() {
         switch AVCaptureDevice.authorizationStatus(for: .video) {
-            case .authorized: // The user has previously granted access to the camera.
-                self.isGranted = true
+        case .authorized:  // The user has previously granted access to the camera.
+            self.isGranted = true
 
-            case .notDetermined: // The user has not yet been asked for camera access.
-                AVCaptureDevice.requestAccess(for: .video) { [weak self] granted in
-                    if granted {
-                        DispatchQueue.main.async {
-                            self?.isGranted = granted
-                        }
+        case .notDetermined:  // The user has not yet been asked for camera access.
+            AVCaptureDevice.requestAccess(for: .video) { [weak self] granted in
+                if granted {
+                    DispatchQueue.main.async {
+                        self?.isGranted = granted
                     }
                 }
+            }
 
-            case .denied: // The user has previously denied access.
-                self.isGranted = false
-                return
+        case .denied:  // The user has previously denied access.
+            self.isGranted = false
+            return
 
-            case .restricted: // The user can't grant access due to restrictions.
-                self.isGranted = false
-                return
+        case .restricted:  // The user can't grant access due to restrictions.
+            self.isGranted = false
+            return
         @unknown default:
             fatalError()
         }
@@ -102,9 +102,11 @@ class CameraCapture: ObservableObject {
 
     func startSessionForDevice() {
         do {
-            let discoverySession = AVCaptureDevice.DiscoverySession(deviceTypes: [.builtInWideAngleCamera, .externalUnknown], mediaType: .video, position: .unspecified)
+            let discoverySession = AVCaptureDevice.DiscoverySession(
+                deviceTypes: [.builtInWideAngleCamera, .externalUnknown], mediaType: .video,
+                position: .unspecified)
             let devices = discoverySession.devices
-            
+
             print(devices)
 
             if let captureDevice = devices.first(where: { $0.uniqueID == uniqueID }) {
@@ -118,8 +120,7 @@ class CameraCapture: ObservableObject {
                 print("Device not found for some reason!")
                 deviceFailed = true
             }
-        }
-        catch {
+        } catch {
             print("Something went wrong - ", error.localizedDescription)
         }
     }

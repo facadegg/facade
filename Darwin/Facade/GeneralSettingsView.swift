@@ -17,19 +17,21 @@ struct GeneralSettingsView: View {
     private var virtualizeSpeaker = false
     @AppStorage("requireSocketAuthorization")
     private var requireSocketAuthorization = true
-    
+
     var body: some View {
         Form {
             LabeledContent("Virtualization: ") {
                 VStack(alignment: HorizontalAlignment.leading) {
                     Toggle("Camera", isOn: $virtualizeCamera)
-                    Toggle("Microphone (coming soon)",
-                           isOn: $virtualizeMicrophone).disabled(true)
-                    
+                    Toggle(
+                        "Microphone (coming soon)",
+                        isOn: $virtualizeMicrophone
+                    ).disabled(true)
+
                     Toggle("Speaker (coming soon)", isOn: $virtualizeSpeaker)
                         .disabled(true)
                     Button(action: {
-                        
+
                     }) {
                         Text("Enable all")
                     }
