@@ -21,18 +21,19 @@ class SetupDelegate: NSObject, OSSystemExtensionRequestDelegate {
         actionForReplacingExtension existing: OSSystemExtensionProperties,
         withExtension ext: OSSystemExtensionProperties
     ) -> OSSystemExtensionRequest.ReplacementAction {
-        view.message += "Facade is already installed. Please uninstall it first."
+        view.message +=
+            "Oops! It seems like you have an old version of Facade installed. Please remove that and try again."
         view.error = true
         return OSSystemExtensionRequest.ReplacementAction.cancel
     }
 
     func requestNeedsUserApproval(_ request: OSSystemExtensionRequest) {
-        view.message = "Please allow System Extension in Settings > Privacy & Security"
-        view.error = true
+        view.message =
+            "Facade needs your permission to install system software.\n\nIn System Settings > Privacy & Security > Security, unblock Facade from loading system software."
     }
 
     func request(_ request: OSSystemExtensionRequest, didFailWithError error: Error) {
-        view.message = error.localizedDescription
+        view.message = "Oops! \(error.localizedDescription)."
         view.error = true
     }
 
@@ -40,9 +41,11 @@ class SetupDelegate: NSObject, OSSystemExtensionRequestDelegate {
         _ request: OSSystemExtensionRequest,
         didFinishWithResult result: OSSystemExtensionRequest.Result
     ) {
-        view.message = "Awesome, now you can create virtual devices in Facade!"
+        view.message =
+            "The system software has been installed. Please close this window and restart Facade to continue."
         view.error = false
-        view.devices.checkInstall()
+
+        self.view.devices.needsRestart = true
     }
 }
 
@@ -50,20 +53,40 @@ struct SetupView: View {
     @EnvironmentObject var devices: Devices
     @State var delegate: SetupDelegate?
     @State var error = false
-    @State var message = "Facade needs permission to create virtual devices"
+    @State var message =
+        "Thanks for trying out Facade!\n\nFacade is a programmable virtual camera for macOS. Please continue to install its system software."
 
     var body: some View {
         VStack {
-            Button(action: { [self] in
-                OSSystemExtensionManager.shared.submitRequest(newRequest())
-            }) {
-                Text("Install System Extension")
-            }
+            IconView()
+                .frame(maxWidth: 96, maxHeight: 48)
+                .padding(EdgeInsets(top: 16, leading: 0, bottom: 8, trailing: 0))
+            Text("Get Started")
+                .font(.largeTitle)
+                .fontWeight(.bold)
+
+            Spacer()
 
             Text(message)
-                .foregroundColor(error ? Color.red : Color.secondary)
+                .foregroundColor(error ? Color.red : Color.primary)
+                .padding(EdgeInsets(top: 0, leading: 24, bottom: 16, trailing: 24))
+                .multilineTextAlignment(.center)
+
+            Spacer()
+
+            Button(action: { [self] in
+                if self.devices.needsRestart {
+                    NSApplication.shared.terminate(nil)
+                } else {
+                    OSSystemExtensionManager.shared.submitRequest(newRequest())
+                }
+            }) {
+                Text(self.devices.needsRestart ? "Close" : self.error ? "Try again" : "Install")
+            }
+            .buttonStyle(.borderedProminent)
+            .padding(EdgeInsets(top: 0, leading: 0, bottom: 24, trailing: 0))
         }
-        .frame(maxWidth: .infinity)
+        .frame(width: 360, height: 320)
         .padding(8)
     }
 

@@ -6,7 +6,9 @@
 //
 
 import Foundation
+import os.log
 
+let logger = OSLog(subsystem: "gg.facade.Facade", category: "Camera")
 var didInit = false
 
 struct Device: Identifiable, Hashable {
@@ -32,12 +34,14 @@ struct Device: Identifiable, Hashable {
 class Devices: ObservableObject {
     @Published var installed = false
     @Published var devices: [Device] = []
+    @Published var needsRestart = false
+    @Published var needsInitializing = true
 
     private var initializing = false
     private var loading = false
 
     init() {
-        checkInstall()
+        openSession()
     }
 
     init(devices: [Device]) {
@@ -49,7 +53,7 @@ class Devices: ObservableObject {
         facade_on_state_changed(nil, nil)
     }
 
-    func checkInstall() {
+    func openSession() {
         if !didInit {
             initializing = true
 
@@ -57,6 +61,7 @@ class Devices: ObservableObject {
                 didInit = (facade_init() == facade_error_none)
 
                 if didInit {
+                    os_log("facade_init successfully returned", log: logger, type: .info)
                     facade_on_state_changed(
                         { context in
                             print("facade_on_state_changed")
@@ -65,9 +70,13 @@ class Devices: ObservableObject {
                             }
                         },
                         Unmanaged.passUnretained(self).toOpaque())
+                } else {
+                    os_log(
+                        "facade_init returned with facade_not_installed", log: logger, type: .error)
                 }
 
                 DispatchQueue.main.async {
+                    self.needsInitializing = false
                     self.initializing = false
                     self.installed = didInit
 

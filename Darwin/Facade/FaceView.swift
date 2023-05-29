@@ -33,10 +33,6 @@ struct FaceView: View {
             }
             .padding(EdgeInsets(top: 8, leading: 204, bottom: 16, trailing: 204))
 
-            if !devices.installed {
-                SetupView()
-            }
-
             FaceChooserView()
         }
         .onAppear {
@@ -52,6 +48,7 @@ struct FaceView: View {
                 capture?.stopSession()
             }
         }
+        .frame(minWidth: 902, minHeight: 728)
     }
 
     func setupCapture() -> CameraCapture? {
