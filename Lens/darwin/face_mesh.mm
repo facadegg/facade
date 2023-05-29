@@ -7,6 +7,8 @@
 
 #import <CoreML/CoreML.h>
 
+namespace fs = std::filesystem;
+
 namespace lens
 {
 
@@ -83,9 +85,11 @@ void face_mesh_impl::run(const cv::Mat &face, cv::Mat &landmarks)
     [face_data release];
 }
 
-std::unique_ptr<face_mesh> face_mesh::build(const std::string &path)
+std::unique_ptr<face_mesh> face_mesh::build(const fs::path &model_dir)
 {
-    MLModel *model = load_model(path, true);
+    fs::path model_path = model_dir / fs::path("FaceMesh.mlmodel");
+    auto compiled_path = model::compile(model_path);
+    MLModel *model = model::load(compiled_path);
 
     if (!model)
         return nullptr;

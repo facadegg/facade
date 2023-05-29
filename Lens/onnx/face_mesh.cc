@@ -8,6 +8,8 @@
 
 #include "internal.h"
 
+namespace fs = std::filesystem;
+
 namespace lens
 {
 
@@ -58,7 +60,7 @@ void face_mesh_impl::run(const cv::Mat &face, cv::Mat &landmarks)
     cv::Mat(LDM_DIMS, LDM_COUNT, CV_32F, landmarks_ptr).copyTo(landmarks);
 }
 
-std::unique_ptr<face_mesh> face_mesh::build(const std::string &path)
+std::unique_ptr<face_mesh> face_mesh::build(const fs::path &path)
 {
     Ort::Env env(ORT_LOGGING_LEVEL_INFO, "FaceMesh");
     Ort::SessionOptions session_options;
@@ -67,8 +69,10 @@ std::unique_ptr<face_mesh> face_mesh::build(const std::string &path)
     OrtSessionOptionsAppendExecutionProvider_CoreML(session_options, COREML_FLAG_USE_NONE);
 #endif
 
+    std::string model_path = (path / "FaceMesh.onnx").string();
+
     return std::unique_ptr<face_mesh>(
-        new face_mesh_impl(new Ort::Session(env, path.c_str(), session_options)));
+        new face_mesh_impl(new Ort::Session(env, model_path.c_str(), session_options)));
 }
 
 } // namespace lens

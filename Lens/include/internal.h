@@ -77,7 +77,7 @@ class center_face
                      std::tuple<cv::Mat, cv::Mat> &offsets,
                      std::vector<cv::Mat> &landmarks) = 0;
     void run(const cv::Mat &image, std::vector<face_extraction> &extractions);
-    static std::unique_ptr<center_face> build(const std::string &path);
+    static std::unique_ptr<center_face> build(const std::filesystem::path &model_dir);
 };
 
 class face_mesh
@@ -86,7 +86,7 @@ class face_mesh
     virtual ~face_mesh() noexcept;
     virtual void run(const cv::Mat &face, cv::Mat &landmarks) = 0;
     void run(const cv::Mat &image, const face_extraction &face, cv::Mat &landmarks_2d);
-    static std::unique_ptr<face_mesh> build(const std::string &path);
+    static std::unique_ptr<face_mesh> build(const std::filesystem::path &model_dir);
 
   protected:
     static constexpr int NORM_FACE_DIM = 192;
@@ -106,7 +106,7 @@ class face_swap
                            std::function<void(cv::Mat &)> callback);
 
     static std::unique_ptr<face_swap> build(const std::filesystem::path &model_path,
-                                            const std::filesystem::path &root_dir);
+                                            const std::filesystem::path &resources_dir);
     static cv::Mat color_transfer(cv::Mat &src, cv::Mat &like);
 
   protected:

@@ -178,11 +178,12 @@ void face_swap_impl::composite(cv::Mat &dst,
     }
 }
 
-std::unique_ptr<face_swap> face_swap::build(const fs::path &model_path, const fs::path &root_dir)
+std::unique_ptr<face_swap> face_swap::build(const fs::path &model_path, const fs::path &resources_dir)
 {
+    auto compiled_path = model::compile(model_path);
     std::vector<MLModel const *> model_pool = {
-        load_model(model_path),
-        load_model(model_path),
+        model::load(compiled_path),
+        model::load(compiled_path),
     };
 
     if (std::any_of(model_pool.begin(),
@@ -192,7 +193,7 @@ std::unique_ptr<face_swap> face_swap::build(const fs::path &model_path, const fs
 
     NSError *error = nil;
     id<MTLDevice> device = MTLCreateSystemDefaultDevice();
-    std::string compositor_path = (root_dir / fs::path("face_compositor.metallib")).string();
+    std::string compositor_path = (resources_dir / fs::path("face_compositor.metallib")).string();
     NSString *const compositor_pathstr = [NSString stringWithCString:compositor_path.c_str()
                                                             encoding:NSASCIIStringEncoding];
     NSURL *const compositor_url = [NSURL fileURLWithPath:compositor_pathstr];

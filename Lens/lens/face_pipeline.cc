@@ -16,9 +16,6 @@ namespace fs = std::filesystem;
 namespace lens
 {
 
-const fs::path center_face_filename = "CenterFace.mlmodel";
-const fs::path face_mesh_filename = "FaceMesh.mlmodel";
-
 face_pipeline::face_pipeline(facade_device *sink_device,
                              const fs::path &root_dir,
                              const fs::path &face_swap_model) :
@@ -27,8 +24,8 @@ face_pipeline::face_pipeline(facade_device *sink_device,
     frame_counter_read(0),
     frame_counter_write(0),
     frame_write_timestamp(std::chrono::high_resolution_clock::now()),
-    center_face(center_face::build((root_dir / center_face_filename).string())),
-    face_mesh(face_mesh::build((root_dir / face_mesh_filename).string())),
+    center_face(center_face::build(root_dir)),
+    face_mesh(face_mesh::build(root_dir)),
     face_swap(face_swap::build(face_swap_model, root_dir)),
     input_queue(),
     output_queue(),

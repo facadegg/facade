@@ -7,6 +7,8 @@
 
 #import <CoreML/CoreML.h>
 
+namespace fs = std::filesystem;
+
 namespace lens
 {
 
@@ -114,9 +116,11 @@ void center_face_impl::run(const cv::Mat &image,
     [image_data release];
 }
 
-std::unique_ptr<center_face> center_face::build(const std::string &path)
+std::unique_ptr<center_face> center_face::build(const fs::path &model_dir)
 {
-    MLModel *model = load_model(path, true);
+    fs::path model_path = model_dir / fs::path("CenterFace.mlmodel");
+    auto compiled_path = model::compile(model_path);
+    MLModel *model = model::load(compiled_path, true);
 
     if (!model)
         return nullptr;

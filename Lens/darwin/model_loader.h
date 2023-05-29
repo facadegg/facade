@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <filesystem>
 #include <string>
 
 #import <CoreML/CoreML.h>
@@ -11,6 +12,12 @@
 namespace lens
 {
 
-MLModel *load_model(const std::string &path, bool gpu = false);
+namespace model
+{
+
+std::filesystem::path compile(const std::filesystem::path &);
+MLModel *load(const std::filesystem::path &, bool gpu = false);
+
+} // namespace model
 
 } // namespace lens

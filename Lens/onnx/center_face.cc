@@ -105,7 +105,7 @@ void center_face_impl::run(const cv::Mat &image,
     }
 }
 
-std::unique_ptr<center_face> center_face::build(const std::string &path)
+std::unique_ptr<center_face> center_face::build(const fs::path &model_dir)
 {
     Ort::Env env(ORT_LOGGING_LEVEL_INFO, "CenterFace");
     Ort::SessionOptions session_options;
@@ -114,8 +114,10 @@ std::unique_ptr<center_face> center_face::build(const std::string &path)
     OrtSessionOptionsAppendExecutionProvider_CoreML(session_options, COREML_FLAG_USE_NONE);
 #endif
 
+    std::string model_path = (path / "CenterFace.onnx").string();
+
     return std::unique_ptr<center_face>(
-        new center_face_impl(new Ort::Session(env, path.c_str(), session_options)));
+        new center_face_impl(new Ort::Session(env, model_path.c_str(), session_options)));
 }
 
 } // namespace lens
