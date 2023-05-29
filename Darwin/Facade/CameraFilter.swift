@@ -111,15 +111,40 @@ class CameraFilterProperties: ObservableObject {
         if self.process != nil { return }
 
         let fileManager = FileManager.default
+        let bundledResourcesDirectory =
+            Bundle.main.bundlePath + "/Contents/MacOS/Lens.app/Contents/Resources"
         let containerURL = fileManager.containerURL(
             forSecurityApplicationGroupIdentifier: "video.facade")!
         let documentsDirectory = containerURL.appendingPathComponent("Library/Models")
+
+        let centerFaceModelURL = documentsDirectory.appendingPathComponent("CenterFace.mlmodel")
+        let faceMeshModelURL = documentsDirectory.appendingPathComponent("FaceMesh.mlmodel")
+        let faceCompositorURL = documentsDirectory.appendingPathComponent(
+            "face_compositor.metallib")
         let faceSwapModelURL = documentsDirectory.appendingPathComponent(
             "\(self.faceSwapTarget.name.replacingOccurrences(of: " ", with: "_")).mlmodel")
 
         if !fileManager.fileExists(atPath: faceSwapModelURL.path) {
             print("No model found at \(faceSwapModelURL)")
             return
+        }
+        if !fileManager.fileExists(atPath: centerFaceModelURL.path) {
+            try! fileManager.copyItem(
+                at: URL(fileURLWithPath: bundledResourcesDirectory + "/CenterFace.mlmodel"),
+                to: centerFaceModelURL)
+
+        }
+        if !fileManager.fileExists(atPath: faceMeshModelURL.path) {
+            try! fileManager.copyItem(
+                at: URL(fileURLWithPath: bundledResourcesDirectory + "/FaceMesh.mlmodel"),
+                to: faceMeshModelURL)
+
+        }
+        if !fileManager.fileExists(atPath: faceCompositorURL.path) {
+            try! fileManager.copyItem(
+                at: URL(fileURLWithPath: bundledResourcesDirectory + "/face_compositor.metallib"),
+                to: faceCompositorURL)
+
         }
 
         let task = Process()
@@ -133,7 +158,7 @@ class CameraFilterProperties: ObservableObject {
             "--face-swap-model",
             faceSwapModelURL.path,
             "--root-dir",
-            Bundle.main.bundlePath + "/Contents/MacOS/Lens.app/Contents/Resources",
+            documentsDirectory.path,
         ]
 
         self.process = task
