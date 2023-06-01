@@ -1,9 +1,9 @@
 {
-  "name": "facade.camera",
+  "name": "facade.gg",
   "version": "1.0.0",
   "private": true,
-  "description": "facade.camera",
-  "author": "Shukant Pal <shukant@facade.camera>",
+  "description": "facade.gg",
+  "author": "Shukant Pal <shukant@facade.gg>",
   "keywords": [
     "gatsby"
   ],
