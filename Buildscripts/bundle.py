@@ -4,6 +4,10 @@ import os
 import subprocess
 import sys
 
+cpuname = subprocess.check_output(['sysctl', '-n', 'machdep.cpu.brand_string']).decode(encoding='utf-8')
+cpuintel = 'intel' in cpuname.lower()
+brew_home = '/usr/local/lib' if cpuintel else '/opt/homebrew/lib'
+brew_cellar = '/usr/local/Cellar' if cpuintel else '/opt/homebrew/Cellar'
 
 def find_and_copy_dependencies(library_path, dependencies = []):
     print(library_path)
@@ -37,10 +41,10 @@ def find_and_copy_dependencies(library_path, dependencies = []):
                     and '/usr/lib' not in dependency_path:
                 original_path = dependency_path
                 if dependency_path.startswith('@rpath/'):
-                    dependency_path = dependency_path.replace('@rpath', '/opt/homebrew/lib')
+                    dependency_path = dependency_path.replace('@rpath', brew_home)
                     if dependency_path.endswith('libquadmath.0.dylib') or\
                         dependency_path.endswith('libgcc_s.1.1.dylib'):
-                        dependency_path = f'/opt/homebrew/Cellar/gcc/13.1.0/lib/gcc/current/{os.path.basename(dependency_path)}'
+                        dependency_path = f'{brew_cellar}/gcc/13.1.0/lib/gcc/current/{os.path.basename(dependency_path)}'
                     if dependency_path.endswith('libonnxruntime.1.15.0.dylib'):
                         dependency_path = os.path.expanduser(f'~/Workspace/PaalMaxima/onnxruntime/build/MacOS/RelWithDebInfo/{os.path.basename(dependency_path)}')
 
