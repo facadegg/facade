@@ -35,6 +35,14 @@ face_pipeline::face_pipeline(facade_device *sink_device,
     assert(face_mesh != nullptr);
     assert(face_swap != nullptr);
 
+#ifdef LENS_FEATURE_DEBUG_CENTER_FACE
+    std::cout << "LENS_FEATURE_DEBUG_CENTER_FACE is on" << std::endl;
+#endif
+
+#ifdef LENS_FEATURE_DEBUG_FACE_MESH
+    std::cout << "LENS_FEATURE_DEBUG_FACE_MESH is on" << std::endl;
+#endif
+
     const int pool_capacity = 4;
     input_queue.set_capacity(pool_capacity);
     output_queue.set_capacity(pool_capacity);
