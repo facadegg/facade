@@ -17,7 +17,12 @@ add_executable(lens
         Lens/lens/face_mesh.cc
         Lens/lens/face_pipeline.cc
         Lens/lens/face_swap.cc
-        Lens/lens/main.cc)
+        Lens/lens/main.cc
+        Lens/lens/output/base_output.cc
+        Lens/lens/output/base_output.h
+        Lens/lens/output/facade_output.cc
+        Lens/lens/output/facade_output.h
+        Lens/lens/output/output.cc)
 
 target_include_directories(lens PUBLIC ./Lens/include)
 

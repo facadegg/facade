@@ -16,11 +16,8 @@ namespace fs = std::filesystem;
 namespace lens
 {
 
-face_pipeline::face_pipeline(facade_device *sink_device,
-                             const fs::path &root_dir,
-                             const fs::path &face_swap_model) :
-    output_device(sink_device),
-    frame_interval_mean(1000.0 / sink_device->frame_rate),
+face_pipeline::face_pipeline(const fs::path &root_dir, const fs::path &face_swap_model) :
+    frame_interval_mean(30.0),
     frame_counter_read(0),
     frame_counter_write(0),
     frame_write_timestamp(std::chrono::high_resolution_clock::now()),
@@ -28,8 +25,7 @@ face_pipeline::face_pipeline(facade_device *sink_device,
     face_mesh(face_mesh::build(root_dir)),
     face_swap(face_swap::build(face_swap_model, root_dir)),
     input_queue(),
-    output_queue(),
-    output_ready(true)
+    output_queue()
 {
     assert(center_face != nullptr);
     assert(face_mesh != nullptr);
@@ -48,11 +44,6 @@ face_pipeline::face_pipeline(facade_device *sink_device,
     output_queue.set_capacity(pool_capacity);
     for (int i = 0; i < pool_capacity; i++)
         thread_pool.emplace_back(&face_pipeline::run, this);
-
-    facade_error_code code = facade_write_open(output_device);
-    std::cout << "open " << code << std::endl;
-    facade_write_callback(
-        output_device, reinterpret_cast<facade_callback>(face_pipeline::write_stub), this);
 }
 
 face_pipeline::~face_pipeline()
@@ -71,6 +62,8 @@ void face_pipeline::operator<<(cv::Mat &image)
         delete[] data;
     }
 }
+
+void face_pipeline::operator>>(cv::Mat &image) { output_queue.pop(image); }
 
 [[noreturn]] void face_pipeline::run()
 {
@@ -234,53 +227,11 @@ void face_pipeline::run_face_swap(cv::Mat &image,
 void face_pipeline::submit(cv::Mat &image)
 {
     if (!output_queue.try_push(image))
-        delete[] reinterpret_cast<uint8_t *>(image.data);
-    else if (output_ready)
-        write();
-}
-
-void face_pipeline::write()
-{
-    write_mutex.lock();
-
-    cv::Mat frame_image;
-
-    if (output_queue.try_pop(frame_image))
     {
-        cv::Mat composited_image;
-
-        if (output_device->width == frame_image.cols && output_device->height)
-        {
-            composited_image = frame_image;
-        }
-        else
-        {
-            composited_image =
-                cv::Mat::zeros(cv::Size(output_device->width, output_device->height), CV_8UC4);
-            cv::Rect placement;
-
-            float scale = std::min(1.f,
-                                   std::min(static_cast<float>(composited_image.rows) /
-                                                static_cast<float>(frame_image.rows),
-                                            static_cast<float>(composited_image.cols) /
-                                                static_cast<float>(frame_image.cols)));
-
-            placement.width = frame_image.cols * scale;
-            placement.height = frame_image.rows * scale;
-            placement.x = (composited_image.cols - placement.width) * 0.5f;
-            placement.y = (composited_image.rows - placement.height) * 0.5f;
-
-            std::cout << "TO " << placement << "with scale " << scale << std::endl;
-
-            cv::resize(frame_image, frame_image, placement.size());
-            frame_image.copyTo(composited_image(placement));
-        }
-
-        facade_write_frame(output_device,
-                           (void *)composited_image.data,
-                           4 * composited_image.cols * composited_image.rows);
-        delete[] const_cast<uint8_t *>(frame_image.data);
-
+        delete[] reinterpret_cast<uint8_t *>(image.data);
+    }
+    else
+    {
         auto now = std::chrono::high_resolution_clock::now();
         size_t frame_interval_sample =
             std::chrono::duration_cast<std::chrono::milliseconds>(now - frame_write_timestamp)
@@ -295,15 +246,7 @@ void face_pipeline::write()
                          static_cast<float>(frame_counter_read) * 100
                   << "%" << std::endl;
         frame_write_timestamp = now;
-
-        output_ready = false; // Wait for next write
     }
-    else
-    {
-        output_ready = true; // Missed this frame call so push once next frame is available
-    }
-
-    write_mutex.unlock();
 }
 
 // Shinji Umeyama, PAMI 1991, DOI: 10.1109/34.88573
@@ -396,7 +339,5 @@ void face_pipeline::smooth_face_bounds(face_extraction &observed_face, const fac
     observed_face.bounds.height = static_cast<float>(observed_face.bounds.height * (1 - lerp) +
                                                      remembered_face.bounds.height * lerp);
 }
-
-void face_pipeline::write_stub(face_pipeline *pipeline) { pipeline->write(); }
 
 } // namespace lens

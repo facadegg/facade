@@ -1,5 +1,6 @@
 #include "facade.h"
 #include "lens.h"
+#include "output/base_output.h"
 #include <boost/program_options.hpp>
 #include <iostream>
 #include <opencv2/opencv.hpp>
@@ -60,27 +61,12 @@ int main(int argc, char **argv)
         return -4;
     }
 
-    facade_device *device = nullptr;
-
-    facade_init();
-    facade_find_device_by_name(dst.c_str(), &device);
-
-    if (!device)
-    {
-        facade_find_device_by_uid(dst.c_str(), &device);
-    }
-
-    if (!device)
-    {
-        std::cout << "Failed to locate '" << dst << "' device." << std::endl;
-        return -1;
-    }
-
     std::cout << "Starting face pipeline!" << std::endl;
 
     try
     {
-        lens::face_pipeline pipeline(device, root_dir, std::filesystem::path(face_swap_model));
+        lens::face_pipeline pipeline(root_dir, std::filesystem::path(face_swap_model));
+        std::unique_ptr<lens::base_output> output = lens::output(pipeline, dst, false);
 
         if (lens::load(src, frame_rate, pipeline))
         {

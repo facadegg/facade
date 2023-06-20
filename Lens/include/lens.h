@@ -13,14 +13,23 @@ extern cv::Mat NORMALIZED_FACIAL_LANDMARKS;
 namespace lens
 {
 
+struct frame_stats
+{
+    double frame_interval_mean;
+    size_t frame_counter_read;
+    size_t frame_counter_write;
+    std::chrono::time_point<std::chrono::steady_clock, std::chrono::nanoseconds>
+        frame_write_timestamp;
+};
+
 class face_pipeline
 {
   public:
-    face_pipeline(facade_device *sink,
-                  const std::filesystem::path &root_dir,
+    face_pipeline(const std::filesystem::path &root_dir,
                   const std::filesystem::path &face_swap_model);
     ~face_pipeline();
     void operator<<(cv::Mat &image);
+    void operator>>(cv::Mat &image);
 
   private:
     facade_device *output_device;
@@ -49,13 +58,13 @@ class face_pipeline
     void run_face_swap(cv::Mat &, const std::vector<face> &, std::function<void(cv::Mat &)>);
     void submit(cv::Mat &);
 
-    void write();
-
     static cv::Mat umeyama2(const cv::Mat &src, const cv::Mat &dst);
     static void smooth_face_bounds(face_extraction &observed_face, const face &remembered_face);
-    static void write_stub(face_pipeline *);
 };
 
+class base_output;
+
 bool load(const std::string &media, int frame_rate, face_pipeline &);
+std::unique_ptr<base_output> output(face_pipeline &pipeline, std::string &dst, bool loop);
 
 } // namespace lens
