@@ -8,6 +8,7 @@ option(LENS_FEATURE_ONNX "Support ONNX models for inference" OFF)
 option(LENS_FEATURE_BUNDLE "Bundle Lens into an application" ${BUNDLE_DEFAULT})
 option(LENS_FEATURE_DEBUG_CENTER_FACE "Debug CenterFace face detection and face fed into face swap" OFF)
 option(LENS_FEATURE_DEBUG_FACE_MESH "Debug FaceMesh landmarks" OFF)
+option(LENS_FEATURE_FILE_IO "Support reading input from & writing output to files for the video pipeline" ON)
 
 add_executable(lens
         Lens/include/internal.h
@@ -25,6 +26,27 @@ add_executable(lens
         Lens/lens/output/output.cc)
 
 target_include_directories(lens PUBLIC ./Lens/include)
+
+if(LENS_FEATURE_FILE_IO)
+    add_compile_definitions(LENS_FEATURE_FILE_IO)
+    pkg_check_modules(LIBAV REQUIRED IMPORTED_TARGET
+            libavdevice
+            libavfilter
+            libavformat
+            libavcodec
+            libswresample
+            libswscale
+            libavutil)
+
+    include_directories(${LIBAV_INCLUDE_DIRS})
+    target_link_directories(lens PUBLIC ${LIBAV_LIBRARY_DIRS})
+    target_link_libraries(lens ${LIBAV_LIBRARIES})
+
+    target_sources(lens PUBLIC
+            Lens/lens/input/video.cc
+            Lens/lens/output/file_output.cc
+            Lens/lens/output/file_output.h)
+endif()
 
 if(LENS_FEATURE_ONNX)
     target_sources(lens PUBLIC

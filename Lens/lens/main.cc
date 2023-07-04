@@ -68,14 +68,13 @@ int main(int argc, char **argv)
         lens::face_pipeline pipeline(root_dir, std::filesystem::path(face_swap_model));
         std::unique_ptr<lens::base_output> output = lens::output(pipeline, dst, false);
 
-        if (lens::load(src, frame_rate, pipeline))
-        {
-            std::this_thread::sleep_for(std::chrono::hours::max());
-        }
-        else
+        if (!lens::load(src, frame_rate, pipeline))
         {
             std::cout << "Failed to locate source file or device" << std::endl;
         }
+
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+//        std::exit(0);
     }
     catch (std::exception &e)
     {

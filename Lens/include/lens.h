@@ -32,7 +32,6 @@ class face_pipeline
     void operator>>(cv::Mat &image);
 
   private:
-    facade_device *output_device;
     double frame_interval_mean;
     size_t frame_counter_read;
     size_t frame_counter_write;

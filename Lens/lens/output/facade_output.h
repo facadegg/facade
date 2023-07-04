@@ -20,7 +20,7 @@ class facade_output : public base_output
     ~facade_output() noexcept override;
 
   protected:
-    virtual bool handle(cv::Mat &image);
+    bool handle(cv::Mat &image) override;
 
   private:
     facade_device *device;

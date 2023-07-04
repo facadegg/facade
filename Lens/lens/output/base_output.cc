@@ -16,7 +16,10 @@ base_output::base_output(face_pipeline &pipeline) :
     pipe_thread(&base_output::pipe, this)
 { }
 
-base_output::~base_output() noexcept = default;
+base_output::~base_output() noexcept
+{
+    pipe_thread.detach();
+}
 
 bool base_output::handle(cv::Mat &image) { return false; }
 

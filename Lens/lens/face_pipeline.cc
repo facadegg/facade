@@ -46,11 +46,7 @@ face_pipeline::face_pipeline(const fs::path &root_dir, const fs::path &face_swap
         thread_pool.emplace_back(&face_pipeline::run, this);
 }
 
-face_pipeline::~face_pipeline()
-{
-    facade_write_close(output_device);
-    facade_dispose_device(&output_device);
-}
+face_pipeline::~face_pipeline() noexcept = default;
 
 void face_pipeline::operator<<(cv::Mat &image)
 {

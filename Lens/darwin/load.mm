@@ -1,4 +1,3 @@
-
 #include "lens.h"
 
 #include <string>
@@ -192,6 +191,10 @@ bool load_image(NSString *path, lens::face_pipeline &pipeline)
 
 } // namespace
 
+#ifdef LENS_FEATURE_FILE_IO
+bool load_video(const std::string &path, lens::face_pipeline &pipeline);
+#endif
+
 namespace lens
 {
 
@@ -204,6 +207,11 @@ bool load(const std::string &cxx_path, int frame_rate, face_pipeline &pipeline)
     {
         if (match(image_formats, cxx_path))
             return load_image(path, pipeline);
+
+#ifdef LENS_FEATURE_FILE_IO
+        if (match(video_formats, cxx_path))
+            return load_video(cxx_path, pipeline);
+#endif
 
         std::cout << "Unknown file type" << std::endl;
         return false;
