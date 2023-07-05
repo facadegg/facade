@@ -2,57 +2,65 @@ import * as React from 'react'
 import styled from "styled-components";
 
 import bryanGreynolds from '../images/preview/Bryan_Greynolds.png'
-import zackAsTimChrys from '../images/zack/Zack-As-Tim-Chrys.png'
 
-const appBarStyle: React.CSSProperties = {
-    display: 'flex',
-    gap: '.88%',
-    padding: '.88%',
-}
+const CameraPanel = styled.div`
+  aspect-ratio: 1920 / 1080;
+  text-align: center;
+  padding-bottom: 16px;
+  padding-top: 8px;
+  min-width: 0;
+`
 
-const appBarButtonStyle: React.CSSProperties = {
-    aspectRatio: '1 / 1',
-    borderRadius: '50%',
-    width: '1.55%',
-}
-
-const cameraPanelStyle: React.CSSProperties = {
-    textAlign: 'center',
-    paddingBottom: 16,
-    paddingTop: 8,
-}
-
-const cameraFeedStyle: React.CSSProperties = {
-    aspectRatio: '493 / 227',
-    borderRadius: 12,
-    width: "54.65%",
-}
-
-const faceChooserPanelStyle: React.CSSProperties = {
-    display: 'flex',
-    flexGrow: 1,
-    flexWrap: 'wrap',
-    padding: 32,
-}
+const CameraFeed = styled.video`
+  aspect-ratio: 1920 / 1080;
+  border-radius: 12px;
+  max-height: 1080px;
+  max-width: 1920px;
+  width: 100%;
+`
 
 const Chrome = styled.div`
   aspect-ratio: 902 / 728;
-  background-color: rgba(39, 41, 43, .87);
   border-radius: 1.76%;
-  box-shadow: 0 2px 12px 1px rgba(0, 0, 0, .33);
   display: flex;
   flex-direction: column;
-  max-height: 80%;
-  max-width: min(80%, 902px);
-  height: 80%;
+  max-width: min(80vw, 902px);
   transition: opacity 0.5s linear;
+
+  @media (min-width: 1024px) {
+    flex-direction: row;
+    margin: 0 128px 0 128px;
+    max-height: 900px;
+    max-width: 100%;
+  }
+`
+
+const FaceChooserPanel = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  padding: 32px 0 32px 0;
+
+  @media (max-width: 768px) {
+    justify-content: space-between;
+  }
+  
+  @media (max-width: 1024px) {
+    flex-grow: 1;
+  }
+  
+  @media (min-width: 1024px) {
+    flex-direction: column;
+    padding: 8px 32px 0 32px;
+    max-height: 400px;
+    min-width: 400px;
+  }
 `
 
 const FaceChoice = styled.div`
   font-size: 12px;
-  margin-bottom: 4%;
+  margin-bottom: 12%;
   text-align: center;
-  width: 20%;
+  width: 30%;
   
   &> img {
     aspect-ratio: 86 / 126;
@@ -72,6 +80,16 @@ const FaceChoice = styled.div`
     border-radius: 8px;
     box-shadow: 0 0 100px 4px #ABFFC633;
     outline: 3px solid #ABFFC6;
+  }
+  
+  @media (min-width: 768px) {
+    margin-bottom: 4%;
+    width: 20%;
+  }
+
+  @media (min-width: 1024px) {
+    margin-bottom: 48px;
+    width: 30%;
   }
 `
 
@@ -111,6 +129,8 @@ const CHOICES = {
     'Zahar_Lupin': bryanGreynolds,
 } as const
 
+type Face = keyof typeof CHOICES | 'Anna_Tolipova'
+
 const PreviewIcon: React.FC<{}> = React.memo(() => (
     <Tile>
         <div className="spinner spinner-1" style={{ gridRow: 1, gridColumn: 1 }} />
@@ -123,33 +143,49 @@ const PreviewIcon: React.FC<{}> = React.memo(() => (
 const PreviewApplication: React.FC<{
     hide: boolean
     onImageLoad: () => void
-}> = React.memo(({ hide, onImageLoad }) => (
-    <Chrome style={hide ? {opacity: 0} : {opacity: 1}}>
-        <div style={appBarStyle}>
-            <div style={{ backgroundColor: '#DA4453', ...appBarButtonStyle }} />
-            <div style={{ backgroundColor: '#F9BF3B', ...appBarButtonStyle }} />
-            <div style={{ backgroundColor: '#66BB6A', ...appBarButtonStyle }} />
-        </div>
-        <div style={cameraPanelStyle}>
-            <img
-                alt="Zack Gemmell"
-                loading="lazy"
-                onError={onImageLoad}
-                onLoad={onImageLoad}
-                src={zackAsTimChrys}
-                style={cameraFeedStyle}
-            />
-        </div>
-        <div style={faceChooserPanelStyle}>
-            {Object.entries(CHOICES).map(([name, image]) => (
-                <FaceChoice key={name} tabIndex={0}>
-                    <img alt={name} onError={onImageLoad} onLoad={onImageLoad} loading="lazy" src={image} />
-                    <p>{name.replace('_', ' ')}</p>
-                </FaceChoice>
-            ))}
-        </div>
-    </Chrome>
-))
+}> = React.memo(({ hide, onImageLoad }) => {
+    const [face, setFace] = React.useState<Face>('Anna_Tolipova')
+    const faceFeedRef = React.useRef<HTMLVideoElement | null>(null)
+
+    const onFocusFace = React.useMemo(() => Object.fromEntries(
+        Object.keys(CHOICES).map((face) => [
+            face,
+            () => {
+                const pos = faceFeedRef.current!.currentTime
+                console.log(pos)
+                setFace(face as keyof typeof CHOICES)
+
+                faceFeedRef.current!.addEventListener('canplaythrough',  function listener() {
+                    console.log('here', faceFeedRef.current!.currentTime)
+                    faceFeedRef.current!.currentTime = pos
+                    faceFeedRef.current!.play().finally(console.log)
+                    faceFeedRef.current!.removeEventListener('canplaythrough', listener)
+                })
+            }
+        ])
+    ), [])
+
+    return (
+        <Chrome style={hide ? {opacity: 0} : {opacity: 1}}>
+            <CameraPanel>
+                <CameraFeed
+                    autoPlay={true}
+                    loop={true}
+                    ref={faceFeedRef}
+                    src={`https://r2.facade.gg/samples/man-talking-video-call-living-room/${face}.webm`}
+                />
+            </CameraPanel>
+            <FaceChooserPanel>
+                {Object.entries(CHOICES).map(([name, image]) => (
+                    <FaceChoice key={name} onFocus={onFocusFace[name]} tabIndex={0}>
+                        <img alt={name} onError={onImageLoad} onLoad={onImageLoad} src={image} />
+                        <p>{name.replace('_', ' ')}</p>
+                    </FaceChoice>
+                ))}
+            </FaceChooserPanel>
+        </Chrome>
+    )
+})
 
 const Preview: React.FC<{}> = React.memo(() => {
     const [client, setClient] = React.useState(false);

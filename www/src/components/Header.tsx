@@ -3,10 +3,6 @@ import styled from "styled-components";
 
 import SiteIcon from "./SiteIcon";
 
-const headerGapStyle: React.CSSProperties = {
-    height: "calc(42px + 5rem)",
-}
-
 const HeaderBackdrop = styled.div`
   background: rgba(0, 0, 0, .5);
   backdrop-filter: blur(48px);
@@ -40,7 +36,6 @@ const Header: React.FC<{}> = () => {
                     <span>Facade</span>
                 </HeaderLayout>
             </HeaderBackdrop>
-            <div style={headerGapStyle} />
         </>
     )
 }
