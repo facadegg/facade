@@ -37,19 +37,24 @@ const Chrome = styled.div`
 
 const FaceChooserPanel = styled.div`
   display: flex;
-  flex-wrap: wrap;
-  padding: 32px 0 32px 0;
 
   @media (max-width: 768px) {
-    justify-content: space-between;
+    flex-direction: row;
+    min-height: calc(9.45rem + 1rem);
+    overflow-x: scroll;
   }
   
-  @media (max-width: 1024px) {
+  @media (min-width: 768px) {
+    flex-direction: column;
     flex-grow: 1;
+    flex-wrap: wrap;
+    padding: 32px 0 32px 0;
   }
   
   @media (min-width: 1024px) {
     flex-direction: column;
+    flex-grow: 0;
+    flex-wrap: wrap;
     padding: 8px 32px 0 32px;
     max-height: 400px;
     min-width: 400px;
@@ -58,9 +63,10 @@ const FaceChooserPanel = styled.div`
 
 const FaceChoice = styled.div`
   font-size: 12px;
+  margin-top: 8px;
   margin-bottom: 12%;
   text-align: center;
-  width: 30%;
+  min-width: 6.45rem;
   
   &> img {
     aspect-ratio: 86 / 126;
