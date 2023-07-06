@@ -172,7 +172,7 @@ const PreviewApplication: React.FC<{
                     autoPlay={true}
                     loop={true}
                     ref={faceFeedRef}
-                    src={`https://r2.facade.gg/samples/man-talking-video-call-living-room/${face}.webm`}
+                    src={`https://r2.facade.gg/samples/man-talking-video-call-living-room/${face}.mp4`}
                 />
             </CameraPanel>
             <FaceChooserPanel>
