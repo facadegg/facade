@@ -14,13 +14,32 @@ const Pill = styled.div`
 `
 
 const Title = styled.h1`
+  background: linear-gradient(0deg, white, #536a80);
   font-size: 3rem;
   font-weight: normal;
   margin-top: 1rem;
   margin-bottom: 0;
-  
-  @media(min-width: 768px) {
+
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+
+  @media (min-width: 768px) {
     font-size: 6rem;
+  }
+`
+
+const Subheading = styled.h2`
+  background: linear-gradient(0deg, white, #718ba8);
+  font-size: 1.5rem;
+  font-weight: normal;
+  margin-top: 1rem;
+  margin-bottom: 0;
+
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+
+  @media (min-width: 768px) {
+    font-size: 3rem;
   }
 `
 
@@ -41,7 +60,7 @@ const Spacing = styled.div`
 
 const Box = styled.div`
   align-items: center;
-  background-image: linear-gradient(-22.5deg, #1d2121 0%, #000000 74%);
+  background-image: linear-gradient(-22.5deg, #1d211e 0%, #000000 100%);
   display: flex;
   flex-direction: column;
   padding: calc(42px + 4rem) 0 10rem 0;
@@ -53,21 +72,31 @@ const Box = styled.div`
   }
 `
 
+const Tile = styled.div`
+  border: 1px solid rgba(255, 255, 255, 0.17);
+  border-radius: 24px;
+  margin: 2rem;
+`
+
 const IndexPage: React.FC<PageProps> = () => {
   return (
     <Page>
         <Box>
-            <Title>Reimagine Reality</Title>
+            <Title>Beyond Reality</Title>
             <TagLine>
-                Facade gives your camera the capabilities to
-                reimagine how you present yourself.
+                Facade redefines how you present yourself in a digital world
             </TagLine>
             <Spacing />
             <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" target="_blank">
                 <img src={DownloadOnTheMacAppStore} alt="Download on the Mac App Store" />
             </a>
             <Spacing />
-            <Preview />
+
+            <Subheading>Become a new persona</Subheading>
+            <p style={{padding: '0 24px 0 24px', textAlign: 'center', marginBottom: 0}}>Swap your face with someone else, no lag.</p>
+            <Tile>
+                <Preview />
+            </Tile>
         </Box>
     </Page>
   )
@@ -75,4 +104,4 @@ const IndexPage: React.FC<PageProps> = () => {
 
 export default IndexPage
 
-export const Head: HeadFC = () => <title>Facade − A way to reimagine reality</title>
+export const Head: HeadFC = () => <title>Facade − A camera beyond reality</title>

@@ -4,72 +4,75 @@ import styled from "styled-components";
 import bryanGreynolds from '../images/preview/Bryan_Greynolds.png'
 
 const CameraPanel = styled.div`
-  aspect-ratio: 1920 / 1080;
+  flex-grow: 1;
   text-align: center;
-  padding-bottom: 16px;
-  padding-top: 8px;
   min-width: 0;
+  min-height: 0;
+  height: 100%;
+
+  @media (min-width: 1024px) {
+    padding: 2rem;
+  }
 `
 
 const CameraFeed = styled.video`
   aspect-ratio: 1920 / 1080;
   border-radius: 12px;
-  max-height: 1080px;
-  max-width: 1920px;
+  max-height: 360px;
+  max-width: 480px;
   width: 100%;
 `
 
 const Chrome = styled.div`
-  aspect-ratio: 902 / 728;
   border-radius: 1.76%;
   display: flex;
   flex-direction: column;
   max-width: min(80vw, 902px);
+  padding: 2em 1em 0 1em;
   transition: opacity 0.5s linear;
 
   @media (min-width: 1024px) {
+    align-items: center;
     flex-direction: row;
-    margin: 0 128px 0 128px;
     max-height: 900px;
-    max-width: 100%;
+    max-width: min(67em, 100vw);
+    min-height: 0;
+    height: fit-content;
+    padding: 1em 0 1em 0;
+    width: fit-content;
   }
 `
 
 const FaceChooserPanel = styled.div`
   display: flex;
+  gap: 18px;
 
-  @media (max-width: 768px) {
+  @media (max-width: 1024px) {
     flex-direction: row;
-    min-height: calc(9.45rem + 1rem);
+    min-height: calc(6.45rem + 1rem);
     overflow-x: scroll;
-  }
-  
-  @media (min-width: 768px) {
-    flex-direction: column;
-    flex-grow: 1;
-    flex-wrap: wrap;
-    padding: 32px 0 32px 0;
+    padding-top: 2em;
   }
   
   @media (min-width: 1024px) {
-    flex-direction: column;
-    flex-grow: 0;
     flex-wrap: wrap;
-    padding: 8px 32px 0 32px;
+    padding: 0 32px 0 32px;
     max-height: 400px;
-    min-width: 400px;
+    flex-basis: 484px;
   }
 `
 
 const FaceChoice = styled.div`
   font-size: 12px;
-  margin-top: 8px;
-  margin-bottom: 12%;
   text-align: center;
   min-width: 6.45rem;
+  margin-bottom: 0;
+  height: fit-content;
   
   &> img {
     aspect-ratio: 86 / 126;
+    max-height: 140px;
+    max-width: 95.55px;
     width: 53.84%;
   }
   
@@ -88,14 +91,12 @@ const FaceChoice = styled.div`
     outline: 3px solid #ABFFC6;
   }
   
-  @media (min-width: 768px) {
-    margin-bottom: 4%;
-    width: 20%;
-  }
-
   @media (min-width: 1024px) {
-    margin-bottom: 48px;
-    width: 30%;
+    flex-basis: 20%;
+
+    &:first-child {
+      margin-bottom: 1em;
+    }
   }
 `
 
