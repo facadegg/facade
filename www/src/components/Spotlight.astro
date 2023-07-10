@@ -26,7 +26,7 @@ const { title, description, ltr= true } = Astro.props
 </div>
 <style>
     .spotlight-area {
-        padding: 8rem 0 8rem 0;
+        padding: 1rem 1rem;
         width: 100%;
     }
     .spotlight {
@@ -35,17 +35,15 @@ const { title, description, ltr= true } = Astro.props
         flex-direction: column-reverse;
         justify-content: space-between;
         margin: 0 auto 0 auto;
-        max-width: 80em;
-        width: 80%;
+        max-width: min(80em, calc(100% - 2rem));
+        min-width: min(80em, 80%);
     }
     .spotlight-slot {
         display: flex;
         max-width: 44rem;
-        min-width: 50%;
         justify-content: center;
     }
     .spotlight-content {
-        min-width: 40%;
         text-align: center;
         padding: 0 0 2rem 0;
         position: relative;
@@ -54,15 +52,20 @@ const { title, description, ltr= true } = Astro.props
         margin: 0 auto 0 auto;
     }
     .spotlight-text > *:first-child {
-        max-width: 32rem;;
+        line-height: 1em;
+        max-width: 32rem;
+        margin-bottom: 1rem;
     }
     .spotlight-text > *:last-child {
         color: #aaa;
-        max-width: 30rem;
-        margin-top: 2rem;
+        max-width: 24rem;
+        line-height: 1.2em;
     }
 
     @media (min-width: 768px) {
+        .spotlight-area {
+            padding: 8rem 0;
+        }
         .spotlight {
             flex-direction: row;
         }
@@ -71,6 +74,14 @@ const { title, description, ltr= true } = Astro.props
         }
         .spotlight-content {
             padding: 5rem 0;
+        }
+        .spotlight-text > *:first-child {
+            line-height: 1.4em;
+        }
+        .spotlight-text > *:last-child {
+            line-height: 1.4em;
+            max-width: 30rem;
+            margin-top: 2rem;
         }
     }
 </style>

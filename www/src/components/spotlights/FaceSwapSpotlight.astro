@@ -1,0 +1,49 @@
+---
+import Spotlight from '../Spotlight.astro'
+---
+
+<Spotlight
+    title="Take on a new persona"
+    description="Become someone entirely new with real-time face swap technology powered by DeepFaceLab"
+>
+    <div class="face-swap-preview">
+        <section class="face-swap-choices">
+            <img src="/images/Bryan_Greynolds.jpeg" width="140" height="180" />
+            <img src="/images/Ewon_Spice.jpeg" width="140" height="180" />
+            <img src="/images/Kim_Jarrey.jpeg" width="140" height="180" />
+            <img src="/images/Tim_Chrys.jpeg" width="140" height="180" />
+        </section>
+        <video
+            autoplay
+            height="320px"
+            loop
+            src="https://r2.facade.gg/samples/man-talking-video-call-living-room/Anna_Tolipova.mp4"
+            width="569px"
+        />
+    </div>
+</Spotlight>
+<style>
+    video {
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    .face-swap-preview {
+        align-items: center;
+        display: flex;
+        gap: 0.75em;
+        padding: 0 12px;
+        margin-left: 24px;
+    }
+    .face-swap-choices {
+        border-radius: 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        max-height: 320px;
+        overflow: scroll;
+    }
+    .face-swap-choices > img {
+        border-radius: 12px;
+    }
+</style>

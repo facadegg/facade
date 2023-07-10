@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import Card from '../components/Card.astro';
+import FaceSwapSpotlight from '../components/spotlights/FaceSwapSpotlight.astro';
 import Spotlight from '../components/Spotlight.astro';
 import downloadOnTheMacAppStoreIcon from '../components/icons/Download_on_the_Mac_App_Store_Badge_US-UK_RGB_blk_092917.svg';
 import facadeIcon from '../components/icons/FacadeIcon.svg';
@@ -15,36 +16,39 @@ import zoom from '../components/icons/Zoom.svg';
 			<img src={`${facadeIcon}`} />
 			Facade
 			<div class="spacer"></div>
-			<a>Download</a>
+			<a class="collapsible">Download</a>
 			<a>Resources</a>
 		</div>
 	</header>
 	<main>
+		<div class="stars stars-1"></div>
+		<div class="stars stars-2"></div>
+		<div class="stars stars-3"></div>
+		<div class="stars stars-4"></div>
 		<h1>Pushing Video Beyond Reality</h1>
-		<h4 style="color: #bbb; margin-top: 1em;">
+		<h3 class="subtitle">
 			Experience a world in which you can be anyone.
-			<br />
+		</h3>
+		<h3 class="subtitle">
 			Redefine how you express yourself in online meetings.
-		</h4>
-		<button class="download">
+		</h3>
+		<a
+			class="download"
+		   	href="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+			target="_blank"
+		>
 			<img src={`${downloadOnTheMacAppStoreIcon}`} />
-		</button>
+		</a>
 		<p>Coming to other platforms</p>
-		<section style="align-items: center; display: flex; flex-direction: column; gap: .75em;">
+		<!-- <section style="align-items: center; display: flex; flex-direction: column; gap: .75em;">
 			<div class="meeting-tools" style="display: flex; gap: 1.25em;">
 				<img src={`${googleMeet}`} />
 				<img src={`${zoom}`} />
 				<img src={`${teamflow}`} />
 			</div>
-			<p>Works with all your meeting tools</p>
-		</section>
-		<div style="height: 2rem"></div>
-		<Spotlight
-			title="Take on a new persona"
-			description="Become someone entirely new with real-time face swap technology powered by DeepFaceLab"
-		>
-			<img src="/images/Anna_Tolipova.png" />
-		</Spotlight>
+			<p style="padding: 0; margin: 0">Works with all your meeting tools</p>
+		</section> -->
+		<FaceSwapSpotlight />
 		<Spotlight
 			title="Focus on yourself"
 			description="Blur out the noise behind you and keep everyone focused on your face"
@@ -63,13 +67,11 @@ import zoom from '../components/icons/Zoom.svg';
 
 <style>
 	header {
-		backdrop-filter: blur(80px);
 		padding: 1.375em;
 		position: fixed;
 		top: 0;
-		width: 100%;
+		width: calc(100% - 2.75em);
 		z-index: 1;
-		-webkit-backdrop-filter: blur(80px);
 	}
 	header > .shrink {
 		display: flex;
@@ -77,23 +79,28 @@ import zoom from '../components/icons/Zoom.svg';
 		font-size: 1em;
 		gap: .875rem;
 		margin: 0 auto 0 auto;
-		max-width: 1124px;
+		max-width: 80em;
 		width: 100%;
 	}
 	header > .shrink > .spacer {
 		flex-basis: 0;
 		flex-grow: 1;
 	}
-	header > .shrink > a {
+	header > .shrink > .collapsible {
 		display: none;
 	}
+	header > .shrink > a {
+		display: block;
+	}
 	.header-collapsed {
+		backdrop-filter: blur(80px);
 		padding-top: 1em;
 		padding-bottom: 1em;
+		-webkit-backdrop-filter: blur(80px);
 	}
 	@media (min-width: 768px) {
 		header {
-			padding: 2em;
+			padding: 2em 0;
 		}
 
 		header > .shrink {
@@ -103,33 +110,65 @@ import zoom from '../components/icons/Zoom.svg';
 		header > .shrink > a {
 			display: block;
 		}
+
+		header > .shrink > .collapsible {
+			display: block;
+		}
 	}
 
 	main {
+		align-items: center;
+		display: flex;
+		flex-direction: column;
 		margin-top: 7em;
 		text-align: center;
 		width: 100%;
 	}
-	button.download {
+	h1 {
+		max-width: 15rem;
+	}
+	.subtitle {
+		color: #bbb;
+		max-width: 18rem;
+		margin-top: 0.5em;
+		margin-bottom: 0;
+		padding: 0;
+	}
+	.download {
 		background: none;
 		border: none;
+		display: block;
 		margin-top: 3em;
 		padding: 0;
+	}
+	.meeting-tools {
+		margin-top: 4rem;
 	}
 	.meeting-tools > img {
 		height: 2em;
 		text-align: center;
 	}
-	.meeting-tools > p {
-		margin: 0;
-		padding: 0;
+	@media (max-width: 768px) {
+		h3:first-of-type {
+			margin-top: 2em;
+		}
 	}
 	@media (min-width: 768px) {
 		main {
 			margin-top: 10em;
 		}
+		h1 {
+			max-width: 100%;
+		}
+		.subtitle {
+			line-height: .9em;
+			max-width: 100%;
+		}
+		.subtitle:first-of-type {
+			margin-top: 1em;
+		}
 
-		button.download > img {
+		.download > img {
 			height: 3.125rem;
 		}
 	}
@@ -138,6 +177,103 @@ import zoom from '../components/icons/Zoom.svg';
 		display: block;
 		max-width: 100%;
 		width: 100%;
+	}
+
+	video {
+		border-radius: 12px;
+		overflow: hidden;
+	}
+
+	@keyframes stars {
+		from {
+			transform: translate(0px, 0px);
+		}
+
+		34% {
+			transform: translate(-40px, 100px);
+		}
+
+		67% {
+			transform: translate(80px, -20px);
+		}
+
+		to {
+			transform: translate(0px, 0px);
+		}
+	}
+
+	@keyframes sparkle {
+		from {
+			opacity: 87%;
+		}
+
+		50% {
+			opacity: 34%;
+		}
+
+		to {
+			opacity: 87%;
+		}
+	}
+
+	.stars {
+		border-radius: 2px;
+		left: 0;
+		height: 2px;
+		position: absolute;
+		top: 0;
+		width: 2px;
+		z-index: -1;
+	}
+
+	.stars-1 {
+		animation: stars 300s ease infinite,
+				   sparkle 25s ease infinite;
+		box-shadow: calc(50vw - 088px) 303px #a4ceb1,
+					calc(50vw - 047px) 301px #a4ceb1,
+					calc(50vw + 261px) 439px #a4ceb1,
+					calc(50vw + 334px) 322px #a4ceb1,
+					calc(50vw + 099px) 440px #a4ceb1,
+					calc(50vw - 380px) 280px #a4ceb1,
+					calc(50vw - 332px) 463px #a4ceb1,
+					calc(50vw + 399px) 365px #a4ceb1,
+					calc(50vw - 305px) 170px #a4ceb1;
+	}
+
+	.stars-2 {
+		animation: sparkle 12s ease infinite;
+		box-shadow: calc(50vw - 029px) 169px #a4ceb1,
+					calc(50vw - 097px) 344px #a4ceb1,
+					calc(50vw + 202px) 299px #a4ceb1,
+					calc(50vw - 051px) 369px #a4ceb1,
+					calc(50vw + 180px) 368px #a4ceb1,
+					calc(50vw + 308px) 461px #a4ceb1,
+					calc(50vw + 129px) 152px #a4ceb1,
+					calc(50vw - 293px) 437px #a4ceb1;
+	}
+
+	.stars-3 {
+		animation: sparkle 40s ease-in-out infinite;
+		box-shadow: calc(50vw - 156px) 275px #a4ceb1,
+					calc(50vw - 223px) 416px #a4ceb1,
+					calc(50vw + 376px) 135px #a4ceb1,
+					calc(50vw - 310px) 482px #a4ceb1,
+					calc(50vw + 415px) 362px #a4ceb1,
+					calc(50vw + 233px) 421px #a4ceb1,
+					calc(50vw + 49px) 156px #a4ceb1,
+					calc(50vw - 409px) 408px #a4ceb1;
+	}
+
+	.stars-4 {
+		animation: sparkle 30s ease-in-out infinite;
+		box-shadow: calc(50vw + 181px) 287px #a4ceb1,
+					calc(50vw + 22px) 76px #a4ceb1,
+					calc(50vw - 413px) 384px #a4ceb1,
+					calc(50vw - 374px) 129px #a4ceb1,
+					calc(50vw + 345px) 248px #a4ceb1,
+					calc(50vw + 108px) 319px #a4ceb1,
+					calc(50vw - 288px) 458px #a4ceb1,
+					calc(50vw - 40px) 182px #a4ceb1;
 	}
 </style>
 <script>

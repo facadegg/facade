@@ -66,8 +66,9 @@ const { title } = Astro.props;
 	}
 
 	html {
-		background: radial-gradient(ellipse 100% 20rem at 0% 2rem, #1D1D1D, #111),
-					radial-gradient(ellipse 100% 20rem at 100% 2rem, #1D1D1D, #111) no-repeat;
+		background: radial-gradient(ellipse 50% 80rem at 0% 15rem, #1D1D1D, rgba(0, 0, 0, .16)),
+					radial-gradient(ellipse 50% 80rem at 50% 3rem, #1D1D1D, rgba(0, 0, 0, .16)),
+				    black;
 		color: #eee;
 		font-family: Inter, system-ui, sans-serif;
 		margin: 0;
@@ -99,9 +100,9 @@ const { title } = Astro.props;
 	}
 	h3 {
 		font-size: 1.25em;
-		font-weight: 600;
 		margin-top: 2rem;
 		margin-bottom: 0.25rem;
+		line-height: 1.5em;
 	}
 	h4 {
 		font-size: 1em;
@@ -109,6 +110,12 @@ const { title } = Astro.props;
 		line-height: 1.5em;
 		margin: 0;
 		padding: 0;
+	}
+
+	h1, h2 {
+		background: linear-gradient(180deg, #fff 22.5%, rgba(255,255,255,.7) 100%);
+		background-clip: text;
+		-webkit-text-fill-color: transparent;
 	}
 
 	@media (min-width: 768px) {
@@ -125,7 +132,7 @@ const { title } = Astro.props;
 
 		h3 {
 			font-size: 2em;
-			font-weight: 500;
+			font-weight: 400;
 			margin-top: 1rem;
 		}
 
