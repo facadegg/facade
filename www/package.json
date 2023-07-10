@@ -1,41 +1,15 @@
 {
-  "name": "facade.gg",
-  "version": "1.0.0",
-  "private": true,
-  "description": "facade.gg",
-  "author": "Shukant Pal <shukant@facade.gg>",
-  "keywords": [
-    "gatsby"
-  ],
+  "name": "www",
+  "type": "module",
+  "version": "0.0.1",
   "scripts": {
-    "develop": "gatsby develop",
-    "start": "gatsby develop",
-    "build": "gatsby build",
-    "serve": "gatsby serve",
-    "clean": "gatsby clean",
-    "typecheck": "tsc --noEmit"
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
   },
   "dependencies": {
-    "@mdx-js/react": "^2.3.0",
-    "babel-plugin-styled-components": "^2.1.1",
-    "gatsby": "^5.9.1",
-    "gatsby-plugin-image": "^3.9.0",
-    "gatsby-plugin-manifest": "^5.9.0",
-    "gatsby-plugin-mdx": "^5.9.0",
-    "gatsby-plugin-sharp": "^5.9.0",
-    "gatsby-plugin-sitemap": "^6.9.0",
-    "gatsby-plugin-styled-components": "^6.9.0",
-    "gatsby-source-filesystem": "^5.9.0",
-    "gatsby-transformer-sharp": "^5.9.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "styled-components": "^6.0.0-rc.1"
-  },
-  "devDependencies": {
-    "@types/node": "^18.16.5",
-    "@types/react": "^18.2.5",
-    "@types/react-dom": "^18.2.4",
-    "typescript": "^5.0.4"
-  },
-  "packageManager": "npm@9.5.0"
+    "astro": "^2.8.0"
+  }
 }

@@ -1,0 +1,167 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Card from '../components/Card.astro';
+import Spotlight from '../components/Spotlight.astro';
+import downloadOnTheMacAppStoreIcon from '../components/icons/Download_on_the_Mac_App_Store_Badge_US-UK_RGB_blk_092917.svg';
+import facadeIcon from '../components/icons/FacadeIcon.svg';
+import googleMeet from '../components/icons/GoogleMeet.svg';
+import teamflow from '../components/icons/Teamflow.svg';
+import zoom from '../components/icons/Zoom.svg';
+---
+
+<Layout title="Welcome to Astro.">
+	<header>
+		<div class="shrink">
+			<img src={`${facadeIcon}`} />
+			Facade
+			<div class="spacer"></div>
+			<a>Download</a>
+			<a>Resources</a>
+		</div>
+	</header>
+	<main>
+		<h1>Pushing Video Beyond Reality</h1>
+		<h4 style="color: #bbb; margin-top: 1em;">
+			Experience a world in which you can be anyone.
+			<br />
+			Redefine how you express yourself in online meetings.
+		</h4>
+		<button class="download">
+			<img src={`${downloadOnTheMacAppStoreIcon}`} />
+		</button>
+		<p>Coming to other platforms</p>
+		<section style="align-items: center; display: flex; flex-direction: column; gap: .75em;">
+			<div class="meeting-tools" style="display: flex; gap: 1.25em;">
+				<img src={`${googleMeet}`} />
+				<img src={`${zoom}`} />
+				<img src={`${teamflow}`} />
+			</div>
+			<p>Works with all your meeting tools</p>
+		</section>
+		<div style="height: 2rem"></div>
+		<Spotlight
+			title="Take on a new persona"
+			description="Become someone entirely new with real-time face swap technology powered by DeepFaceLab"
+		>
+			<img src="/images/Anna_Tolipova.png" />
+		</Spotlight>
+		<Spotlight
+			title="Focus on yourself"
+			description="Blur out the noise behind you and keep everyone focused on your face"
+			ltr={false}
+		>
+			<img src="/images/Anna_Tolipova.png" />
+		</Spotlight>
+		<Spotlight
+			title="Unparalleled customization"
+			description="The Facade SDK lets developers create custom-tailored video effects"
+		>
+			<img src="/images/Anna_Tolipova.png" />
+		</Spotlight>
+	</main>
+</Layout>
+
+<style>
+	header {
+		backdrop-filter: blur(80px);
+		padding: 1.375em;
+		position: fixed;
+		top: 0;
+		width: 100%;
+		z-index: 1;
+		-webkit-backdrop-filter: blur(80px);
+	}
+	header > .shrink {
+		display: flex;
+		flex-direction: row;
+		font-size: 1em;
+		gap: .875rem;
+		margin: 0 auto 0 auto;
+		max-width: 1124px;
+		width: 100%;
+	}
+	header > .shrink > .spacer {
+		flex-basis: 0;
+		flex-grow: 1;
+	}
+	header > .shrink > a {
+		display: none;
+	}
+	.header-collapsed {
+		padding-top: 1em;
+		padding-bottom: 1em;
+	}
+	@media (min-width: 768px) {
+		header {
+			padding: 2em;
+		}
+
+		header > .shrink {
+			gap: 2rem;
+		}
+
+		header > .shrink > a {
+			display: block;
+		}
+	}
+
+	main {
+		margin-top: 7em;
+		text-align: center;
+		width: 100%;
+	}
+	button.download {
+		background: none;
+		border: none;
+		margin-top: 3em;
+		padding: 0;
+	}
+	.meeting-tools > img {
+		height: 2em;
+		text-align: center;
+	}
+	.meeting-tools > p {
+		margin: 0;
+		padding: 0;
+	}
+	@media (min-width: 768px) {
+		main {
+			margin-top: 10em;
+		}
+
+		button.download > img {
+			height: 3.125rem;
+		}
+	}
+
+	.spotlight-slot img {
+		display: block;
+		max-width: 100%;
+		width: 100%;
+	}
+</style>
+<script>
+	document.addEventListener('scroll', function () {
+		const header = document.querySelector('header')
+		const scroll = document.documentElement.scrollTop
+		const desktop = window.innerWidth > 768
+		const basePadding = desktop ? 32 : 22
+		const baseAlpha = .16
+
+		if (scroll < basePadding / 2) {
+			header.classList.remove('header-collapsed')
+			Object.assign(header.style, {
+				background: `rgba(0, 0, 0, ${baseAlpha * scroll * 0.5 / basePadding})`,
+				paddingBottom: `${basePadding - scroll}px`,
+				paddingTop: `${basePadding - scroll}px`
+			})
+		} else {
+			header.classList.add('header-collapsed')
+			Object.assign(header.style, {
+				background: `rgba(0, 0, 0, ${baseAlpha})`,
+				paddingBottom: undefined,
+				paddingTop: undefined,
+			})
+		}
+	})
+</script>
