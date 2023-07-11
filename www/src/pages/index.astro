@@ -54,13 +54,13 @@ import zoom from '../components/icons/Zoom.svg';
 			description="Blur out the noise behind you and keep everyone focused on your face"
 			ltr={false}
 		>
-			<img src="/images/Anna_Tolipova.png" />
+			<img class="ip" src="/images/Anna_Tolipova.png" />
 		</Spotlight>
 		<Spotlight
 			title="Unparalleled customization"
 			description="The Facade SDK lets developers create custom-tailored video effects"
 		>
-			<img src="/images/Anna_Tolipova.png" />
+			<img class="ip" src="/images/Anna_Tolipova.png" />
 		</Spotlight>
 	</main>
 </Layout>
@@ -100,7 +100,8 @@ import zoom from '../components/icons/Zoom.svg';
 	}
 	@media (min-width: 768px) {
 		header {
-			padding: 2em 0;
+			padding: 2em 2em;
+			width: calc(100% - 4em);
 		}
 
 		header > .shrink {
@@ -125,7 +126,7 @@ import zoom from '../components/icons/Zoom.svg';
 		width: 100%;
 	}
 	h1 {
-		max-width: 15rem;
+		max-width: 20rem;
 	}
 	.subtitle {
 		color: #bbb;
@@ -173,10 +174,16 @@ import zoom from '../components/icons/Zoom.svg';
 		}
 	}
 
-	.spotlight-slot img {
+	img.ip {
 		display: block;
-		max-width: 100%;
-		width: 100%;
+		max-width: 90vw;
+	}
+	@media (min-width: 768px) {
+		img.ip {
+			display: block;
+			max-width: 100%;
+			width: 100%;
+		}
 	}
 
 	video {

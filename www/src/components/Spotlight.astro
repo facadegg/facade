@@ -9,8 +9,7 @@ const { title, description, ltr= true } = Astro.props
 ---
 
 <div
-        class="spotlight-area"
-        style=`background: radial-gradient(ellipse 50% 50% at ${ltr ? 70 : 30}% 50%, #1D1D1D, #111) black no-repeat`>
+        class="spotlight-area">
     <div class=`spotlight ${ltr ? '' : 'spotlight-rtl'}`>
         <section class="spotlight-slot">
             <slot />
@@ -26,7 +25,7 @@ const { title, description, ltr= true } = Astro.props
 </div>
 <style>
     .spotlight-area {
-        padding: 1rem 1rem;
+        padding: 1rem 2rem;
         width: 100%;
     }
     .spotlight {
@@ -35,7 +34,7 @@ const { title, description, ltr= true } = Astro.props
         flex-direction: column-reverse;
         justify-content: space-between;
         margin: 0 auto 0 auto;
-        max-width: min(80em, calc(100% - 2rem));
+        max-width: min(80em, calc(100% - 4rem));
         min-width: min(80em, 80%);
     }
     .spotlight-slot {
