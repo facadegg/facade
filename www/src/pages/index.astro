@@ -38,7 +38,8 @@ import zoom from '../components/icons/Zoom.svg';
 		>
 			<img src={`${downloadOnTheMacAppStoreIcon}`} />
 		</a>
-		<p style="color: #aaa">Coming to other platforms</p>
+		<p class="caption" style="color: #aaa">Coming to other platforms</p>
+		<div class="hero-spacer"></div>
 		<!-- <section style="align-items: center; display: flex; flex-direction: column; gap: .75em;">
 			<div class="meeting-tools" style="display: flex; gap: 1.25em;">
 				<img src={`${googleMeet}`} />
@@ -124,7 +125,12 @@ import zoom from '../components/icons/Zoom.svg';
 		text-align: center;
 		width: 100%;
 	}
+	.hero-spacer {
+		min-height: 7em;
+		min-width: 100%;
+	}
 	h1 {
+		margin-top: 0;
 		max-width: 20rem;
 	}
 	.subtitle {
@@ -144,6 +150,11 @@ import zoom from '../components/icons/Zoom.svg';
 		margin-top: 3em;
 		padding: 0;
 	}
+	.caption {
+		font-size: 1rem;
+		margin-top: .5rem;
+		margin-bottom: 0;
+	}
 	.meeting-tools {
 		margin-top: 4rem;
 	}
@@ -160,18 +171,21 @@ import zoom from '../components/icons/Zoom.svg';
 		main {
 			margin-top: 10em;
 		}
+		.hero-spacer {
+			min-height: 10em;
+		}
 		h1 {
 			max-width: 100%;
 		}
 		.subtitle {
-			line-height: 1.2em;
+			line-height: 1.4em;
 			max-width: 100%;
 		}
 		.subtitle > br {
 			display: inline;
 		}
-		.subtitle:first-of-type {
-			margin-top: 1em;
+		.subtitle:first-of-type, .download {
+			margin-top: 3rem;
 		}
 
 		.download > img {

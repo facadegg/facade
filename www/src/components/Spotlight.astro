@@ -25,7 +25,8 @@ const { title, description, ltr= true } = Astro.props
 </div>
 <style>
     .spotlight-area {
-        padding: 1rem 2rem;
+        padding: 0 2rem 1rem 2rem;
+        margin-bottom: 2rem;
         width: 100%;
     }
     .spotlight {
@@ -53,17 +54,19 @@ const { title, description, ltr= true } = Astro.props
     .spotlight-text > *:first-child {
         line-height: 1em;
         max-width: 32rem;
+        margin-top: 0;
         margin-bottom: 1rem;
+        padding-top: 0;
     }
     .spotlight-text > *:last-child {
         color: #aaa;
         max-width: 24rem;
-        line-height: 1.2em;
     }
 
     @media (min-width: 768px) {
         .spotlight-area {
-            padding: 8rem 0;
+            margin-bottom: 8rem;
+            padding: 0 8rem 8rem 8rem;
         }
         .spotlight {
             flex-direction: row;
