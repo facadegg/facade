@@ -28,8 +28,7 @@ import zoom from '../components/icons/Zoom.svg';
 		<h1>Pushing Video Beyond Reality</h1>
 		<h3 class="subtitle">
 			Experience a world in which you can be anyone.
-		</h3>
-		<h3 class="subtitle">
+			<br />
 			Redefine how you express yourself in online meetings.
 		</h3>
 		<a
@@ -130,10 +129,13 @@ import zoom from '../components/icons/Zoom.svg';
 	}
 	.subtitle {
 		color: #bbb;
-		max-width: 18rem;
+		max-width: 22rem;
 		margin-top: 0.5em;
 		margin-bottom: 0;
 		padding: 0;
+	}
+	.subtitle > br {
+		display: none;;
 	}
 	.download {
 		background: none;
@@ -162,8 +164,11 @@ import zoom from '../components/icons/Zoom.svg';
 			max-width: 100%;
 		}
 		.subtitle {
-			line-height: .9em;
+			line-height: 1.2em;
 			max-width: 100%;
+		}
+		.subtitle > br {
+			display: inline;
 		}
 		.subtitle:first-of-type {
 			margin-top: 1em;
