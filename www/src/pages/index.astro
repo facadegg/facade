@@ -133,10 +133,10 @@ import zoom from '../components/icons/Zoom.svg';
 		margin-top: 0;
 		max-width: 20rem;
 	}
-	.subtitle {
+	h3.subtitle {
 		color: #bbb;
 		max-width: 22rem;
-		margin-top: 0.5em;
+		margin-top: 2em;
 		margin-bottom: 0;
 		padding: 0;
 	}
@@ -162,11 +162,6 @@ import zoom from '../components/icons/Zoom.svg';
 		height: 2em;
 		text-align: center;
 	}
-	@media (max-width: 768px) {
-		h3:first-of-type {
-			margin-top: 2em;
-		}
-	}
 	@media (min-width: 768px) {
 		main {
 			margin-top: 10em;
@@ -177,14 +172,17 @@ import zoom from '../components/icons/Zoom.svg';
 		h1 {
 			max-width: 100%;
 		}
-		.subtitle {
+		h3.subtitle {
 			line-height: 1.4em;
 			max-width: 100%;
 		}
 		.subtitle > br {
 			display: inline;
 		}
-		.subtitle:first-of-type, .download {
+		.subtitle:first-of-type {
+			margin-top: calc(3rem - 12px);
+		}
+		.download {
 			margin-top: 3rem;
 		}
 
