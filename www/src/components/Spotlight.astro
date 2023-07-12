@@ -32,7 +32,7 @@ const { title, description, ltr= true } = Astro.props
     .spotlight {
         align-items: center;
         display: flex;
-        flex-direction: column-reverse;
+        flex-direction: column;
         justify-content: space-between;
         margin: 0 auto 0 auto;
         max-width: min(80em, calc(100% - 4rem));
@@ -44,17 +44,16 @@ const { title, description, ltr= true } = Astro.props
         justify-content: center;
     }
     .spotlight-content {
-        text-align: center;
-        padding: 0 0 2rem 0;
+        padding: 0 0 2rem 3px;
         position: relative;
+        text-align: start;
     }
     .spotlight-text {
         margin: 0 auto 0 auto;
     }
     .spotlight-text > *:first-child {
         line-height: 1em;
-        max-width: 32rem;
-        margin-top: 0;
+        /*margin-top: 0;*/
         margin-bottom: 1rem;
         padding-top: 0;
     }
