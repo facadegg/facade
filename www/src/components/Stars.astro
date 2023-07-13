@@ -6,11 +6,25 @@
     .stars {
         border-radius: 2px;
         left: 0;
-        height: 2px;
         position: absolute;
         top: 0;
-        width: 2px;
         z-index: -2;
+    }
+
+    @media (max-width: 992px) {
+        .stars {
+            height: 4px;
+            transform: scale(.5);
+            transform-origin: 50vw 0;
+            width: 4px;
+        }
+    }
+
+    @media (min-width: 992px) {
+        .stars {
+            height: 2px;
+            width: 2px;
+        }
     }
 
     .stars-1 {
@@ -61,5 +75,41 @@
         calc(50vw + 108px) 319px #a4ceb1,
         calc(50vw - 288px) 458px #a4ceb1,
         calc(50vw - 40px) 182px #a4ceb1;
+    }
+
+    @keyframes stars {
+        from {
+            left: 0;
+            top: 0;
+        }
+
+        34% {
+            left: -40px;
+            top: 100px;
+        }
+
+        67% {
+            left: 80px;
+            top: -20px;
+        }
+
+        to {
+            left: 0;
+            top: 0;
+        }
+    }
+
+    @keyframes sparkle {
+        from {
+            opacity: 87%;
+        }
+
+        50% {
+            opacity: 34%;
+        }
+
+        to {
+            opacity: 87%;
+        }
     }
 </style>
