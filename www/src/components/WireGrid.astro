@@ -20,6 +20,10 @@
     <div class="y"></div>
     <div class="y"></div>
     <div class="y"></div>
+
+    <div class="spark spark-y spark-1"></div>
+    <div class="spark spark-y spark-2"></div>
+    <div class="spark spark-x spark-3"></div>
 </div>
 <style>
     .grid {
@@ -116,5 +120,112 @@
     }
     .grid > .y:nth-child(20) {
         left: 90%;
+    }
+
+    @keyframes spark-x {
+        0% {
+            left: 0;
+        }
+
+        100% {
+            left: calc(100% - 2px);
+        }
+    }
+    @keyframes spark-y {
+        0% {
+            top: 100px;
+        }
+
+        100% {
+            top: calc(100% - 2px);
+        }
+    }
+    @keyframes spark-pause-70p {
+        0% {
+            opacity: 0;
+        }
+
+        69.9% {
+            opacity: 0;
+        }
+
+        70.1% {
+            opacity: 1;
+        }
+
+        100% {
+            opacity: 1;
+        }
+    }
+    @keyframes spark-pause-90p {
+        0% {
+            opacity: 0;
+        }
+
+        89.9% {
+            opacity: 0;
+        }
+
+        90.1% {
+            opacity: 1;
+        }
+
+        100% {
+            opacity: 1;
+        }
+    }
+    @keyframes spark-pause-95p {
+        0% {
+            opacity: 0;
+        }
+
+        94.9% {
+            opacity: 0;
+        }
+
+        95.1% {
+            opacity: 1;
+        }
+
+        100% {
+            opacity: 1;
+        }
+    }
+    .spark {
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 50%;
+        height: 2px;
+        width: 2px;
+    }
+    .spark::before {
+        bottom: 0;
+        content: '';
+        left: 0;
+        position: absolute;
+        width: 2px;
+    }
+    .spark-x {
+        background: linear-gradient(-90deg, #999, transparent);
+        width: 100px;
+        left: -100px;
+    }
+    .spark-y {
+        animation: spark-pause-70p 10s linear infinite, spark-y 3s linear infinite;
+        background: linear-gradient(0deg, #999, transparent);
+        height: 100px;
+        opacity: 0;
+        top: 100px;
+    }
+    .spark-1 {
+        left: calc(80% - 1px);
+    }
+    .spark-2 {
+        animation-delay: 5s;
+        left: calc(20% - 1px);
+    }
+    .spark-3 {
+        animation: spark-pause-95p 20s linear infinite 5s, spark-x 1s linear infinite 4s;
+        opacity: 1;
+        top: calc(30% - 1px);
     }
 </style>
