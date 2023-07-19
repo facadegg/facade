@@ -79,14 +79,13 @@ import Spotlight from '../Spotlight.astro'
         const ctx = canvas.getContext('2d')
         const video = document.createElement('video')
 
-        Object.assign(canvas, {
-            width: 555 * devicePixelRatio,
-            height: 312 * devicePixelRatio,
-        })
+        const width = window.innerWidth > 992 ? 555 * devicePixelRatio : window.innerWidth - 32
+        const height = width * 720 / 1280
 
-        const l = 0, t = 0, r = canvas.width, b = canvas.height
-        ctx.fillStyle = 'black'
-        ctx.fillRect(l, t, r, b)
+        Object.assign(canvas, {
+            width,
+            height,
+        })
 
         video.playsInline = true
         video.autoplay = true
@@ -106,8 +105,10 @@ import Spotlight from '../Spotlight.astro'
         })
 
         function draw() {
-            if (!video.paused)
-                ctx.drawImage(video, l, t, r, b)
+            if (!video.paused) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height)
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
+            }
             requestFrameCallback(draw)
         }
 
