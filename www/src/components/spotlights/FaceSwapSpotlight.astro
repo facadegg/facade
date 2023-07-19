@@ -88,9 +88,10 @@ import Spotlight from '../Spotlight.astro'
         ctx.fillStyle = 'black'
         ctx.fillRect(l, t, r, b)
 
-        video.src = `${BASE_PLAYBACK_URL}/Anna_Tolipova.mp4`
+        video.playsInline = true
         video.autoplay = true
         video.loop = true
+        video.src = `${BASE_PLAYBACK_URL}/Anna_Tolipova.mp4`
 
         const requestFrameCallback = video.requestVideoFrameCallback ? video.requestVideoFrameCallback.bind(video) : requestAnimationFrame
 
