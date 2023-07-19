@@ -24,6 +24,7 @@
     <div class="spark spark-y spark-1"></div>
     <div class="spark spark-y spark-2"></div>
     <div class="spark spark-x spark-3"></div>
+    <div class="spark spark-x spark-4"></div>
 </div>
 <style>
     .grid {
@@ -133,23 +134,23 @@
     }
     @keyframes spark-y {
         0% {
-            top: 100px;
+            top: 0;
         }
 
         100% {
             top: calc(100% - 2px);
         }
     }
-    @keyframes spark-pause-70p {
+    @keyframes spark-pause-75p {
         0% {
             opacity: 0;
         }
 
-        69.9% {
+        74.9% {
             opacity: 0;
         }
 
-        70.1% {
+        75.1% {
             opacity: 1;
         }
 
@@ -195,6 +196,7 @@
         background: rgba(255, 255, 255, 0.9);
         border-radius: 50%;
         height: 2px;
+        opacity: 0;
         width: 2px;
     }
     .spark::before {
@@ -206,26 +208,36 @@
     }
     .spark-x {
         background: linear-gradient(-90deg, #999, transparent);
-        width: 100px;
-        left: -100px;
+        width: 30px;
+        left: -30px;
     }
     .spark-y {
-        animation: spark-pause-70p 10s linear infinite, spark-y 3s linear infinite;
         background: linear-gradient(0deg, #999, transparent);
-        height: 100px;
-        opacity: 0;
-        top: 100px;
+        height: 30px;
+        top: 10px;
     }
     .spark-1 {
+        animation: spark-pause-95p 20s linear infinite -5s, spark-y 1s linear infinite 4s;
         left: calc(80% - 1px);
     }
     .spark-2 {
-        animation-delay: 5s;
+        animation: spark-pause-95p 20s linear infinite -10s, spark-y 1s linear infinite 4s;
         left: calc(20% - 1px);
     }
     .spark-3 {
-        animation: spark-pause-95p 20s linear infinite 5s, spark-x 1s linear infinite 4s;
-        opacity: 1;
+        animation: spark-pause-95p 20s linear infinite -15s, spark-x 1s linear infinite 4s;
         top: calc(30% - 1px);
+    }
+    .spark-4 {
+        animation: spark-pause-95p 20s linear infinite -20s, spark-x 1s reverse infinite 4s;
+        top: calc(40% - 1px);
+    }
+    @media (min-width: 992px) {
+        .spark-3 {
+            top: calc(10% - 1px);
+        }
+        .spark-4 {
+            top: calc(20% - 1px);
+        }
     }
 </style>
