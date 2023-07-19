@@ -8,27 +8,38 @@ import Spotlight from '../Spotlight.astro'
 >
     <div class="face-swap-preview">
         <section class="face-swap-choices">
-            <img src="/images/Bryan_Greynolds.jpeg" width="140" height="180" />
-            <img src="/images/Ewon_Spice.jpeg" width="140" height="180" />
-            <img src="/images/Kim_Jarrey.jpeg" width="140" height="180" />
-            <img src="/images/Tim_Chrys.jpeg" width="140" height="180" />
+            <img src="/images/Bryan_Greynolds.jpeg" width="140" height="180" data-face="Bryan_Greynolds" />
+            <img src="/images/Ewon_Spice.jpeg" width="140" height="180" data-face="Ewon_Spice" />
+            <img src="/images/Kim_Jarrey.jpeg" width="140" height="180" data-face="Kim_Jarrey" />
+            <img src="/images/Tim_Chrys.jpeg" width="140" height="180" data-face="Tim_Chrys" />
         </section>
-        <video
-            autoplay
-            loop
-            src="https://r2.facade.gg/samples/man-talking-video-call-living-room/Anna_Tolipova.mp4"
-        />
+        <section class="face-swap-playback">
+            <canvas width="555px" height="312px" />
+            <img
+                alt="Man talking"
+                class="face-swap-playback-overlay"
+                src="https://r2.facade.gg/samples/man-talking-video-call-living-room/Anna_Tolipova.webp"
+            />
+        </section>
     </div>
 </Spotlight>
 <style>
-    video {
-        aspect-ratio: 1280 / 720;
+    .face-swap-playback {
+        position: relative;
+    }
+    .face-swap-playback > * {
         border-radius: 12px;
+        position: absolute;
+        left: 0;
         overflow: hidden;
+        top: 0;
+    }
+    .face-swap-playback, .face-swap-playback > * {
+        aspect-ratio: 1280 / 720;
         width: calc(90vw - 2rem);
     }
     @media (min-width: 992px) {
-        video {
+        .face-swap-playback, .face-swap-playback > * {
             height: calc(555px * 720 / 1280);
             width: 555px;
         }
@@ -60,3 +71,62 @@ import Spotlight from '../Spotlight.astro'
         }
     }
 </style>
+<script>
+    const BASE_PLAYBACK_URL = 'https://r2.facade.gg/samples/man-talking-video-call-living-room'
+
+    window.addEventListener('DOMContentLoaded', function () {
+        const canvas = document.querySelector('canvas')!
+        const ctx = canvas.getContext('2d')
+        const video = document.createElement('video')
+
+        Object.assign(canvas, {
+            width: 555 * devicePixelRatio,
+            height: 312 * devicePixelRatio,
+        })
+
+        const l = 0, t = 0, r = canvas.width, b = canvas.height
+        ctx.fillStyle = 'black'
+        ctx.fillRect(l, t, r, b)
+
+        video.src = `${BASE_PLAYBACK_URL}/Anna_Tolipova.mp4`
+        video.autoplay = true
+        video.loop = true
+
+        const requestFrameCallback = video.requestVideoFrameCallback ? video.requestVideoFrameCallback.bind(video) : requestAnimationFrame
+
+        requestFrameCallback(function init() {
+            if (video.paused)
+                return requestFrameCallback(init)
+
+            const overlay = document.querySelector('.face-swap-playback-overlay') as HTMLElement
+            overlay.style.display = 'none'
+
+            draw()
+        })
+
+        function draw() {
+            if (!video.paused)
+                ctx.drawImage(video, l, t, r, b)
+            requestFrameCallback(draw)
+        }
+
+        canvas.parentElement.addEventListener('click', function () {
+            video.play()
+        })
+
+        for (const img of document.querySelectorAll('.face-swap-choices > img')) {
+            const face = img.getAttribute('data-face')
+            if (!face) continue
+
+            (img as HTMLImageElement).addEventListener('click', function() {
+                const currentTime = video.currentTime
+
+                video.src = `${BASE_PLAYBACK_URL}/${face}.mp4`
+
+                video.onloadedmetadata = function() {
+                    video.currentTime = currentTime
+                }
+            })
+        }
+    })
+</script>
