@@ -36,10 +36,9 @@ add_executable(Facade
         CLI/commands.hpp)
 
 if(APPLE)
-    include_directories(/usr/local/include ~/PaalMaxima/onnxruntime/include ~/Workspace/PaalMaxima/onnxruntime/include /opt/homebrew/include SYSTEM)
-    include_directories(~/PaalMaxima/onnxruntime/include/onnxruntime/core/session
-            ~/Workspace/PaalMaxima/onnxruntime/include/onnxruntime/core/session ~/Workspace/PaalMaxima/onnxruntime/onnxruntime
-            ~/PaalMaxima/onnxruntime/onnxruntime)
+    include_directories(/usr/local/include ~/Workspace/Facade/onnxruntime/include ~/Workspace/Facade/onnxruntime/include /opt/homebrew/include SYSTEM)
+    include_directories(~/Workspace/Facade/onnxruntime/include/onnxruntime/core/session
+                        ~/Workspace/Facade/onnxruntime/onnxruntime)
 
     target_link_directories(Facade PUBLIC
             /Applications/Facade.app/Contents/Frameworks
