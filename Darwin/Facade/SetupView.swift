@@ -91,7 +91,7 @@ struct SetupView: View {
     }
 
     func newRequest() -> OSSystemExtensionRequest {
-        let identifier = "video.facade.Facade.Camera"
+        let identifier = "gg.facade.Facade.Camera"
         let activationRequest = OSSystemExtensionRequest.activationRequest(
             forExtensionWithIdentifier: identifier, queue: .main)
 

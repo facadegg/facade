@@ -36,7 +36,7 @@ CMIOObjectPropertyAddress kFrameRateProperty = {
 CMIOObjectPropertyAddress kStateProperty = {
     'fsta', kCMIOObjectPropertyScopeGlobal, kCMIOObjectPropertyElementMain};
 
-CFStringRef kPlugInBundleID = CFSTR("video.facade.Facade.Camera");
+CFStringRef kPlugInBundleID = CFSTR("gg.facade.Facade.Camera");
 CMIOObjectID kPlugInID = 0;
 
 int kIOStreamsPerDevice = 2;

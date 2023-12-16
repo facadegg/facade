@@ -83,8 +83,6 @@ if(APPLE)
             Lens/darwin/load.mm)
 
     target_link_directories(lens PUBLIC
-            /Applications/Facade.app/Contents/Frameworks
-            /Applications/Facade.app/Contents/Frameworks/libfacade.dylib.framework
             ~/Workspace/Facade/onnxruntime/build/MacOS/RelWithDebInfo
             Darwin/DerivedData/Facade/Build/Products/Debug/libfacade.dylib.framework/
             /usr/local/lib

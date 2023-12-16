@@ -62,7 +62,7 @@ int main(int argc, char **argv)
 
             if (init_error == facade_error_not_installed)
             {
-                std::cerr << "Facade is not installed! Go to https://facade.dev" << std::endl;
+                std::cerr << "Facade is not installed! Go to https://facade.gg" << std::endl;
                 return -1;
             }
 

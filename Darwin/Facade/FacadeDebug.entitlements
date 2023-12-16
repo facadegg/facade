@@ -8,7 +8,7 @@
 	<true/>
 	<key>com.apple.security.application-groups</key>
 	<array>
-		<string>video.facade</string>
+		<string>gg.facade</string>
 	</array>
 	<key>com.apple.security.device.camera</key>
 	<true/>

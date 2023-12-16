@@ -20,7 +20,7 @@ class FaceSwapTarget: ObservableObject {
     init(name: String) {
         let fileManager = FileManager.default
         let containerURL = fileManager.containerURL(
-            forSecurityApplicationGroupIdentifier: "video.facade")!
+            forSecurityApplicationGroupIdentifier: "gg.facade")!
         let documentsDirectory = containerURL.appendingPathComponent("Library/Models")
         let faceSwapModelURL = documentsDirectory.appendingPathComponent(
             "\(name.replacingOccurrences(of: " ", with: "_")).mlmodel")
@@ -42,7 +42,7 @@ class FaceSwapTarget: ObservableObject {
         let filename = name.replacingOccurrences(of: " ", with: "_")
         let url = URL(
             string:
-                "https://facade.nyc3.cdn.digitaloceanspaces.com/models/face-swap/\(filename)/\(filename).mlmodel"
+                "https://cdn.facade.gg/\(filename)/\(filename).mlmodel"
         )!
 
         print("Downloading \(url)")
@@ -64,7 +64,7 @@ class FaceSwapTarget: ObservableObject {
             do {
                 let fileManager = FileManager.default
                 let containerURL = fileManager.containerURL(
-                    forSecurityApplicationGroupIdentifier: "video.facade")!
+                    forSecurityApplicationGroupIdentifier: "gg.facade")!
                 let documentsDirectory = containerURL.appendingPathComponent("Library/Models")
                 let faceSwapModelURL = documentsDirectory.appendingPathComponent(
                     "\(self.name.replacingOccurrences(of: " ", with: "_")).mlmodel")
@@ -114,7 +114,7 @@ class CameraFilterProperties: ObservableObject {
         let bundledResourcesDirectory =
             Bundle.main.bundlePath + "/Contents/MacOS/Lens.app/Contents/Resources"
         let containerURL = fileManager.containerURL(
-            forSecurityApplicationGroupIdentifier: "video.facade")!
+            forSecurityApplicationGroupIdentifier: "gg.facade")!
         let documentsDirectory = containerURL.appendingPathComponent("Library/Models")
 
         let centerFaceModelURL = documentsDirectory.appendingPathComponent("CenterFace.mlmodel")
@@ -181,7 +181,7 @@ class CameraFilterProperties: ObservableObject {
 
         let stdoutFileHandle = stdoutPipe.fileHandleForReading
         let stderrFileHandle = stderrPipe.fileHandleForReading
-        let queue = DispatchQueue(label: "video.facade.Facade.Lens")
+        let queue = DispatchQueue(label: "gg.facade.Facade.Lens")
 
         stdoutFileHandle.readabilityHandler = { handle in
             let data = handle.availableData
