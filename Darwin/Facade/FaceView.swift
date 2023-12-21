@@ -14,27 +14,29 @@ struct FaceView: View {
 
     var body: some View {
         VStack {
-            HStack {
-                if let capture = self.capture {
-                    if capture.deviceFailed {
-                        Text("Device failed!")
-                    } else {
-                        CameraView(captureSession: capture.captureSession)
-                            .frame(width: 493, height: 227)
-                            .cornerRadius(12, antialiased: true)
-                    }
+            if let capture = self.capture {
+                if capture.deviceFailed {
+                    Text("Device failed!")
                 } else {
-                    Text("No input device selected")
+                    CameraView(captureSession: capture.captureSession)
+                        .padding(EdgeInsets(top: -56.0, leading: 0, bottom: 0, trailing: 0))
+                        .overlay(alignment: .topLeading) {
+                            FaceChooserView()
+                                .padding(EdgeInsets(top: 1, leading: 0, bottom: 0, trailing: 0))  // clips faces under toolbar
+                                .background(.black.opacity(0.5))
+                                .background(.ultraThinMaterial)
+                                .frame(width: 226)
+                        }
+                }
+            } else {
+                Text("No input device selected")
 
-                    if let i = filter.previewDevice {
-                        Text(i)
-                    }
+                if let i = filter.previewDevice {
+                    Text(i)
                 }
             }
-            .padding(EdgeInsets(top: 8, leading: 204, bottom: 16, trailing: 204))
-
-            FaceChooserView()
         }
+        .padding(0)
         .onAppear {
             setupCapture()?.startSession()
         }
@@ -48,7 +50,7 @@ struct FaceView: View {
                 capture?.stopSession()
             }
         }
-        .frame(minWidth: 902, minHeight: 728)
+        .frame(minWidth: 540, minHeight: 360)
     }
 
     func setupCapture() -> CameraCapture? {
@@ -57,7 +59,7 @@ struct FaceView: View {
             capture = nil
 
             if let previewDevice = filter.previewDevice {
-                print("Creating capture on \(previewDevice)")
+                print("Creating capture on  \(previewDevice)")
                 capture = CameraCapture(uniqueID: filter.inputDevice!)
                 capture?.checkAuthorization()
             } else {
@@ -70,9 +72,15 @@ struct FaceView: View {
 }
 
 struct FaceView_Previews: PreviewProvider {
+    @StateObject static var devices = Devices()
+
     static var previews: some View {
         FaceView()
-            .environmentObject(CameraFilter(availableOutputDevices: Devices()))
-            .frame(width: 800, height: 600)
+            .environmentObject(CameraFilter(availableOutputDevices: devices))
+            .environmentObject(devices)
+            .frame(width: 1080, height: 720)
+            .toolbar {
+                Color.clear
+            }
     }
 }

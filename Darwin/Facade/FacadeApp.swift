@@ -52,12 +52,15 @@ struct FacadeApp: App {
                 FaceView()
                     .environmentObject(cameraFilter)
                     .environmentObject(devices)
-
+                    .toolbar {
+                        Color.clear
+                    }
             }
         }
-        .defaultSize(width: 902, height: 728)
-        .windowResizability(.contentSize)
-        .windowStyle(HiddenTitleBarWindowStyle())
+        .defaultSize(width: 1080, height: 720)
+        .windowResizability(devices.needsInitializing ? .contentSize : .contentMinSize)
+        .windowStyle(.hiddenTitleBar)
+        .windowToolbarStyle(.unified)
         .onChange(
             of: devices.needsInitializing,
             perform: { needsInitializing in
@@ -69,6 +72,12 @@ struct FacadeApp: App {
                 window.standardWindowButton(.closeButton)?.isHidden = false
                 window.standardWindowButton(.miniaturizeButton)?.isHidden = false
                 window.standardWindowButton(.zoomButton)?.isHidden = false
+
+                var defaultSize = window.contentRect(forFrameRect: window.frame)
+                defaultSize.size.width = 1080
+                defaultSize.size.height = 720
+                window.setFrame(
+                    window.frameRect(forContentRect: defaultSize), display: true, animate: true)
             })
     }
 

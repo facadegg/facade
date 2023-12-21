@@ -24,6 +24,11 @@ class PlayerView: NSView {
         previewLayer?.videoGravity = .resizeAspectFill
         previewLayer?.connection?.automaticallyAdjustsVideoMirroring = false
         previewLayer?.backgroundColor = .black
+
+        if let connection = previewLayer?.connection, connection.isVideoMirroringSupported {
+            connection.isVideoMirrored = true
+        }
+
         layer = previewLayer
     }
 

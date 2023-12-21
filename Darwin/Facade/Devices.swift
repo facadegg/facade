@@ -49,6 +49,16 @@ class Devices: ObservableObject {
         self.devices = devices
     }
 
+    init(installed: Bool) {
+        self.installed = installed
+
+        if installed {
+            openSession()
+        } else {
+            self.needsInitializing = false
+        }
+    }
+
     deinit {
         facade_on_state_changed(nil, nil)
     }
@@ -86,7 +96,7 @@ class Devices: ObservableObject {
         }
     }
 
-    func load() {
+    private func load() {
         if !installed {
             self.devices = []
             return
