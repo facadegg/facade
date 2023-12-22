@@ -51,7 +51,6 @@ class FaceSwapTarget: ObservableObject {
             defer {
                 DispatchQueue.main.async {
                     self.downloading = false
-                    self.downloaded = true
                 }
             }
 
@@ -73,6 +72,10 @@ class FaceSwapTarget: ObservableObject {
                     at: documentsDirectory, withIntermediateDirectories: true, attributes: nil)
                 try fileManager.moveItem(at: localURL, to: faceSwapModelURL)
                 print("Downloaded \(self.name) successfully.")
+                
+                DispatchQueue.main.async {
+                    self.downloaded = true
+                }
             } catch {
                 print("Download error:", error.localizedDescription)
             }
