@@ -49,7 +49,7 @@ class CameraDeviceSource: NSObject, CMIOExtensionDeviceSource, CameraStreamHandl
     init(localizedName: String) {
         let deviceID = UUID()  // replace this with your device UUID
         self.logger = Logger(
-            subsystem: "com.paalmaxima.Facade.Camera", category: "CameraDeviceSource@\(deviceID)")
+            subsystem: "gg.facade.Facade.Camera", category: "CameraDeviceSource@\(deviceID)")
         logger.info("New device with uuid \(deviceID.uuidString, privacy: .public)")
         super.init()
 

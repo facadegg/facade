@@ -22,7 +22,7 @@ class CameraProviderSource: NSObject, CMIOExtensionProviderSource {
 
     init(clientQueue: DispatchQueue?) {
         self.logger = Logger(
-            subsystem: "com.paalmaxima.Facade.Camera", category: "CameraProviderSource")
+            subsystem: "gg.facade.Facade.Camera", category: "CameraProviderSource")
 
         super.init()
 
@@ -104,7 +104,7 @@ class CameraProviderSource: NSObject, CMIOExtensionProviderSource {
         }
     }
 
-    func createDevice(localizedName: String = "Facade") -> CameraDeviceSource {
+    func createDevice(localizedName: String = "Facade (Virtual Camera)") -> CameraDeviceSource {
         logger.debug("Creating device '\(localizedName, privacy: .public)'")
 
         let deviceSource = CameraDeviceSource(localizedName: localizedName)
@@ -253,6 +253,10 @@ class CameraProviderSource: NSObject, CMIOExtensionProviderSource {
 
         for video in videosDeleted {
             destroyDevice(deviceSource: video)
+        }
+
+        if deviceSources.isEmpty {
+            createDevice()
         }
     }
 
