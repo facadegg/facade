@@ -27,8 +27,7 @@
 		6063D3D0297E596700DA3C1B /* CameraProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6063D3CF297E596700DA3C1B /* CameraProvider.swift */; };
 		6063D3D2297E596700DA3C1B /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6063D3D1297E596700DA3C1B /* main.swift */; };
 		6063D3D7297E596700DA3C1B /* gg.facade.Facade.Camera.systemextension in Embed System Extensions */ = {isa = PBXBuildFile; fileRef = 6063D3CD297E596700DA3C1B /* gg.facade.Facade.Camera.systemextension */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		6063D3DD297E631300DA3C1B /* GeneralSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6063D3DC297E631300DA3C1B /* GeneralSettingsView.swift */; };
-		6063D3DF297E647F00DA3C1B /* DevicesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6063D3DE297E647F00DA3C1B /* DevicesView.swift */; };
+		6063D3DF297E647F00DA3C1B /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6063D3DE297E647F00DA3C1B /* SettingsView.swift */; };
 		60AC78922984DFD000109B32 /* CameraDevice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60AC78912984DFD000109B32 /* CameraDevice.swift */; };
 		60AC78942986ABFB00109B32 /* CameraStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60AC78932986ABFB00109B32 /* CameraStream.swift */; };
 		60AC78962986BED600109B32 /* SplashAnimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60AC78952986BED600109B32 /* SplashAnimator.swift */; };
@@ -175,8 +174,7 @@
 		6063D3D1297E596700DA3C1B /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		6063D3D3297E596700DA3C1B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		6063D3D4297E596700DA3C1B /* Camera.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Camera.entitlements; sourceTree = "<group>"; };
-		6063D3DC297E631300DA3C1B /* GeneralSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeneralSettingsView.swift; sourceTree = "<group>"; };
-		6063D3DE297E647F00DA3C1B /* DevicesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DevicesView.swift; sourceTree = "<group>"; };
+		6063D3DE297E647F00DA3C1B /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		60A9F01B29F8C65B00D03298 /* libLens.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libLens.a; path = "../cmake-build-debug/libLens.a"; sourceTree = "<group>"; };
 		60A9F01D29F8C68B00D03298 /* liblens.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = liblens.a; path = "../cmake-build-debug/liblens.a"; sourceTree = "<group>"; };
 		60A9F01F29F8C79B00D03298 /* Lens-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Lens-Bridging-Header.h"; sourceTree = "<group>"; };
@@ -314,13 +312,12 @@
 				60D10E9B29A3CA1B00E394CD /* CameraView.swift */,
 				6063D3A0297E590B00DA3C1B /* ContentView.swift */,
 				60D10E9929A3AEE900E394CD /* Devices.swift */,
-				6063D3DE297E647F00DA3C1B /* DevicesView.swift */,
+				6063D3DE297E647F00DA3C1B /* SettingsView.swift */,
 				601E0DAE29A2E93700392923 /* Facade-Bridging-Header.h */,
 				6063D3A7297E590C00DA3C1B /* Facade.entitlements */,
 				6063D39E297E590B00DA3C1B /* FacadeApp.swift */,
 				60EB33C429FD753200BD47A7 /* FaceChooserView.swift */,
 				60EB33C829FD7D1100BD47A7 /* FaceView.swift */,
-				6063D3DC297E631300DA3C1B /* GeneralSettingsView.swift */,
 				60A9F01F29F8C79B00D03298 /* Lens-Bridging-Header.h */,
 				6063D3A4297E590C00DA3C1B /* Preview Content */,
 				60AC78972986C87900109B32 /* SetupView.swift */,
@@ -653,7 +650,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6063D3DF297E647F00DA3C1B /* DevicesView.swift in Sources */,
+				6063D3DF297E647F00DA3C1B /* SettingsView.swift in Sources */,
 				6022AE222A2505CC0092B7CA /* IconView.swift in Sources */,
 				60D10E9C29A3CA1B00E394CD /* CameraView.swift in Sources */,
 				60EB33C729FD769E00BD47A7 /* CameraFilter.swift in Sources */,
@@ -661,7 +658,6 @@
 				60D10E9E29A3CB8C00E394CD /* CameraCapture.swift in Sources */,
 				6063D39F297E590B00DA3C1B /* FacadeApp.swift in Sources */,
 				60AC78982986C87900109B32 /* SetupView.swift in Sources */,
-				6063D3DD297E631300DA3C1B /* GeneralSettingsView.swift in Sources */,
 				60D10E9A29A3AEE900E394CD /* Devices.swift in Sources */,
 				60EB33C929FD7D1100BD47A7 /* FaceView.swift in Sources */,
 				60EB33C529FD753200BD47A7 /* FaceChooserView.swift in Sources */,

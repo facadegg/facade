@@ -72,13 +72,28 @@ struct FacadeApp: App {
                 window.standardWindowButton(.closeButton)?.isHidden = false
                 window.standardWindowButton(.miniaturizeButton)?.isHidden = false
                 window.standardWindowButton(.zoomButton)?.isHidden = false
-
+            })
+        .onChange(
+            of: devices.installed,
+            perform: { installed in
+                if !installed { return }
+                guard let window = NSApplication.shared.windows.first else {
+                    assertionFailure()
+                    return
+                }
                 var defaultSize = window.contentRect(forFrameRect: window.frame)
-                defaultSize.size.width = 1080
-                defaultSize.size.height = 720
+                defaultSize.size.width = 720
+                defaultSize.size.height = 480
                 window.setFrame(
                     window.frameRect(forContentRect: defaultSize), display: true, animate: true)
             })
+        
+        Window("Configuration", id: "config") {
+             SettingsView()
+                .environmentObject(cameraFilter)
+                .environmentObject(devices)
+        }
+        .defaultSize(width: 720, height: 600)
     }
 
     init() {

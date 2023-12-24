@@ -9,7 +9,7 @@
 import AVFoundation
 import SwiftUI
 
-struct DevicesView: View {
+struct SettingsView: View {
     @EnvironmentObject var store: Devices
 
     @State var editMode = false
@@ -38,7 +38,15 @@ struct DevicesView: View {
                     editMode: $editMode,
                     selectedDeviceUID: $explicitlySelectedDeviceUID)
             } else {
-                SetupView()
+                HStack {
+                    Spacer()
+                    if !store.installed {
+                        SetupView()
+                    } else {
+                        Text("Press + to create a new virtual camera")
+                    }
+                    Spacer()
+                }
             }
         }
     }
@@ -55,9 +63,9 @@ struct DevicesView: View {
     }
 }
 
-struct DevicesView_Previews: PreviewProvider {
+struct SettingsView_Previews: PreviewProvider {
     static var previews: some View {
-        DevicesView().environmentObject(
+        SettingsView().environmentObject(
             Devices(devices: [
                 Device(
                     type: facade_device_type_video,
@@ -83,6 +91,7 @@ struct DevicesView_Previews: PreviewProvider {
             ])
         )
         .environmentObject(CameraFilter(availableOutputDevices: Devices()))
+        .previewDisplayName("Facade Configuration")
     }
 }
 
@@ -188,7 +197,7 @@ struct DeviceDetails: View {
             if capture.deviceFailed {
                 Text("Device Failed")
             } else {
-                CameraView(captureSession: capture.captureSession)
+                CameraView(captureSession: capture.captureSession, fill: false)
             }
 
             Table(getProperties()) {

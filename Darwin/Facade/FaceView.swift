@@ -7,6 +7,14 @@
 
 import SwiftUI
 
+struct FaceOverlayBackground: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .background(.black.opacity(0.67))
+            .background(.ultraThinMaterial)
+    }
+}
+
 struct FaceView: View {
     @EnvironmentObject var devices: Devices
     @EnvironmentObject var filter: CameraFilter
@@ -21,11 +29,14 @@ struct FaceView: View {
                     CameraView(captureSession: capture.captureSession)
                         .padding(EdgeInsets(top: -56.0, leading: 0, bottom: 0, trailing: 0))
                         .overlay(alignment: .topLeading) {
+                            FaceStatusView()
+                                .padding(EdgeInsets(top: -8, leading: 240, bottom: 0, trailing: 0))
+                        }
+                        .overlay(alignment: .topLeading) {
                             FaceChooserView()
                                 .padding(EdgeInsets(top: 1, leading: 0, bottom: 0, trailing: 0))  // clips faces under toolbar
-                                .background(.black.opacity(0.67))
-                                .background(.ultraThinMaterial)
                                 .frame(width: 226)
+                                .modifier(FaceOverlayBackground())
                         }
                 }
             } else {
@@ -60,7 +71,7 @@ struct FaceView: View {
 
             if let previewDevice = filter.previewDevice {
                 print("Creating capture on  \(previewDevice)")
-                capture = CameraCapture(uniqueID: filter.inputDevice!)
+                capture = CameraCapture(uniqueID: previewDevice)
                 capture?.checkAuthorization()
             } else {
                 capture = nil
@@ -68,6 +79,39 @@ struct FaceView: View {
         }
 
         return capture
+    }
+}
+
+struct FaceStatusView: View {
+    @EnvironmentObject var filter: CameraFilter
+    @Environment(\.openWindow) private var openWindow
+    
+    var body: some View {
+        HStack {
+            if let previewDeviceName = self.filter.previewDeviceName {
+                HStack {
+                    Image(systemName: "camera.fill")
+                    Text(previewDeviceName)
+                }
+                .padding(8)
+                .frame(height: 32)
+                .modifier(FaceOverlayBackground())
+                .clipShape(RoundedRectangle(cornerSize: CGSize(width: 8, height: 8)))
+            }
+
+            Button(action: {
+                openWindow(id: "config")
+            }, label: {
+                Image(systemName: "gearshape.fill")
+                    .foregroundStyle(.white)
+                    .padding(8)
+                    .contentShape(RoundedRectangle(cornerSize: CGSize(width: 8, height: 8)))
+            })
+            .buttonStyle(.plain)
+            .modifier(FaceOverlayBackground())
+            .clipShape(RoundedRectangle(cornerSize: CGSize(width: 8, height: 8)))
+        }
+        .foregroundStyle(.white)
     }
 }
 

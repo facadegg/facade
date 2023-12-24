@@ -131,7 +131,7 @@ struct FaceChooserView: View {
                     }
                 }
             }
-            .padding(EdgeInsets(top: 0, leading: 18, bottom: 0, trailing: 18))
+            .padding(EdgeInsets(top: 0, leading: 18, bottom: 18, trailing: 18))
         }
     }
 }

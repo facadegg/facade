@@ -10,9 +10,12 @@ import SwiftUI
 
 class PlayerView: NSView {
     var previewLayer: AVCaptureVideoPreviewLayer?
+    var fill: Bool
 
-    init(captureSession: AVCaptureSession) {
+    init(captureSession: AVCaptureSession, fill: Bool) {
         previewLayer = AVCaptureVideoPreviewLayer(session: captureSession)
+        self.fill = fill
+
         super.init(frame: .zero)
 
         setupLayer()
@@ -20,8 +23,8 @@ class PlayerView: NSView {
 
     func setupLayer() {
         previewLayer?.frame = self.frame
-        previewLayer?.contentsGravity = .resizeAspectFill
-        previewLayer?.videoGravity = .resizeAspectFill
+        previewLayer?.contentsGravity = fill ? .resizeAspectFill : .resizeAspect
+        previewLayer?.videoGravity = fill ? .resizeAspectFill : .resizeAspect
         previewLayer?.connection?.automaticallyAdjustsVideoMirroring = false
         previewLayer?.backgroundColor = .black
 
@@ -41,14 +44,19 @@ struct CameraView: NSViewRepresentable {
     typealias NSViewType = PlayerView
 
     let captureSession: AVCaptureSession
+    let fill: Bool
 
-    init(captureSession: AVCaptureSession) {
-        print("New camera view")
+    init(captureSession: AVCaptureSession, fill: Bool) {
         self.captureSession = captureSession
+        self.fill = fill
+    }
+    
+    init(captureSession: AVCaptureSession) {
+        self.init(captureSession: captureSession, fill: true)
     }
 
     func makeNSView(context: Context) -> PlayerView {
-        return PlayerView(captureSession: captureSession)
+        return PlayerView(captureSession: captureSession, fill: fill)
     }
 
     func updateNSView(_ nsView: PlayerView, context: Context) {}

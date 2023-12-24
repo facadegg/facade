@@ -93,15 +93,15 @@ class FaceSwapTarget: ObservableObject {
 }
 
 class CameraFilterProperties: ObservableObject {
-    let inputDevice: String?
-    let outputDevice: String
+    let input: Device?
+    let output: Device
     let faceSwapTarget: FaceSwapTarget
 
     @Published private var process: Process?
 
-    init(inputDevice: String?, outputDevice: String, faceSwapTarget: FaceSwapTarget) {
-        self.inputDevice = inputDevice
-        self.outputDevice = outputDevice
+    init(input: Device?, output: Device, faceSwapTarget: FaceSwapTarget) {
+        self.input = input
+        self.output = output
         self.faceSwapTarget = faceSwapTarget
         self.process = nil
     }
@@ -155,7 +155,7 @@ class CameraFilterProperties: ObservableObject {
         let stderrPipe = Pipe()
         let arguments = [
             "--dst",
-            outputDevice,
+            output.uid.uuidString,
             "--frame-rate",
             "30",
             "--face-swap-model",
@@ -233,7 +233,6 @@ class CameraFilter: ObservableObject {
         FaceSwapTarget(name: "Zahar Lupin"),
     ]
 
-    @Published var preferredInputDevice: String? = nil
     @Published private(set) var properties: CameraFilterProperties? = nil
     private let devices: Devices
 
@@ -241,17 +240,18 @@ class CameraFilter: ObservableObject {
         self.devices = devices
     }
 
-    var inputDevice: String? {
-        if let preferredInputDevice = self.preferredInputDevice {
-            return preferredInputDevice
-        }
-
+    var inputDevice: Device? {
         if let defaultDevice = AVCaptureDevice.default(
             .builtInWideAngleCamera,
             for: AVMediaType.video,
             position: .unspecified)
         {
-            return defaultDevice.uniqueID
+            return Device(type: facade_device_type_video,
+                          uid: UUID(uuidString: defaultDevice.uniqueID) ?? UUID(),
+                          name: defaultDevice.localizedName,
+                          width: 0,
+                          height: 0,
+                          frameRate: 0)
         }
 
         return nil
@@ -260,11 +260,21 @@ class CameraFilter: ObservableObject {
     var previewDevice: String? {
         if let properties = self.properties {
             if properties.isRunning {
-                return properties.outputDevice
+                return properties.output.uid.uuidString
             }
         }
 
-        return inputDevice
+        return inputDevice?.uid.uuidString
+    }
+    
+    var previewDeviceName: String? {
+        if let properties = self.properties {
+            if properties.isRunning {
+                return properties.output.name
+            }
+        }
+
+        return inputDevice?.name
     }
 
     func run(faceSwapTarget: FaceSwapTarget) {
@@ -275,8 +285,8 @@ class CameraFilter: ObservableObject {
         if let device = devices.devices.first {
             print("Starting filter")
             self.properties = CameraFilterProperties(
-                inputDevice: nil,
-                outputDevice: device.uid.uuidString,
+                input: nil,
+                output: device,
                 faceSwapTarget: faceSwapTarget)
             self.properties?.start()
         } else {
