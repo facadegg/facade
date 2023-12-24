@@ -73,7 +73,7 @@ struct FaceChooserView: View {
         ScrollView {
             VStack(alignment: .leading) {
                 Text("Faces")
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(.gray)
                     .fontWeight(.bold)
                     .padding(EdgeInsets(top: 0, leading: 2, bottom: 8, trailing: 0))
 
@@ -142,6 +142,7 @@ struct FaceChooserView_Previews: PreviewProvider {
             .environmentObject(CameraFilter(availableOutputDevices: Devices(installed: false)))
             .frame(width: 228, height: 600)
             .previewLayout(.fixed(width: 228, height: 600))
+            .background(.black)
             .toolbar {
                 Color.clear
             }

@@ -193,9 +193,6 @@
 		60EB33C629FD769E00BD47A7 /* CameraFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraFilter.swift; sourceTree = "<group>"; };
 		60EB33C829FD7D1100BD47A7 /* FaceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FaceView.swift; sourceTree = "<group>"; };
 		60EB33CC29FF168500BD47A7 /* Lens.app */ = {isa = PBXFileReference; lastKnownFileType = wrapper.application; name = Lens.app; path = "../cmake-build-debug/Lens.app"; sourceTree = "<group>"; };
-		60EBD2F02A25199D0083EAB2 /* FacadeRestarterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FacadeRestarterTests.swift; sourceTree = "<group>"; };
-		60EBD2FA2A25199E0083EAB2 /* FacadeRestarterUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FacadeRestarterUITests.swift; sourceTree = "<group>"; };
-		60EBD2FC2A25199E0083EAB2 /* FacadeRestarterUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FacadeRestarterUITestsLaunchTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -289,8 +286,6 @@
 				6063D3CE297E596700DA3C1B /* Camera */,
 				6021CA6E2990232900334A6D /* libfacade */,
 				6021CA7C2990232900334A6D /* libfacadeTests */,
-				60EBD2EF2A25199D0083EAB2 /* FacadeRestarterTests */,
-				60EBD2F92A25199E0083EAB2 /* FacadeRestarterUITests */,
 				6063D39C297E590B00DA3C1B /* Products */,
 				60AC78C32987273E00109B32 /* Frameworks */,
 			);
@@ -381,23 +376,6 @@
 				6021CA8A2990235000334A6D /* Headers */,
 			);
 			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		60EBD2EF2A25199D0083EAB2 /* FacadeRestarterTests */ = {
-			isa = PBXGroup;
-			children = (
-				60EBD2F02A25199D0083EAB2 /* FacadeRestarterTests.swift */,
-			);
-			path = FacadeRestarterTests;
-			sourceTree = "<group>";
-		};
-		60EBD2F92A25199E0083EAB2 /* FacadeRestarterUITests */ = {
-			isa = PBXGroup;
-			children = (
-				60EBD2FA2A25199E0083EAB2 /* FacadeRestarterUITests.swift */,
-				60EBD2FC2A25199E0083EAB2 /* FacadeRestarterUITestsLaunchTests.swift */,
-			);
-			path = FacadeRestarterUITests;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

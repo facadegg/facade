@@ -23,7 +23,7 @@ struct FaceView: View {
                         .overlay(alignment: .topLeading) {
                             FaceChooserView()
                                 .padding(EdgeInsets(top: 1, leading: 0, bottom: 0, trailing: 0))  // clips faces under toolbar
-                                .background(.black.opacity(0.5))
+                                .background(.black.opacity(0.67))
                                 .background(.ultraThinMaterial)
                                 .frame(width: 226)
                         }
@@ -79,6 +79,7 @@ struct FaceView_Previews: PreviewProvider {
             .environmentObject(CameraFilter(availableOutputDevices: devices))
             .environmentObject(devices)
             .frame(width: 1080, height: 720)
+            .previewDisplayName("Facade")
             .toolbar {
                 Color.clear
             }
