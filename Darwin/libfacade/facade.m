@@ -418,7 +418,7 @@ void on_state_changed(void)
 
 facade_error_code facade_init(void)
 {
-    logger = os_log_create("com.paalmaxima.Facade", "FacadeKit");
+    logger = os_log_create("gg.facade.Facade", "libfacade");
 
     CMIOObjectPropertyAddress plugInForBundleIDProperty = {kCMIOHardwarePropertyPlugInForBundleID,
                                                            kCMIOObjectPropertyScopeGlobal,
@@ -440,7 +440,7 @@ facade_error_code facade_init(void)
                                                 &translation);
 
     listener_queue =
-        dispatch_queue_create("com.paalmaxima.Facade.libfacade", DISPATCH_QUEUE_SERIAL);
+        dispatch_queue_create("gg.facade.Facade.libfacade", DISPATCH_QUEUE_SERIAL);
     state_changed_block = ^(UInt32 inClientDataSize, const CMIOObjectPropertyAddress *properties) {
         on_state_changed();
     };
@@ -923,6 +923,7 @@ facade_error_code facade_delete_device(char const *uid)
                 if (last == info)
                 {
                     state->devices = nil;
+                    last = nil;
                 }
                 else if (info == state->devices)
                 {
@@ -931,9 +932,13 @@ facade_error_code facade_delete_device(char const *uid)
 
                 dispose_device_info(&info);
                 found = true;
+                
+                if (last != nil)
+                    info = last->next;
             }
             else
             {
+                last = info;
                 info = info->next;
             }
         }
