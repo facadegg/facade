@@ -35,6 +35,7 @@
 		60D10E9A29A3AEE900E394CD /* Devices.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60D10E9929A3AEE900E394CD /* Devices.swift */; };
 		60D10E9C29A3CA1B00E394CD /* CameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60D10E9B29A3CA1B00E394CD /* CameraView.swift */; };
 		60D10E9E29A3CB8C00E394CD /* CameraCapture.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60D10E9D29A3CB8C00E394CD /* CameraCapture.swift */; };
+		60DF52AC2B39157900326283 /* InitView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60DF52AB2B39157900326283 /* InitView.swift */; };
 		60EB33C529FD753200BD47A7 /* FaceChooserView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60EB33C429FD753200BD47A7 /* FaceChooserView.swift */; };
 		60EB33C729FD769E00BD47A7 /* CameraFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60EB33C629FD769E00BD47A7 /* CameraFilter.swift */; };
 		60EB33C929FD7D1100BD47A7 /* FaceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60EB33C829FD7D1100BD47A7 /* FaceView.swift */; };
@@ -187,6 +188,7 @@
 		60D10E9929A3AEE900E394CD /* Devices.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Devices.swift; sourceTree = "<group>"; };
 		60D10E9B29A3CA1B00E394CD /* CameraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraView.swift; sourceTree = "<group>"; };
 		60D10E9D29A3CB8C00E394CD /* CameraCapture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraCapture.swift; sourceTree = "<group>"; };
+		60DF52AB2B39157900326283 /* InitView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InitView.swift; sourceTree = "<group>"; };
 		60EB33C429FD753200BD47A7 /* FaceChooserView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FaceChooserView.swift; sourceTree = "<group>"; };
 		60EB33C629FD769E00BD47A7 /* CameraFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraFilter.swift; sourceTree = "<group>"; };
 		60EB33C829FD7D1100BD47A7 /* FaceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FaceView.swift; sourceTree = "<group>"; };
@@ -322,6 +324,7 @@
 				6063D3A4297E590C00DA3C1B /* Preview Content */,
 				60AC78972986C87900109B32 /* SetupView.swift */,
 				6022AE212A2505CC0092B7CA /* IconView.swift */,
+				60DF52AB2B39157900326283 /* InitView.swift */,
 			);
 			path = Facade;
 			sourceTree = "<group>";
@@ -654,6 +657,7 @@
 				6022AE222A2505CC0092B7CA /* IconView.swift in Sources */,
 				60D10E9C29A3CA1B00E394CD /* CameraView.swift in Sources */,
 				60EB33C729FD769E00BD47A7 /* CameraFilter.swift in Sources */,
+				60DF52AC2B39157900326283 /* InitView.swift in Sources */,
 				6063D3A1297E590B00DA3C1B /* ContentView.swift in Sources */,
 				60D10E9E29A3CB8C00E394CD /* CameraCapture.swift in Sources */,
 				6063D39F297E590B00DA3C1B /* FacadeApp.swift in Sources */,

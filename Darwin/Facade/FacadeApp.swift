@@ -42,18 +42,7 @@ struct FacadeApp: App {
     var body: some Scene {
         WindowGroup {
             if devices.needsInitializing {
-                VStack(alignment: .center) {
-                    IconView()
-                        .frame(maxWidth: 96, maxHeight: 48)
-                    Spacer()
-                    ProgressView()
-                        .progressViewStyle(CircularProgressViewStyle())
-                    Text("Bringing out the Facade...")
-                        .padding()
-                    Spacer()
-                }
-                .padding(48)
-                .frame(width: 360, height: 320)
+                InitView(isWaitingOnCamera: false)
             } else if !devices.installed {
                 SetupView()
                     .environmentObject(devices)
@@ -83,20 +72,6 @@ struct FacadeApp: App {
                 window.standardWindowButton(.zoomButton)?.isHidden = false
             }
         )
-        .onChange(
-            of: devices.installed,
-            perform: { installed in
-                if !installed { return }
-                guard let window = NSApplication.shared.windows.first else {
-                    assertionFailure()
-                    return
-                }
-                var defaultSize = window.contentRect(forFrameRect: window.frame)
-                defaultSize.size.width = 720
-                defaultSize.size.height = 480
-                window.setFrame(
-                    window.frameRect(forContentRect: defaultSize), display: true, animate: true)
-            })
 
         WindowGroup("Configuration", id: "config") {
             SettingsView()

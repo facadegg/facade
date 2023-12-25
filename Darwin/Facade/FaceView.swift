@@ -15,41 +15,69 @@ struct FaceOverlayBackground: ViewModifier {
     }
 }
 
+struct FaceOverlays: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .padding(EdgeInsets(top: -56.0, leading: 0, bottom: 0, trailing: 0))
+            .overlay(alignment: .topLeading) {
+                FaceStatusView()
+                    .padding(EdgeInsets(top: -8, leading: 240, bottom: 0, trailing: 0))
+            }
+            .overlay(alignment: .topLeading) {
+                FaceChooserView()
+                    .padding(EdgeInsets(top: 1, leading: 0, bottom: 0, trailing: 0))  // clips faces under toolbar
+                    .frame(width: 226)
+                    .modifier(FaceOverlayBackground())
+            }
+            .frame(minWidth: 540, minHeight: 360)
+    }
+}
+
 struct FaceView: View {
     @EnvironmentObject var devices: Devices
     @EnvironmentObject var filter: CameraFilter
     @State var capture: CameraCapture?
+    @State var isReady = false
 
     var body: some View {
-        VStack {
-            if let capture = self.capture {
-                if capture.deviceFailed {
-                    Text("Device failed!")
-                } else {
-                    CameraView(captureSession: capture.captureSession)
-                        .padding(EdgeInsets(top: -56.0, leading: 0, bottom: 0, trailing: 0))
-                        .overlay(alignment: .topLeading) {
-                            FaceStatusView()
-                                .padding(EdgeInsets(top: -8, leading: 240, bottom: 0, trailing: 0))
-                        }
-                        .overlay(alignment: .topLeading) {
-                            FaceChooserView()
-                                .padding(EdgeInsets(top: 1, leading: 0, bottom: 0, trailing: 0))  // clips faces under toolbar
-                                .frame(width: 226)
-                                .modifier(FaceOverlayBackground())
-                        }
+        HStack {
+            if isReady, let capture = self.capture {
+                VStack {
+                    if capture.deviceFailed {
+                        Text("Failed to capture video from your camera")
+                    } else {
+                        CameraView(captureSession: capture.captureSession)
+                    }
+                }
+                .padding(EdgeInsets(top: -56.0, leading: 0, bottom: 0, trailing: 0))
+                .overlay(alignment: .topLeading) {
+                    FaceStatusView()
+                        .padding(EdgeInsets(top: -8, leading: 240, bottom: 0, trailing: 0))
+                }
+                .overlay(alignment: .topLeading) {
+                    FaceChooserView()
+                        .padding(EdgeInsets(top: 1, leading: 0, bottom: 0, trailing: 0))  // clips faces under toolbar
+                        .frame(width: 226)
+                        .modifier(FaceOverlayBackground())
                 }
             } else {
-                Text("No input device selected")
-
-                if let i = filter.previewDevice {
-                    Text(i)
-                }
+                InitView(isWaitingOnCamera: capture != nil)
             }
         }
-        .padding(0)
         .onAppear {
             setupCapture()?.startSession()
+            
+            guard let window = NSApplication.shared.windows.first else {
+                assertionFailure()
+                return
+            }
+
+            var defaultSize = window.contentRect(forFrameRect: window.frame)
+            defaultSize.size.width = 720
+            defaultSize.size.height = 540
+            window.setFrame(
+                window.frameRect(forContentRect: defaultSize), display: true)
+            isReady = true
         }
         .onDisappear {
             capture?.stopSession()
@@ -57,9 +85,8 @@ struct FaceView: View {
         .onChange(of: filter.previewDevice) { _ in
             capture = setupCapture()
         }
-        .frame(minWidth: 540, minHeight: 360)
     }
-
+    
     func setupCapture() -> CameraCapture? {
         if capture?.uniqueID != filter.previewDevice {
             capture?.stopSession()
