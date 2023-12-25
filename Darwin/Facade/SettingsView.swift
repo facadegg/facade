@@ -14,8 +14,11 @@ struct SettingsView: View {
 
     @State var editMode = false
     @State var explicitlySelectedDeviceUID: UUID?
+    @State var selectCreatedDevice = false
 
     var body: some View {
+        let oldDevices = store.devices
+
         HStack {
             DevicesList(
                 devices: store.devices,
@@ -29,7 +32,8 @@ struct SettingsView: View {
                     device: explicitlySelectedDeviceUID != nil
                         ? store.devices.first(where: { $0.uid == explicitlySelectedDeviceUID })
                         : nil,
-                    editMode: $editMode)
+                    editMode: $editMode,
+                    selectCreatedDevice: $selectCreatedDevice)
             }
 
             if let selection = selectedDevice() {
@@ -49,6 +53,32 @@ struct SettingsView: View {
                 }
             }
         }
+        .onAppear(perform: {
+            if !store.devices.isEmpty {
+                explicitlySelectedDeviceUID = store.devices[0].uid
+            }
+        })
+        .onChange(
+            of: explicitlySelectedDeviceUID,
+            perform: { _ in
+                selectCreatedDevice = false
+            }
+        )
+        .onChange(
+            of: store.devices,
+            perform: { [oldDevices] newDevices in
+                print("here Changed")
+                if selectCreatedDevice {
+                    let createdDevice = newDevices.first(where: { device in
+                        !oldDevices.contains(where: { other in other.uid == device.uid })
+                    })
+
+                    if let uid = createdDevice?.uid {
+                        print("here modify")
+                        explicitlySelectedDeviceUID = uid
+                    }
+                }
+            })
     }
 
     func selectedDevice() -> Device? {
@@ -127,6 +157,13 @@ struct DevicesList: View {
 
                     Button(action: {
                         if let uuidString = selectedDeviceUID?.uuidString {
+                            let index =
+                                devices.firstIndex(where: { device in
+                                    device.uid == selectedDeviceUID
+                                }) ?? 0
+                            selectedDeviceUID =
+                                devices[min(max(index - 1, 0), devices.count - 2)].uid
+
                             DispatchQueue.global().async {
                                 uuidString.cString(using: .utf8)?.withUnsafeBytes({ uidBytes in
                                     facade_delete_device(
@@ -137,7 +174,10 @@ struct DevicesList: View {
                         }
 
                         editMode = false
-                        selectedDeviceUID = Optional.none
+
+                        if devices.count <= 1 {
+                            selectedDeviceUID = Optional.none
+                        }
                     }) {
                         Image(systemName: "minus")
                             .frame(width: 8, height: 8)
@@ -180,13 +220,11 @@ struct DeviceDetails: View {
 
     var body: some View {
         VStack(alignment: .leading) {
-            HStack {
-                Spacer()
-            }
-            Text("\(device.name)")
-                .bold()
+            Spacer()
 
             HStack {
+                Text("\(device.name)")
+                    .bold()
                 Spacer()
                 Button("Edit") {
                     editMode = true
@@ -209,6 +247,16 @@ struct DeviceDetails: View {
             Spacer()
         }
         .padding(.horizontal)
+        .onChange(
+            of: selectedDeviceUID,
+            perform: { newUID in
+                if let uid = newUID {
+                    capture.stopSession()
+                    capture = CameraCapture(uniqueID: uid.uuidString)
+                    capture.checkAuthorization()
+                }
+            })
+
     }
 
     init(device: Device, editMode: Binding<Bool>, selectedDeviceUID: Binding<UUID?>) {
@@ -236,6 +284,7 @@ struct DeviceEditorSheet: View {
     var device: Device?
 
     @Binding var editMode: Bool
+    @Binding var selectCreatedDevice: Bool
 
     @State var name: String
     @State var width: String
@@ -291,8 +340,10 @@ struct DeviceEditorSheet: View {
                                             "facade_edit_device: \(facade_edit_device(uidBytes.baseAddress, &info))"
                                         )
                                     })
+                                selectCreatedDevice = false
                             } else {
                                 print("facade_create_device: \(facade_create_device(&info))")
+                                selectCreatedDevice = true
                             }
                         })
                         return
@@ -306,7 +357,7 @@ struct DeviceEditorSheet: View {
         .padding()
     }
 
-    init(device: Device?, editMode: Binding<Bool>) {
+    init(device: Device?, editMode: Binding<Bool>, selectCreatedDevice: Binding<Bool>) {
         if let initialDevice = device {
             _name = State(initialValue: initialDevice.name)
             _width = State(initialValue: String(initialDevice.width))
@@ -320,6 +371,7 @@ struct DeviceEditorSheet: View {
         }
 
         _editMode = editMode
+        _selectCreatedDevice = selectCreatedDevice
         self.device = device
     }
 }
@@ -331,7 +383,9 @@ struct DeviceEditorSheet_Previews: PreviewProvider {
 
     struct PreviewSheet: View {
         var body: some View {
-            DeviceEditorSheet(device: Optional.none, editMode: Binding.constant(true))
+            DeviceEditorSheet(
+                device: Optional.none, editMode: Binding.constant(true),
+                selectCreatedDevice: Binding.constant(false))
         }
     }
 }

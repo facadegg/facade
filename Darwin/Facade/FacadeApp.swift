@@ -10,7 +10,16 @@ import SwiftUI
 
 class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
+        dismissSettingsWindow()
         hideTitleBar()
+    }
+
+    func dismissSettingsWindow() {
+        if let window = NSApplication.shared.windows.first(where: { window in
+            window.identifier?.rawValue.starts(with: "config") ?? false
+        }) {
+            window.close()
+        }
     }
 
     func hideTitleBar() {
@@ -72,7 +81,8 @@ struct FacadeApp: App {
                 window.standardWindowButton(.closeButton)?.isHidden = false
                 window.standardWindowButton(.miniaturizeButton)?.isHidden = false
                 window.standardWindowButton(.zoomButton)?.isHidden = false
-            })
+            }
+        )
         .onChange(
             of: devices.installed,
             perform: { installed in
@@ -87,13 +97,15 @@ struct FacadeApp: App {
                 window.setFrame(
                     window.frameRect(forContentRect: defaultSize), display: true, animate: true)
             })
-        
-        Window("Configuration", id: "config") {
-             SettingsView()
+
+        WindowGroup("Configuration", id: "config") {
+            SettingsView()
                 .environmentObject(cameraFilter)
                 .environmentObject(devices)
         }
-        .defaultSize(width: 720, height: 600)
+        .defaultSize(width: 702, height: 540)
+        .windowResizability(.contentMinSize)
+
     }
 
     init() {

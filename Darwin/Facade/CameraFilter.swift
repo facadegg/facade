@@ -72,7 +72,7 @@ class FaceSwapTarget: ObservableObject {
                     at: documentsDirectory, withIntermediateDirectories: true, attributes: nil)
                 try fileManager.moveItem(at: localURL, to: faceSwapModelURL)
                 print("Downloaded \(self.name) successfully.")
-                
+
                 DispatchQueue.main.async {
                     self.downloaded = true
                 }
@@ -246,12 +246,13 @@ class CameraFilter: ObservableObject {
             for: AVMediaType.video,
             position: .unspecified)
         {
-            return Device(type: facade_device_type_video,
-                          uid: UUID(uuidString: defaultDevice.uniqueID) ?? UUID(),
-                          name: defaultDevice.localizedName,
-                          width: 0,
-                          height: 0,
-                          frameRate: 0)
+            return Device(
+                type: facade_device_type_video,
+                uid: UUID(uuidString: defaultDevice.uniqueID) ?? UUID(),
+                name: defaultDevice.localizedName,
+                width: 0,
+                height: 0,
+                frameRate: 0)
         }
 
         return nil
@@ -266,7 +267,7 @@ class CameraFilter: ObservableObject {
 
         return inputDevice?.uid.uuidString
     }
-    
+
     var previewDeviceName: String? {
         if let properties = self.properties {
             if properties.isRunning {
