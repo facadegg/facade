@@ -10,7 +10,7 @@ import SwiftUI
 
 struct InitView: View {
     let isWaitingOnCamera: Bool
-    
+
     var body: some View {
         VStack(alignment: .center) {
             IconView()

@@ -295,6 +295,13 @@ class CameraFilter: ObservableObject {
         }
     }
 
+    func terminate() {
+        if let properties = self.properties {
+            properties.stop()
+            self.properties = nil
+        }
+    }
+
     func resume() {
         self.properties?.start()
     }

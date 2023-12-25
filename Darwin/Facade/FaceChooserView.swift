@@ -81,20 +81,35 @@ struct FaceChooserView: View {
                     columns: [GridItem(.fixed(86), spacing: 18), GridItem(.fixed(86))], spacing: 18
                 ) {
                     ForEach(filter.availableFaceSwapTargets, id: \.name) { target in
+                        let targetActive = target.name == filter.properties?.faceSwapTarget.name
+
                         Button {
                             if target.downloaded {
-                                filter.run(faceSwapTarget: target)
+                                if targetActive {
+                                    filter.terminate()
+                                } else {
+                                    filter.run(faceSwapTarget: target)
+                                }
                             } else {
                                 target.download()
                             }
                         } label: {
-                            VStack {
+                            ZStack {
+                                if targetActive {
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .fill(Color(red: 0.67, green: 1, blue: 0.78))
+                                        .frame(width: 86, height: 126, alignment: .center)
+                                        .shadow(
+                                            color: Color(
+                                                red: 0.67, green: 1, blue: 0.78, opacity: 0.2),
+                                            radius: 24, x: 0, y: 0)
+                                }
                                 Image(target.name)
                                     .resizable()
                                     .scaledToFill()
                                     .frame(width: 86, height: 126)
                                     .clipped()
-                                    .cornerRadius(8)
+                                    .cornerRadius(12)
                                     .overlay(FaceDownloadOverlay(faceSwapTarget: target))
                                     .overlay(alignment: .bottom) {
                                         LinearGradient(
@@ -116,6 +131,14 @@ struct FaceChooserView: View {
                                             .frame(minWidth: 86, maxWidth: 86)
                                             .padding(4)
                                     }
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 15)
+                                            .stroke(
+                                                Color(red: 0.67, green: 1, blue: 0.78),
+                                                lineWidth: targetActive ? 3 : 0
+                                            )
+                                            .padding(-2)
+                                    )
                             }
                             .frame(
                                 minWidth: 0, maxWidth: .infinity, minHeight: 0,

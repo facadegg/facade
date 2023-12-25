@@ -66,7 +66,7 @@ struct FaceView: View {
         }
         .onAppear {
             setupCapture()?.startSession()
-            
+
             guard let window = NSApplication.shared.windows.first else {
                 assertionFailure()
                 return
@@ -86,7 +86,7 @@ struct FaceView: View {
             capture = setupCapture()
         }
     }
-    
+
     func setupCapture() -> CameraCapture? {
         if capture?.uniqueID != filter.previewDevice {
             capture?.stopSession()
