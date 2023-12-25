@@ -55,11 +55,7 @@ struct FaceView: View {
             capture?.stopSession()
         }
         .onChange(of: filter.previewDevice) { _ in
-            if let previewDevice = filter.previewDevice {
-                capture?.changeDevice(newUniqueID: previewDevice)
-            } else {
-                capture?.stopSession()
-            }
+            capture = setupCapture()
         }
         .frame(minWidth: 540, minHeight: 360)
     }
@@ -73,8 +69,6 @@ struct FaceView: View {
                 print("Creating capture on  \(previewDevice)")
                 capture = CameraCapture(uniqueID: previewDevice)
                 capture?.checkAuthorization()
-            } else {
-                capture = nil
             }
         }
 
@@ -85,7 +79,7 @@ struct FaceView: View {
 struct FaceStatusView: View {
     @EnvironmentObject var filter: CameraFilter
     @Environment(\.openWindow) private var openWindow
-    
+
     var body: some View {
         HStack {
             if let previewDeviceName = self.filter.previewDeviceName {
@@ -99,14 +93,17 @@ struct FaceStatusView: View {
                 .clipShape(RoundedRectangle(cornerSize: CGSize(width: 8, height: 8)))
             }
 
-            Button(action: {
-                openWindow(id: "config")
-            }, label: {
-                Image(systemName: "gearshape.fill")
-                    .foregroundStyle(.white)
-                    .padding(8)
-                    .contentShape(RoundedRectangle(cornerSize: CGSize(width: 8, height: 8)))
-            })
+            Button(
+                action: {
+                    openWindow(id: "config")
+                },
+                label: {
+                    Image(systemName: "gearshape.fill")
+                        .foregroundStyle(.white)
+                        .padding(8)
+                        .contentShape(RoundedRectangle(cornerSize: CGSize(width: 8, height: 8)))
+                }
+            )
             .buttonStyle(.plain)
             .modifier(FaceOverlayBackground())
             .clipShape(RoundedRectangle(cornerSize: CGSize(width: 8, height: 8)))

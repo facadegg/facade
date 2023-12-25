@@ -9,12 +9,15 @@ import AVFoundation
 import SwiftUI
 
 class PlayerView: NSView {
+    var captureSession: AVCaptureSession
     var previewLayer: AVCaptureVideoPreviewLayer?
     var fill: Bool
 
     init(captureSession: AVCaptureSession, fill: Bool) {
-        previewLayer = AVCaptureVideoPreviewLayer(session: captureSession)
+        self.captureSession = captureSession
         self.fill = fill
+
+        previewLayer = AVCaptureVideoPreviewLayer(session: captureSession)
 
         super.init(frame: .zero)
 
@@ -22,14 +25,16 @@ class PlayerView: NSView {
     }
 
     func setupLayer() {
-        previewLayer?.frame = self.frame
-        previewLayer?.contentsGravity = fill ? .resizeAspectFill : .resizeAspect
-        previewLayer?.videoGravity = fill ? .resizeAspectFill : .resizeAspect
-        previewLayer?.connection?.automaticallyAdjustsVideoMirroring = false
-        previewLayer?.backgroundColor = .black
+        if let previewLayer = previewLayer {
+            previewLayer.frame = self.frame
+            previewLayer.contentsGravity = fill ? .resizeAspectFill : .resizeAspect
+            previewLayer.videoGravity = fill ? .resizeAspectFill : .resizeAspect
+            previewLayer.backgroundColor = .black
 
-        if let connection = previewLayer?.connection, connection.isVideoMirroringSupported {
-            connection.isVideoMirrored = true
+            if let connection = previewLayer.connection, connection.isVideoMirroringSupported {
+                connection.automaticallyAdjustsVideoMirroring = false
+                connection.isVideoMirrored = true
+            }
         }
 
         layer = previewLayer
@@ -50,7 +55,7 @@ struct CameraView: NSViewRepresentable {
         self.captureSession = captureSession
         self.fill = fill
     }
-    
+
     init(captureSession: AVCaptureSession) {
         self.init(captureSession: captureSession, fill: true)
     }
@@ -59,5 +64,11 @@ struct CameraView: NSViewRepresentable {
         return PlayerView(captureSession: captureSession, fill: fill)
     }
 
-    func updateNSView(_ nsView: PlayerView, context: Context) {}
+    func updateNSView(_ nsView: PlayerView, context: Context) {
+        if !captureSession.inputs.elementsEqual(nsView.captureSession.inputs) {
+            nsView.captureSession = captureSession
+            nsView.previewLayer = AVCaptureVideoPreviewLayer(session: captureSession)
+            nsView.setupLayer()
+        }
+    }
 }
