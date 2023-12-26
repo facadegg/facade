@@ -53,6 +53,7 @@ struct SetupView: View {
     @EnvironmentObject var devices: Devices
     @State var delegate: SetupDelegate?
     @State var error = false
+    @State var installing = false
     @State var message =
         "Thanks for trying out Facade!\n\nFacade is a programmable virtual camera for macOS. Please continue to install its system software."
 
@@ -75,6 +76,8 @@ struct SetupView: View {
             Spacer()
 
             Button(action: { [self] in
+                self.installing = true
+
                 if self.devices.needsRestart {
                     NSApplication.shared.terminate(nil)
                 } else {
@@ -85,6 +88,7 @@ struct SetupView: View {
             }
             .buttonStyle(.borderedProminent)
             .padding(EdgeInsets(top: 0, leading: 0, bottom: 24, trailing: 0))
+            .disabled(installing && !error && !devices.needsRestart)
         }
         .frame(width: 360, height: 320)
         .padding(8)
