@@ -20,8 +20,8 @@ class FaceSwapTarget: ObservableObject {
     init(name: String) {
         let fileManager = FileManager.default
         let containerURL = fileManager.containerURL(
-            forSecurityApplicationGroupIdentifier: "gg.facade")!
-        let documentsDirectory = containerURL.appendingPathComponent("Library/Models")
+            forSecurityApplicationGroupIdentifier: APPLICATION_GROUP)!
+        let documentsDirectory = containerURL.appendingPathComponent("Library/Caches")
         let faceSwapModelURL = documentsDirectory.appendingPathComponent(
             "\(name.replacingOccurrences(of: " ", with: "_")).mlmodel")
 
@@ -63,8 +63,8 @@ class FaceSwapTarget: ObservableObject {
             do {
                 let fileManager = FileManager.default
                 let containerURL = fileManager.containerURL(
-                    forSecurityApplicationGroupIdentifier: "gg.facade")!
-                let documentsDirectory = containerURL.appendingPathComponent("Library/Models")
+                    forSecurityApplicationGroupIdentifier: APPLICATION_GROUP)!
+                let documentsDirectory = containerURL.appendingPathComponent("Library/Caches")
                 let faceSwapModelURL = documentsDirectory.appendingPathComponent(
                     "\(self.name.replacingOccurrences(of: " ", with: "_")).mlmodel")
 
@@ -117,8 +117,8 @@ class CameraFilterProperties: ObservableObject {
         let bundledResourcesDirectory =
             Bundle.main.bundlePath + "/Contents/MacOS/Lens.app/Contents/Resources"
         let containerURL = fileManager.containerURL(
-            forSecurityApplicationGroupIdentifier: "gg.facade")!
-        let documentsDirectory = containerURL.appendingPathComponent("Library/Models")
+            forSecurityApplicationGroupIdentifier: APPLICATION_GROUP)!
+        let documentsDirectory = containerURL.appendingPathComponent("Library/Caches")
 
         let centerFaceModelURL = documentsDirectory.appendingPathComponent("CenterFace.mlmodel")
         let faceMeshModelURL = documentsDirectory.appendingPathComponent("FaceMesh.mlmodel")

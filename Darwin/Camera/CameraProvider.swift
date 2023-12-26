@@ -256,7 +256,7 @@ class CameraProviderSource: NSObject, CMIOExtensionProviderSource {
         }
 
         if deviceSources.isEmpty {
-            createDevice()
+            _ = createDevice()
         }
     }
 
