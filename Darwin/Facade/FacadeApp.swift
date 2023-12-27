@@ -56,7 +56,7 @@ struct FacadeApp: App {
             }
         }
         .defaultSize(width: 1080, height: 720)
-        .windowResizability(devices.needsInitializing ? .contentSize : .contentMinSize)
+        .windowResizability(devices.needsInitializing || !devices.installed ? .contentSize : .contentMinSize)
         .windowStyle(.hiddenTitleBar)
         .windowToolbarStyle(.unified)
         .onChange(
