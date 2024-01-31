@@ -1,5 +1,13 @@
+# Python Environment
 venv
 **/__pycache__
 facade.egg-info
-dist
 pyfacade.egg-info
+
+# Build Artifacts
+dist
+
+# Sphinx
+_build
+_static
+_templates

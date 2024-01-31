@@ -23,7 +23,7 @@ def out_python(data: str) -> None:
     lines = lines[1:-1]
     data = '\n'.join(lines)
 
-    with open('../Interop/Python/facade/libfacade_h.py', 'w') as libfacade_hpy:
+    with open('../Interop/Python/pyfacade/libfacade_h.py', 'w') as libfacade_hpy:
         libfacade_hpy.write(
             f"""\
 facade_h = \"\"\"

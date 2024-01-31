@@ -15,7 +15,7 @@ MODELS = [
     'Zahar_Lupin'
 ]
 
-BASE_URL = 'ml.facade.gg'
+BASE_URL = 'ml.pyfacade.gg'
 
 if __name__ == "__main__":
     os.makedirs('/opt/facade', exist_ok=True)

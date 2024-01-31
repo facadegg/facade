@@ -7,6 +7,10 @@ else()
     set(BUNDLE_DEFAULT OFF)
 endif()
 
+set(FACADE_VERSION 1.0.0)
+
+option(FACADE_FEATURE_PY "pyfacade" ON)
+option(FACADE_FEATURE_DOCS "pyfacade & Doxygen docs" ON)
 option(LENS_FEATURE_ONNX "Support ONNX models for inference" OFF)
 option(LENS_FEATURE_BUNDLE "Bundle Lens into an application" ${BUNDLE_DEFAULT})
 
@@ -44,4 +48,8 @@ if(APPLE)
             /Applications/Facade.app/Contents/Frameworks
             /Applications/Facade.app/Contents/Frameworks/libfacade.dylib.framework)
     target_link_libraries(Facade facade Boost::program_options)
+endif()
+
+if(FACADE_FEATURE_PY)
+    include(Interop/Python/CMakeLists.txt)
 endif()

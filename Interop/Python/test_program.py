@@ -1,7 +1,7 @@
 import time
 import typing
 
-from facade import *
+from pyfacade import *
 
 facade_init()
 

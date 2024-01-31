@@ -3,7 +3,7 @@
     style="padding: 0"><code><span style="color:rgb(86, 156, 214);">import</span> time
 <span style="color:rgb(86, 156, 214);">import</span> typing
 
-<span style="color:rgb(86, 156, 214);">from</span> facade <span style="color:rgb(86, 156, 214);">import</span> *
+<span style="color:rgb(86, 156, 214);">from</span> pyfacade <span style="color:rgb(86, 156, 214);">import</span> *
 
 facade_init()
 device = FacadeDevice.<span style="color:rgb(78, 201, 176); font-weight:400;">list</span>()[<span style="color:rgb(184, 215, 163); font-weight:400;">0</span>]
@@ -35,8 +35,8 @@ line_idx = <span style="color:rgb(184, 215, 163); font-weight:400;">0</span>
     <span style="color:rgb(86, 156, 214); font-weight:400;">try</span>:
         <span style="color:rgb(86, 156, 214); font-weight:400;">while</span> <span style="color:rgb(86, 156, 214); font-weight:400;">True</span>:
             time.sleep(<span style="color:rgb(184, 215, 163); font-weight:400;">1</span>)
-        <span style="color:rgb(86, 156, 214); font-weight:400;">except</span> KeyboardInterrupt:
-            camera.close()</code></pre>
+    <span style="color:rgb(86, 156, 214); font-weight:400;">except</span> KeyboardInterrupt:
+        camera.close()</code></pre>
 </div>
 
 <style>

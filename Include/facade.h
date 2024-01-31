@@ -49,9 +49,9 @@ typedef enum {
 typedef enum {
     facade_error_none = 0,             /*!< Success */
     facade_error_unknown = 1,          /*!< An unspecified error that is system specific */
-    facade_error_protocol = 2,         /*!< An incompatibility between libfacade and Facade system extensions */
+    facade_error_protocol = 2,         /*!< An incompatibility between libfacade and the Facade system extension. */
     facade_error_invalid_type = 3,     /*!< A device with the wrong type was passed */
-    facade_error_invalid_state = 4,    /*!< A given operation cannot be done without another prerequisite */
+    facade_error_invalid_state = 4,    /*!< A given operation cannot be done in the current state */
     facade_error_invalid_input = 5,    /*!< The passed argument have unacceptable values */
     facade_error_reader_not_ready = 6, /*!< The device is not ready to be read again */
     facade_error_writer_not_ready = 7, /*!< The device is not ready to be written to again */

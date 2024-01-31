@@ -1,18 +1,19 @@
+from os import environ
 from setuptools import setup
 
 setup(
     name='pyfacade',
-    version='1.0.0rc1',
+    version=environ['PYFACADE_VERSION'],
     description='A Python interface to Facade virtual device management',
     author='Shukant Pal',
-    author_email='facade@palcor.net',
+    author_email='facade@shukantpal.com',
     classifiers=[
         "Programming Language :: Python :: 3",
     ],
     include_package_data=True,
     install_requires=["cffi>=1.15.1"],
-    packages=['facade'],
-    package_dir={'facade': 'facade'},
+    packages=['pyfacade'],
+    package_dir={'pyfacade': 'pyfacade'},
     setup_requires=["cffi>=1.15.1"],
-    url='https://source.shukantpal.com/Palco/Facade'
+    url='https://facade.gg/docs'
 )
