@@ -1,0 +1,29 @@
+---
+export interface Props {
+    gap?: string
+    spacing?: string
+}
+
+const { gap, spacing } = Astro.props
+---
+
+<div class="columns" style={(gap ? `gap: ${gap};` : '') + (spacing ? `padding: ${spacing} 0;` : '')}>
+    <slot />
+</div>
+
+<style>
+    .columns {
+        align-items: center;
+        display: flex;
+        flex-direction: column;
+        gap: 2em;
+        width: 100%;
+    }
+
+    @media (min-width: 992px) {
+        .columns {
+            flex-direction: row;
+            width: auto;
+        }
+    }
+</style>

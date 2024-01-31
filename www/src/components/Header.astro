@@ -1,0 +1,101 @@
+---
+import facadeIcon from "./icons/FacadeIcon.svg";
+---
+
+<header>
+  <div class="shrink">
+    <a href="/" style="align-content: center; display: flex; gap: .875rem;">
+      <img src={facadeIcon.src} alt="Facade's Icon" />
+      <span>Facade</span>
+    </a>
+    <div class="spacer"></div>
+    <a href="/docs">Docs</a>
+    <a class="collapsible" href="/download">Download</a>
+  </div>
+</header>
+
+<style>
+  header {
+    padding: 1.375em;
+    position: fixed;
+    top: 0;
+    width: calc(100% - 2.75em);
+    z-index: 1;
+  }
+  header > .shrink {
+    display: flex;
+    flex-direction: row;
+    font-size: 1em;
+    gap: 0.875rem;
+    margin: 0 auto 0 auto;
+    width: 100%;
+  }
+  header > .shrink > .spacer {
+    flex-basis: 0;
+    flex-grow: 1;
+  }
+  header > .shrink > .collapsible {
+    display: none;
+  }
+  header > .shrink > a {
+    display: block;
+  }
+  .header-collapsed {
+    backdrop-filter: blur(80px);
+    -webkit-backdrop-filter: blur(80px);
+  }
+  @media (min-width: 768px) {
+    header {
+      padding: 2em 2em;
+      width: calc(100% - 4em);
+    }
+
+    header > .shrink {
+      gap: 2rem;
+    }
+
+    header > .shrink > a {
+      display: block;
+    }
+
+    header > .shrink > .collapsible {
+      display: block;
+    }
+  }
+
+  a {
+    color: white;
+    font-weight: 500;
+    text-decoration: none;
+  }
+</style>
+
+<script>
+  document.addEventListener("scroll", function () {
+    const header = document.querySelector("header");
+    const scroll = document.documentElement.scrollTop;
+    const desktop = window.innerWidth > 768;
+    const basePadding = desktop ? 32 : 22;
+    const baseAlpha = 0.67;
+    const targetPadding = 16;
+    const progress = scroll / (basePadding - targetPadding);
+
+    if (progress < 1) {
+      header.classList.remove("header-collapsed");
+      Object.assign(header.style, {
+        background: `rgba(0, 0, 0, ${
+          progress > 0.8 ? (progress - 0.8) * 5 * baseAlpha : 0
+        })`,
+        paddingBottom: `${basePadding - scroll}px`,
+        paddingTop: `${basePadding - scroll}px`,
+      });
+    } else {
+      header.classList.add("header-collapsed");
+      Object.assign(header.style, {
+        background: `rgba(0, 0, 0, ${baseAlpha})`,
+        paddingBottom: `${targetPadding}px`,
+        paddingTop: `${targetPadding}px`,
+      });
+    }
+  });
+</script>

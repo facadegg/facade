@@ -1,40 +1,36 @@
 import time
-from time import sleep
+import typing
 
-from facade.facade_error_code import FacadeError
-from facade.libfacade import libfacade, ffi
+from facade import *
+
+facade_init()
+
+device = FacadeDevice.list()[0]
+camera = typing.cast(VideoFacadeDevice, device)
+camera.open(mode='w')
+
+pixel_buffer = bytearray(camera.width * camera.height * 4)
+clear_line = [0 for i in range(0, camera.width * 4)]
+white_line = [255 for i in range(0, camera.width * 4)]
+line_idx = 0
+
+
+def render():
+    global line_idx, pixel_buffer, camera
+
+    pixel_buffer[line_idx:line_idx + camera.width * 4] = clear_line
+    line_idx = (line_idx + camera.width * 4) % len(pixel_buffer)
+    pixel_buffer[line_idx:line_idx + camera.width * 4] = white_line
+
+    camera.write_frame(pixel_buffer)
+
 
 if __name__ == "__main__":
-    import facade
-    libfacade.facade_init()
+    camera.write_callback(render)
+    render()
 
-    devices = [facade.FacadeDevice.by_name("Facade")]
-    print(*devices)
-    devices[0].open('w')
-    buffer = bytearray(devices[0].width * devices[0].height * 4)
-    clear = [0 for i in range(0, devices[0].width * 4)]
-    row = [255 for i in range(0, devices[0].width * 4)]
-    i = 0
-    t = time.perf_counter()
-
-    def write_callback():
-        global i, buffer, devices, t
-
-        buffer[i:i+devices[0].width * 4] = clear
-        i += devices[0].width * 4
-        i %= len(buffer)
-        buffer[i:i+devices[0].width * 4] = row
-
-        try:
-            devices[0].write_frame(buffer)
-            print((time.perf_counter() - t) * 1000)
-            t = time.perf_counter()
-        except FacadeError as e:
-            print(e)
-
-    devices[0].write_callback(write_callback)
-    write_callback()
-
-    while True:
-        sleep(.1)
-
+    try:
+        while True:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        camera.close()

@@ -1,148 +1,215 @@
 ---
 export interface Props {
-	title: string;
+  title: string;
 }
 
 const { title } = Astro.props;
 ---
 
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="description" content="Astro description">
-		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="generator" content={Astro.generator} />
-		<title>{title}</title>
-	</head>
-	<body>
-		<slot />
-	</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="description" content="Astro description" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+  </head>
+  <body>
+    <slot />
+  </body>
 </html>
 <style is:global>
-	@font-face {
-		font-family: 'Inria Sans';
-		font-style: normal;
-		font-weight: 700;
-		font-display: swap;
-		src: url(https://fonts.gstatic.com/s/inriasans/v14/ptRPTiqXYfZMCOiVj9kQ3FLdPQxPqMQ0bX8.woff2) format('woff2');
-		unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-	}
-	@font-face {
-		font-family: 'Inter';
-		src: url('/fonts/Inter.woff2') format('woff2');
-		font-weight: normal;
-		font-style: normal;
-		font-display: swap;
-		unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-	}
+  @font-face {
+    font-family: "Inter";
+    font-weight: 300;
+    font-style: normal;
+    font-display: swap;
+    src: url("/fonts/Inter.woff2") format("woff2");
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+      U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122,
+      U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+  }
 
-	@font-face {
-		font-family: 'Inter';
-		src: url('/fonts/Inter.woff2') format('woff2');
-		font-weight: 500;
-		font-style: normal;
-		font-display: swap;
-		unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-	}
+  @font-face {
+    font-family: "Inter";
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+    src: url("/fonts/Inter.woff2") format("woff2");
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+      U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122,
+      U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+  }
 
-	@font-face {
-		font-family: 'Inter';
-		src: url('/fonts/Inter.woff2') format('woff2');
-		font-weight: 600;
-		font-style: normal;
-		font-display: swap;
-		unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-	}
+  @font-face {
+    font-family: "Inter";
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+    src: url("/fonts/Inter.woff2") format("woff2");
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+      U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122,
+      U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+  }
 
-	:root {
-		--accent: 124, 58, 237;
-		--accent-gradient: linear-gradient(45deg, rgb(var(--accent)), #da62c4 30%, white 60%);
-	}
+  @font-face {
+    font-family: "Inter";
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+    src: url("/fonts/Inter.woff2") format("woff2");
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+      U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122,
+      U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+  }
 
-	* {
-		letter-spacing: -.03em;
-	}
+  @font-face {
+    font-family: "Inter";
+    font-weight: 800;
+    font-style: normal;
+    font-display: swap;
+    src: url("/fonts/Inter.woff2") format("woff2");
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+      U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122,
+      U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+  }
 
-	html {
-		background: radial-gradient(ellipse 50% 80rem at 0% 15rem, #222, rgba(0, 0, 0, .16)),
-					radial-gradient(ellipse 50% 80rem at 50% 3rem, #222, rgba(0, 0, 0, .16)),
-					radial-gradient(ellipse 50% 80rem at 100% 15rem, #222, rgba(0, 0, 0, .16)),
-				    black;
-		color: #eee;
-		font-family: Inter, system-ui, sans-serif;
-		margin: 0;
-		max-width: 100vw;
-		overflow-x: hidden;
-		padding: 0;
-	}
-	body {
-		padding: 0;
-		margin: 0;
-		max-width: 100vw;
-		overflow-x: hidden;
-	}
-	code {
-		font-family: Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono,
-			Bitstream Vera Sans Mono, Courier New, monospace;
-	}
+  @font-face {
+    font-family: "Source Code Pro";
+    font-style: normal;
+    font-weight: 300;
+    font-display: swap;
+    src: url("/fonts/Source_Code_Pro.woff") format("woff2");
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+      U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122,
+      U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+  }
 
-	h1 {
-		font-family: 'Inria Sans';
-		font-size: 3em;
-		font-weight: 700;
-		letter-spacing: -.02em;
-		margin: 0;
-		padding: 0 12% 0 12%;
-	}
-	h2 {
-		font-family: 'Inria Sans';
-		font-size: 2em;
-		font-weight: 500;
-		padding: 0;
-		line-height: 1.25em;
-	}
-	h3 {
-		font-size: 1.25em;
-		font-weight: normal;
-		margin-top: 2rem;
-		margin-bottom: 0.25rem;
-		line-height: 1.5em;
-	}
-	h4 {
-		font-size: 1em;
-		font-weight: 400;
-		line-height: 1.5em;
-		margin: 0;
-		padding: 0;
-	}
+  :root {
+    --accent: 124, 58, 237;
+    --accent-gradient: linear-gradient(
+      45deg,
+      rgb(var(--accent)),
+      #da62c4 30%,
+      white 60%
+    );
+  }
 
-	h1, h2 {
-		background: linear-gradient(180deg, #fff 22.5%, rgba(255,255,255,.7) 100%);
-		-webkit-background-clip: text;
-		-webkit-text-fill-color: transparent;
-	}
+  * {
+    letter-spacing: -0.03em;
+  }
 
-	@media (min-width: 992px) {
-		h1 {
-			font-size: 4em;
-			padding: unset;
-		}
+  html {
+    --foreground-color: #eee;
+    --secondary-color: #ccc;
+    --background-color: #333;
+    --primary-color: #ABFFC7;
+    --primary-dark-color: #34503C;
 
-		h2 {
-			font-size: 3em;
-			margin: 0;
-			padding: 0;
-		}
+    background: black;
+    color: var(--foreground-color);
+    font-family: Inter, system-ui, sans-serif;
+    margin: 0;
+    max-width: 100vw;
+    height: 100vh;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    padding: 0;
+    width: 100vw;
+  }
+  body {
+    background: radial-gradient(
+        145.61% 64.27% at 0.41% 0.16%,
+        rgba(106, 247, 89, 0.14) 0%,
+        rgba(0, 0, 0, 0) 100%
+      ),
+      rgba(0, 0, 0, 0.8);
+    padding: 0;
+    margin: 0;
+    height: max-content;
+    width: 100vw;
+    overflow-x: hidden;
+  }
+  code {
+    font-family: "Source Code Pro", monospace;
+    font-size: 0.875em;
+    font-weight: 300;
+  }
 
-		h3 {
-			font-size: 2em;
-			margin-top: 1rem;
-		}
+  h1 {
+    font-size: 3em;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin: 0;
+    padding: 0 12% 0 12%;
+  }
+  h2 {
+    font-size: 1.25em;
+    font-weight: 500;
+    padding: 0;
+    line-height: 1.25em;
+  }
+  h3 {
+    font-size: 1.125em;
+    font-weight: 500;
+    margin-top: 2rem;
+    margin-bottom: 0.25rem;
+    line-height: 1.5em;
+  }
+  h4 {
+    font-size: 1em;
+    font-weight: 400;
+    line-height: 1.5em;
+    margin: 0;
+    padding: 0;
+  }
+  p {
+    font-size: 1.125em;
+    font-weight: 300;
+    line-height: 1.4em;
+  }
 
-		h4 {
-			font-size: 1.25em;
-		}
-	}
+  h1 {
+    background: linear-gradient(
+      180deg,
+      #fff 0%,
+      rgba(255, 255, 255, 0.8) 100%
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  @media (min-width: 992px) {
+    h1 {
+      font-size: 3.6em;
+      font-weight: 800;
+      padding: unset;
+    }
+
+    h2 {
+      font-size: 2em;
+      margin: 0;
+      padding: 0;
+    }
+
+    h3 {
+      font-size: 1.125em;
+      margin-top: 1rem;
+    }
+
+    h4 {
+      font-size: 1.25em;
+    }
+
+    p {
+      font-size: 1.5em;
+      line-height: 1.4em;
+    }
+
+    code {
+      font-size: 1em;
+    }
+  }
 </style>

@@ -75,7 +75,7 @@ if __name__ == "__main__":
     ]
     adds = [find_node_by_name('Add_82', model), find_node_by_name('Add_80', model)]
 
-    for i, mm in enumerate(matmuls):
+    for line_idx, mm in enumerate(matmuls):
         mmi = list(model.graph.node).index(mm)
         model.graph.node.remove(mm)
 
@@ -126,7 +126,7 @@ if __name__ == "__main__":
                                      op_type='Reshape')
         model.graph.node.append(adjust_node)
 
-        corres_add = adds[i]
+        corres_add = adds[line_idx]
         corres_add.input[0] = 'intermediate_' + mm.name
         add_weights = find_initializer_by_name(corres_add.input[1], model)
         add_weights.dims[0] = 512

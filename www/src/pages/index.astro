@@ -1,235 +1,216 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import Card from '../components/Card.astro';
-import FaceSwapSpotlight from '../components/spotlights/FaceSwapSpotlight.astro';
-import Spotlight from '../components/Spotlight.astro';
-import Stars from '../components/Stars.astro';
-import WireGrid from '../components/WireGrid.astro';
-import downloadOnTheMacAppStoreIcon from '../components/icons/Download_on_the_Mac_App_Store_Badge_US-UK_RGB_blk_092917.svg';
-import facadeIcon from '../components/icons/FacadeIcon.svg';
-import googleMeet from '../components/icons/GoogleMeet.svg';
-import teamflow from '../components/icons/Teamflow.svg';
-import zoom from '../components/icons/Zoom.svg';
+import Button from "../components/Button.astro";
+import Card from "../components/Card.astro";
+import Header from "../components/Header.astro";
+import Layout from "../layouts/Layout.astro";
+import LineLoopProgram from "../components/samples/LineLoopProgram.astro";
+import AppDashedIcon from "../components/icons/AppDashed.svg";
+import BoxIcon from "../components/icons/Box.svg";
+import TheCProgrammingLanguageIcon from "../components/icons/The_C_Programming_Language_logo.svg";
+import PythonIcon from "../components/icons/Python.svg";
+import ResponsiveColumns from "../components/ResponsiveColumns.astro";
+import ResponsiveHStack from "../components/ResponsiveHStack.astro";
+import ResponsiveVStack from "../components/ResponsiveVStack.astro";
+import WireGrid from "../components/WireGrid.astro";
 ---
 
-<Layout title="Facade • Pushing Video Beyond Reality">
-	<Stars />
-	<WireGrid />
-	<header>
-		<div class="shrink">
-			<img src={`${facadeIcon}`} />
-			Facade
-			<div class="spacer"></div>
-			<a class="collapsible">Download</a>
-			<a>Resources</a>
-		</div>
-	</header>
-	<main>
-		<h1>Pushing Video Beyond Reality</h1>
-		<h3 class="subtitle">
-			Facade transforms your camera so that you can become anyone.
-			<br />
-			Redefine how you interact with others online.
-		</h3>
-		<a
-			class="download"
-		   	href="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
-			target="_blank"
-		>
-			<img src={`${downloadOnTheMacAppStoreIcon}`} />
-		</a>
-		<p class="caption" style="color: #aaa">Coming to other platforms</p>
-		<div class="hero-spacer"></div>
-		<!-- <section style="align-items: center; display: flex; flex-direction: column; gap: .75em;">
-			<div class="meeting-tools" style="display: flex; gap: 1.25em;">
-				<img src={`${googleMeet}`} />
-				<img src={`${zoom}`} />
-				<img src={`${teamflow}`} />
-			</div>
-			<p style="padding: 0; margin: 0">Works with all your meeting tools</p>
-		</section> -->
-		<FaceSwapSpotlight />
-		<Spotlight
-			title="Focus on yourself"
-			description="Blur out the noise behind you and keep everyone focused on your face"
-			ltr={false}
-		>
-			<img class="ip" src="/images/Anna_Tolipova.png" />
-		</Spotlight>
-		<Spotlight
-			title="Unparalleled customization"
-			description="The Facade SDK lets developers create custom-tailored video effects"
-		>
-			<img class="ip" src="/images/Anna_Tolipova.png" />
-		</Spotlight>
-	</main>
+<Layout title="Facade • Program Virtual Cameras">
+  <WireGrid />
+  <Header />
+  <main>
+    <ResponsiveColumns>
+      <Fragment slot="first">
+        <section class="flush">
+          <h1>Facade makes it really easy to program virtual cameras</h1>
+          <p class="subtitle" style="margin-top: 3rem">
+            Simple APIs to create and stream content into
+            virtual cameras. Reimagine how you present yourself online.
+          </p>
+          <ResponsiveHStack gap="1.5rem" spacing="3rem">
+            <Button href="/docs" primary={true}>Get Started</Button>
+            <Button href="/download">Download</Button>
+          </ResponsiveHStack>
+        </section>
+      </Fragment>
+      <Fragment slot="second">
+        <LineLoopProgram />
+      </Fragment>
+    </ResponsiveColumns>
+    <div class="hero-spacer"></div>
+    <div class="content">
+      <section>
+        <h1>
+          A system extension for creating loopback virtual cameras
+        </h1>
+        <p class="subtitle">
+          Coupled with C and Python libraries to interface with it, Facade abstracts
+          away the low-level details of device virtualization. You get simple APIs to
+          create and stream video into cameras.
+        </p>
+      </section>
+    </div>
+    <div class="content-lite" style="margin-top: 2rem;">
+      <ResponsiveHStack gap="1rem" spacing="2em">
+        <Card
+            title="Your app"
+            body={"Uses Facade to open a camera device and push video frames into it"}
+            icon={AppDashedIcon.src}
+        />
+        <ResponsiveVStack gap="1rem">
+          <Card
+              title="pyfacade"
+              body={[]}
+              icon={PythonIcon.src}
+              size="small"
+          />
+          <Card
+              title="libfacade"
+              body={[]}
+              icon={TheCProgrammingLanguageIcon.src}
+              size="small"
+          />
+        </ResponsiveVStack>
+        <Card
+          title="Native Media APIs"
+          body={[]}
+          size="tall"
+          />
+        <Card
+            title="System Extension"
+            body={[
+              "Creates a virtual camera with macOS and loops back incoming video frames",
+              "You can preview this camera as any regular camera"
+            ]}
+            icon={BoxIcon.src}
+        />
+      </ResponsiveHStack>
+    </div>
+    <div class="hero-spacer"></div>
+    <div class="content">
+      <section>
+        <h1>
+          Try Facade virtual cameras before writing a line of code
+        </h1>
+        <p class="subtitle">
+          Try Facade virtual cameras before writing a line of code. The Facade app comes with
+          a preset of face swap cams you can try.
+        </p>
+      </section>
+    </div>
+    <div class="content-lite" style="margin-top: 2rem;">
+      <img src="/images/Face_Swap.png" width="1440" height="1080" alt="Face Swap app" style="width: 100%; height: auto; max-width: 53rem;" />
+    </div>
+    <div class="hero-spacer"></div>
+    <div class="content">
+      <section>
+        <h1>
+          And now you can create your own virtual camera...
+        </h1>
+        <p class="subtitle">
+          To get started, install the Facade app and try running one of our sample camera
+          programs.
+        </p>
+        <Button href="/docs" primary={true} style="width: 100%;">Get Started</Button>
+      </section>
+    </div>
+  </main>
 </Layout>
 
 <style>
-	header {
-		padding: 1.375em;
-		position: fixed;
-		top: 0;
-		width: calc(100% - 2.75em);
-		z-index: 1;
-	}
-	header > .shrink {
-		display: flex;
-		flex-direction: row;
-		font-size: 1em;
-		gap: .875rem;
-		margin: 0 auto 0 auto;
-		max-width: 80em;
-		width: 100%;
-	}
-	header > .shrink > .spacer {
-		flex-basis: 0;
-		flex-grow: 1;
-	}
-	header > .shrink > .collapsible {
-		display: none;
-	}
-	header > .shrink > a {
-		display: block;
-	}
-	.header-collapsed {
-		backdrop-filter: blur(80px);
-		padding-top: 1em;
-		padding-bottom: 1em;
-		-webkit-backdrop-filter: blur(80px);
-	}
-	@media (min-width: 992px) {
-		header {
-			padding: 2em 2em;
-			width: calc(100% - 4em);
-		}
+  main {
+    display: flex;
+    flex-direction: column;
+    margin: 6rem 0;
+    min-height: 120vh;
+    justify-content: center;
+  }
+  .hero-spacer {
+    min-height: 4em;
+    min-width: 100%;
+  }
+  h1 {
+    margin-top: 0;
+    margin-bottom: 0;
+    padding: 0;
+  }
+  .subtitle {
+    color: #ccc;
+    max-width: 100%;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding: 0;
+  }
+  .subtitle > br {
+    display: none;
+  }
+  .download {
+    background: none;
+    border: none;
+    display: block;
+    margin-top: 3em;
+    padding: 0;
+  }
+  .caption {
+    font-size: 1rem;
+    margin-top: 0.5rem;
+    margin-bottom: 0;
+  }
+  .content {
+    align-items: center;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    padding: 0 2em;
+    text-align: start;
+    width: 100%;
+  }
+  .content > * {
+    display: flex;
+    flex-direction: column;
+    gap: 3em;
+  }
+  .content-lite {
+    align-items: center;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0 2em;
+    width: 100%;
+  }
+  .flush {
+    margin-left: 1.375rem;
+    margin-right: 1.375rem;
+  }
+  @media (min-width: 768px) {
+    main {
+      margin: 8rem 0;
+    }
+    h1 {
+      margin-top: 5rem;
+      max-width: 100%;
+    }
+    .subtitle {
+      max-width: 100%;
+    }
+    .subtitle > br {
+      display: inline;
+    }
+    .download {
+      margin-top: 3rem;
+    }
 
-		header > .shrink {
-			gap: 2rem;
-		}
+    .download > img {
+      height: 3.125rem;
+    }
+    .flush {
+      margin-left: 2rem;
+      margin-right: 2rem;
+      max-width: 44.5rem;
+    }
 
-		header > .shrink > a {
-			display: block;
-		}
-
-		header > .shrink > .collapsible {
-			display: block;
-		}
-	}
-
-	main {
-		align-items: center;
-		display: flex;
-		flex-direction: column;
-		margin-top: 7em;
-		text-align: center;
-		width: 100%;
-	}
-	.hero-spacer {
-		min-height: 7em;
-		min-width: 100%;
-	}
-	h1 {
-		margin-top: 0;
-		max-width: 20rem;
-	}
-	h3.subtitle {
-		color: #bbb;
-		max-width: 22rem;
-		margin-top: 2em;
-		margin-bottom: 0;
-		padding: 0;
-	}
-	.subtitle > br {
-		display: none;;
-	}
-	.download {
-		background: none;
-		border: none;
-		display: block;
-		margin-top: 3em;
-		padding: 0;
-	}
-	.caption {
-		font-size: 1rem;
-		margin-top: .5rem;
-		margin-bottom: 0;
-	}
-	.meeting-tools {
-		margin-top: 4rem;
-	}
-	.meeting-tools > img {
-		height: 2em;
-		text-align: center;
-	}
-	@media (min-width: 992px) {
-		main {
-			margin-top: 10em;
-		}
-		.hero-spacer {
-			min-height: 10em;
-		}
-		h1 {
-			max-width: 100%;
-		}
-		h3.subtitle {
-			line-height: 1.4em;
-			max-width: 100%;
-		}
-		.subtitle > br {
-			display: inline;
-		}
-		.subtitle:first-of-type {
-			margin-top: calc(3rem - .75rem);
-		}
-		.download {
-			margin-top: 3rem;
-		}
-
-		.download > img {
-			height: 3.125rem;
-		}
-	}
-
-	img.ip {
-		display: block;
-		width: calc(90vw - 2rem);
-	}
-	@media (min-width: 992px) {
-		img.ip {
-			display: block;
-			max-width: 100%;
-			width: 100%;
-		}
-	}
-
-	video {
-		border-radius: 12px;
-		overflow: hidden;
-	}
+    .content > * {
+      max-width: 44.5rem;
+    }
+  }
 </style>
-<script>
-	document.addEventListener('scroll', function () {
-		const header = document.querySelector('header')
-		const scroll = document.documentElement.scrollTop
-		const desktop = window.innerWidth > 768
-		const basePadding = desktop ? 32 : 22
-		const baseAlpha = .67
-
-		if (scroll < basePadding / 2) {
-			header.classList.remove('header-collapsed')
-			Object.assign(header.style, {
-				background: `rgba(0, 0, 0, ${baseAlpha * scroll * 0.5 / basePadding})`,
-				paddingBottom: `${basePadding - scroll}px`,
-				paddingTop: `${basePadding - scroll}px`
-			})
-		} else {
-			header.classList.add('header-collapsed')
-			Object.assign(header.style, {
-				background: `rgba(0, 0, 0, ${baseAlpha})`,
-				paddingBottom: undefined,
-				paddingTop: undefined,
-			})
-		}
-	})
-</script>

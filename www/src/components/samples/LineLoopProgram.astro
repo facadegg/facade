@@ -1,0 +1,84 @@
+<div>
+  <pre
+    style="padding: 0"><code><span style="color:rgb(86, 156, 214);">import</span> time
+<span style="color:rgb(86, 156, 214);">import</span> typing
+
+<span style="color:rgb(86, 156, 214);">from</span> facade <span style="color:rgb(86, 156, 214);">import</span> *
+
+facade_init()
+device = FacadeDevice.<span style="color:rgb(78, 201, 176); font-weight:400;">list</span>()[<span style="color:rgb(184, 215, 163); font-weight:400;">0</span>]
+camera = typing.cast(VideoFacadeDevice, device)
+camera.<span style="color:rgb(78, 201, 176); font-weight:400;">open</span>(mode=<span style="color:rgb(214, 157, 133); font-weight:400;">&#x27;w&#x27;</span>)
+
+pixel_buffer = <span style="color:rgb(78, 201, 176); font-weight:400;">bytearray</span>(camera.width * camera.height * <span style="color:rgb(184, 215, 163); font-weight:400;">4</span>)
+clear_line = [<span style="color:rgb(184, 215, 163); font-weight:400;">0</span> <span style="color:rgb(86, 156, 214); font-weight:400;">for</span> i <span style="color:rgb(86, 156, 214); font-weight:400;">in</span> <span style="color:rgb(78, 201, 176); font-weight:400;">range</span>(<span style="color:rgb(184, 215, 163); font-weight:400;">0</span>, camera.width * <span style="color:rgb(184, 215, 163); font-weight:400;">4</span>)]
+white_line = [<span style="color:rgb(184, 215, 163); font-weight:400;">255</span> <span style="color:rgb(86, 156, 214); font-weight:400;">for</span> i <span style="color:rgb(86, 156, 214); font-weight:400;">in</span> <span style="color:rgb(78, 201, 176); font-weight:400;">range</span>(<span style="color:rgb(184, 215, 163); font-weight:400;">0</span>, camera.width * <span style="color:rgb(184, 215, 163); font-weight:400;">4</span>)]
+line_idx = <span style="color:rgb(184, 215, 163); font-weight:400;">0</span>
+
+
+<span style="color:rgb(86, 156, 214); font-weight:400;">def</span> <span class="hljs-title function_">render</span>():
+    <span style="color:rgb(86, 156, 214); font-weight:400;">global</span> line_idx, pixel_buffer, camera
+
+    pixel_buffer[line_idx:line_idx + camera.width * <span style="color:rgb(184, 215, 163); font-weight:400;">4</span>]
+        = clear_line
+    line_idx = (line_idx + camera.width * <span style="color:rgb(184, 215, 163); font-weight:400;">4</span>) % <span style="color:rgb(78, 201, 176); font-weight:400;">len</span>(pixel_buffer)
+    pixel_buffer[line_idx:line_idx + camera.width * <span style="color:rgb(184, 215, 163); font-weight:400;">4</span>]
+        = white_line
+
+    camera.write_frame(pixel_buffer)
+
+
+<span style="color:rgb(86, 156, 214); font-weight:400;">if</span> __name__ == <span style="color:rgb(214, 157, 133); font-weight:400;">&quot;__main__&quot;</span>:
+    camera.write_callback(render)
+    render()
+
+    <span style="color:rgb(86, 156, 214); font-weight:400;">try</span>:
+        <span style="color:rgb(86, 156, 214); font-weight:400;">while</span> <span style="color:rgb(86, 156, 214); font-weight:400;">True</span>:
+            time.sleep(<span style="color:rgb(184, 215, 163); font-weight:400;">1</span>)
+        <span style="color:rgb(86, 156, 214); font-weight:400;">except</span> KeyboardInterrupt:
+            camera.close()</code></pre>
+</div>
+
+<style>
+  div {
+    background: url("/images/Rainbow_Vortex.svg");
+    background-size: cover;
+    border-radius: 0;
+    padding: 1em 0;
+    width: 100%;
+  }
+
+  pre {
+    margin: 0;
+    padding: 0;
+  }
+
+  code {
+    background-color: #333;
+    color: rgb(220, 220, 220);
+    display: block;
+    font-weight: 400;
+    margin: 0;
+    overflow-x: auto;
+    padding: 1.375em;
+    max-width: 100%;
+  }
+
+  @media (min-width: 768px) {
+      code {
+          padding: 2em;
+      }
+  }
+
+  @media (min-width: 992px) {
+    div {
+      border-radius: 3em 0 0 3rem;
+      padding: 2em 0 4em 2em;
+    }
+
+    code {
+      border-radius: 1em 0 0 1em;
+      padding: 1em 2em 1em 1em;
+    }
+  }
+</style>

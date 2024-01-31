@@ -1,0 +1,61 @@
+---
+export interface Props {
+  href: string;
+  primary?: boolean;
+  style?: string;
+}
+
+const { href, primary = false, style } = Astro.props;
+---
+
+<a
+  class={primary ? 'primary' : undefined}
+  href={href}
+  style={style}
+>
+  <slot />
+</a>
+
+<style>
+  a {
+    background: radial-gradient(145.61% 64.27% at 50.41% 51.16%, rgba(106, 247, 89, 0.07) 0%, rgba(0, 0, 0, 0.00) 100%), rgba(0, 0, 0, 0.80);
+    border-radius: 6px;
+    border: 4px solid var(--primary-color);
+    box-sizing: border-box;
+    color: var(--primary-color);
+    font-weight: 500;
+    padding: 1.35rem;
+    text-align: center;
+    text-decoration: none;
+    width: 100%;
+  }
+
+  a:hover {
+    border-color: var(--primary-dark-color);
+    color: var(--foreground-color);
+  }
+
+  a.primary {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    color: var(--background-color);
+  }
+
+  a.primary:hover {
+    background: var(--primary-dark-color);
+    border-color: var(--primary-dark-color);
+    color: var(--foreground-color);
+  }
+
+  @media (min-width: 992px) {
+      a {
+        width: 12rem;
+      }
+  }
+
+  @media (min-width: 1200px) {
+    a {
+      width: 16rem;
+    }
+  }
+</style>

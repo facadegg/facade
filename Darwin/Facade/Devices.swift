@@ -93,6 +93,8 @@ class Devices: ObservableObject {
                     self.load()
                 }
             }
+        } else {
+            self.load()
         }
     }
 
@@ -140,6 +142,7 @@ class Devices: ObservableObject {
             print("New list \(listedDevices.count)")
 
             DispatchQueue.main.async {
+                self.needsInitializing = false
                 self.devices = listedDevices
                 self.loading = false
             }

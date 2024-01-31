@@ -1,0 +1,32 @@
+<div class="columns" >
+  <section>
+    <slot name="first" />
+  </section>
+  <section>
+    <slot name="second" />
+  </section>
+</div>
+
+<style>
+  .columns {
+    display: flex;
+    flex-direction: column;
+    gap: 2em;
+    width: 100%;
+  }
+
+  .columns > * {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+  }
+
+  @media (min-width: 992px) {
+    .columns {
+      display: grid;
+      gap: 0;
+      grid-template-columns: 50% 50%;
+      grid-template-rows: 100%;
+    }
+  }
+</style>

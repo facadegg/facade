@@ -19,11 +19,11 @@ if __name__ == "__main__":
     ]
     sizes = [48, 24, 12]
 
-    for i, node in enumerate(surgery):
+    for line_idx, node in enumerate(surgery):
         pads = node.attribute[0]
 
         channels = pads.ints[-3]
-        size = sizes[i]
+        size = sizes[line_idx]
         print(f"channels {channels} size {size}")
 
         model.graph.initializer.append(onnx.TensorProto(name=f'{node.name}-pad-concat',

@@ -1,243 +1,110 @@
 <div class="grid">
-    <div class="x"></div>
-    <div class="x"></div>
-    <div class="x"></div>
-    <div class="x"></div>
-    <div class="x"></div>
-    <div class="x"></div>
-    <div class="x"></div>
-    <div class="x"></div>
-    <div class="x"></div>
-    <div class="x"></div>
+  <div class="x"></div>
+  <div class="x"></div>
+  <div class="x"></div>
+  <div class="x"></div>
+  <div class="x"></div>
+  <div class="x"></div>
+  <div class="x"></div>
+  <div class="x"></div>
+  <div class="x"></div>
+  <div class="x"></div>
 
-    <div class="y"></div>
-    <div class="y"></div>
-    <div class="y"></div>
-    <div class="y"></div>
-    <div class="y"></div>
-    <div class="y"></div>
-    <div class="y"></div>
-    <div class="y"></div>
-    <div class="y"></div>
-    <div class="y"></div>
-
-    <div class="spark spark-y spark-1"></div>
-    <div class="spark spark-y spark-2"></div>
-    <div class="spark spark-x spark-3"></div>
-    <div class="spark spark-x spark-4"></div>
+  <div class="y"></div>
+  <div class="y"></div>
+  <div class="y"></div>
+  <div class="y"></div>
+  <div class="y"></div>
+  <div class="y"></div>
+  <div class="y"></div>
+  <div class="y"></div>
+  <div class="y"></div>
+  <div class="y"></div>
 </div>
 <style>
-    .grid {
-        aspect-ratio: 1;
-        left: 50%;
-        max-width: 60rem;
-        position: absolute;
-        top: 400px;
-        transform: translateX(-50%);
-        width: 100%;
-        z-index: -1;
-    }
-    @media (min-width: 992px) {
-        .grid > .x:nth-child(n + 5) {
-            display: none;
-        }
-    }
+  .grid {
+    aspect-ratio: 1;
+    left: 50%;
+    max-width: 60rem;
+    position: absolute;
+    top: 400px;
+    transform: translateX(-50%);
+    width: 100%;
+    z-index: -1;
+  }
 
-    .grid > * {
-        background: rgba(40, 40, 40, .87);
-        position: absolute;
-    }
+  .grid > * {
+    background: rgba(40, 40, 40, 0.87);
+    position: absolute;
+  }
 
-    .grid > .x {
-        height: 1px;
-        width: 100%;
-    }
-    .grid > .x:nth-child(1) {
-        display: none;
-    }
-    .grid > .x:nth-child(2) {
-        top: 10%;
-    }
-    .grid > .x:nth-child(3) {
-        top: 20%;
-    }
-    .grid > .x:nth-child(4) {
-        top: 30%;
-    }
-    .grid > .x:nth-child(5) {
-        top: 40%;
-    }
-    .grid > .x:nth-child(6) {
-        top: 50%;
-    }
-    .grid > .x:nth-child(7) {
-        top: 60%;
-    }
-    .grid > .x:nth-child(8) {
-        top: 70%;
-    }
-    .grid > .x:nth-child(9) {
-        top: 80%;
-    }
-    .grid > .x:nth-child(10) {
-        top: 90%;
-    }
+  .grid > .x {
+    height: 1px;
+    width: 100%;
+  }
+  .grid > .x:nth-child(1) {
+    display: none;
+  }
+  .grid > .x:nth-child(2) {
+    top: 10%;
+  }
+  .grid > .x:nth-child(3) {
+    top: 20%;
+  }
+  .grid > .x:nth-child(4) {
+    top: 30%;
+  }
+  .grid > .x:nth-child(5) {
+    top: 40%;
+  }
+  .grid > .x:nth-child(6) {
+    top: 50%;
+  }
+  .grid > .x:nth-child(7) {
+    top: 60%;
+  }
+  .grid > .x:nth-child(8) {
+    top: 70%;
+  }
+  .grid > .x:nth-child(9) {
+    top: 80%;
+  }
+  .grid > .x:nth-child(10) {
+    top: 90%;
+  }
 
-    .grid > .y {
-        height: 100%;
-        width: 1px;
-    }
-    @media (min-width: 992px) {
-        .grid > .y {
-            height: 50%;
-        }
-    }
-    .grid > .y:nth-child(11) {
-        display: none;
-    }
-    .grid > .y:nth-child(12) {
-        left: 10%;
-    }
-    .grid > .y:nth-child(13) {
-        left: 20%;
-    }
-    .grid > .y:nth-child(14) {
-        left: 30%;
-    }
-    .grid > .y:nth-child(15) {
-        left: 40%;
-    }
-    .grid > .y:nth-child(16) {
-        left: 50%;
-    }
-    .grid > .y:nth-child(17) {
-        left: 60%;
-    }
-    .grid > .y:nth-child(18) {
-        left: 70%;
-    }
-    .grid > .y:nth-child(19) {
-        left: 80%;
-    }
-    .grid > .y:nth-child(20) {
-        left: 90%;
-    }
-
-    @keyframes spark-x {
-        0% {
-            left: 0;
-        }
-
-        100% {
-            left: calc(100% - 2px);
-        }
-    }
-    @keyframes spark-y {
-        0% {
-            top: 0;
-        }
-
-        100% {
-            top: calc(100% - 2px);
-        }
-    }
-    @keyframes spark-pause-75p {
-        0% {
-            opacity: 0;
-        }
-
-        74.9% {
-            opacity: 0;
-        }
-
-        75.1% {
-            opacity: 1;
-        }
-
-        100% {
-            opacity: 1;
-        }
-    }
-    @keyframes spark-pause-90p {
-        0% {
-            opacity: 0;
-        }
-
-        89.9% {
-            opacity: 0;
-        }
-
-        90.1% {
-            opacity: 1;
-        }
-
-        100% {
-            opacity: 1;
-        }
-    }
-    @keyframes spark-pause-95p {
-        0% {
-            opacity: 0;
-        }
-
-        94.9% {
-            opacity: 0;
-        }
-
-        95.1% {
-            opacity: 1;
-        }
-
-        100% {
-            opacity: 1;
-        }
-    }
-    .spark {
-        background: rgba(255, 255, 255, 0.9);
-        border-radius: 50%;
-        height: 2px;
-        opacity: 0;
-        width: 2px;
-    }
-    .spark::before {
-        bottom: 0;
-        content: '';
-        left: 0;
-        position: absolute;
-        width: 2px;
-    }
-    .spark-x {
-        background: linear-gradient(-90deg, #999, transparent);
-        width: 30px;
-        left: -30px;
-    }
-    .spark-y {
-        background: linear-gradient(0deg, #999, transparent);
-        height: 30px;
-        top: 10px;
-    }
-    .spark-1 {
-        animation: spark-pause-95p 20s linear infinite -5s, spark-y 1s linear infinite 4s;
-        left: calc(80% - 1px);
-    }
-    .spark-2 {
-        animation: spark-pause-95p 20s linear infinite -10s, spark-y 1s linear infinite 4s;
-        left: calc(20% - 1px);
-    }
-    .spark-3 {
-        animation: spark-pause-95p 20s linear infinite -15s, spark-x 1s linear infinite 4s;
-        top: calc(30% - 1px);
-    }
-    .spark-4 {
-        animation: spark-pause-95p 20s linear infinite -20s, spark-x 1s reverse infinite 4s;
-        top: calc(40% - 1px);
-    }
-    @media (min-width: 992px) {
-        .spark-3 {
-            top: calc(10% - 1px);
-        }
-        .spark-4 {
-            top: calc(20% - 1px);
-        }
-    }
+  .grid > .y {
+    height: 100%;
+    width: 1px;
+  }
+  .grid > .y:nth-child(11) {
+    display: none;
+  }
+  .grid > .y:nth-child(12) {
+    left: 10%;
+  }
+  .grid > .y:nth-child(13) {
+    left: 20%;
+  }
+  .grid > .y:nth-child(14) {
+    left: 30%;
+  }
+  .grid > .y:nth-child(15) {
+    left: 40%;
+  }
+  .grid > .y:nth-child(16) {
+    left: 50%;
+  }
+  .grid > .y:nth-child(17) {
+    left: 60%;
+  }
+  .grid > .y:nth-child(18) {
+    left: 70%;
+  }
+  .grid > .y:nth-child(19) {
+    left: 80%;
+  }
+  .grid > .y:nth-child(20) {
+    left: 90%;
+  }
 </style>
